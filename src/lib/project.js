@@ -54,14 +54,14 @@ Project.create = (options) => __awaiter(void 0, void 0, void 0, function* () {
             },
         },
         {
-            title: "Install package dependencies with Yarn",
+            title: "Installing package dependencies with Yarn",
             task: (ctx, task) => execa_1.default("yarn").catch(() => {
                 ctx.yarn = false;
                 task.skip("Yarn not available, install it via `npm install -g yarn`");
             }),
         },
         {
-            title: "Install package dependencies with npm",
+            title: "Installing package dependencies with npm",
             enabled: (ctx) => ctx.yarn === false,
             task: () => execa_1.default("npm", ["install"]),
         },

@@ -52,7 +52,7 @@ export class Project {
         },
       },
       {
-        title: "Install package dependencies with Yarn",
+        title: "Installing package dependencies with Yarn",
         task: (ctx, task) =>
           Execa("yarn").catch(() => {
             ctx.yarn = false;
@@ -63,7 +63,7 @@ export class Project {
           }),
       },
       {
-        title: "Install package dependencies with npm",
+        title: "Installing package dependencies with npm",
         enabled: (ctx) => ctx.yarn === false,
         task: () => Execa("npm", ["install"]),
       },

@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-import { CreateCli } from "epic-cli-builder";
+import { CreateCli } from "@saffellikhan/epic-cli-builder";
 import { ProjectCommands } from "./commands/project";
 
 // Get Package Information

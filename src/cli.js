@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const epic_cli_builder_1 = require("epic-cli-builder");
+const epic_cli_builder_1 = require("@saffellikhan/epic-cli-builder");
 const project_1 = require("./commands/project");
 // Get Package Information
 const Package = require("../package.json");
