@@ -1,0 +1,38 @@
+{
+  "name": "@saffellikhan/epic-cli",
+  "version": "1.0.0",
+  "description": "A powerful CLI to manage your Epic projects.",
+  "main": "./src/index.js",
+  "bin": {
+    "epic": "./src/cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Saff-Elli-Khan/epic-cli.git"
+  },
+  "keywords": [
+    "epic",
+    "cli",
+    "projects",
+    "management"
+  ],
+  "author": "Saif Ali Khan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Saff-Elli-Khan/epic-cli/issues"
+  },
+  "homepage": "https://github.com/Saff-Elli-Khan/epic-cli#readme",
+  "dependencies": {
+    "@types/git": "0.0.18",
+    "epic-cli-builder": "^1.0.3",
+    "git": "^0.1.5"
+  },
+  "devDependencies": {
+    "@types/node": "^16.4.3",
+    "ts-node": "^10.1.0",
+    "typescript": "^4.3.5"
+  }
+}
