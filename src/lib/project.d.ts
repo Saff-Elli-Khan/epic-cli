@@ -2,5 +2,5 @@ export interface CreateOptions {
     name: string;
 }
 export declare class Project {
-    static create: (options: CreateOptions) => boolean;
+    static create: (options: CreateOptions) => Promise<boolean>;
 }
