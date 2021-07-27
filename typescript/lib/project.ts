@@ -180,24 +180,29 @@ export class Project {
               ).toString();
 
               // Modify Parent Controller Content
-              ParentControllerContent = ParentControllerContent.replace(
-                new RegExp(
-                  "(\\/\\*(\\s*@(" +
-                    options.parent +
-                    "ControllerChilds))\\s*\\*\\/)\\s*([^]*)\\s*(\\/\\*(\\s*\\/\\3)\\s*\\*\\/)(\\r\\n|\\r|\\n)*"
-                ),
-                (_, ...args) => {
-                  console.log("Args:", args);
-                  // Parse Controllers List
-                  const ControllersList = JSON.parse(args[3] || []).join(", ");
+              ParentControllerContent =
+                `import { ${options.name + "Controller"} } from "./${
+                  options.name
+                }"\n` + // Add Schema Import
+                ParentControllerContent.replace(
+                  new RegExp(
+                    "(\\/\\*(\\s*@(" +
+                      options.parent +
+                      "ControllerChilds))\\s*\\*\\/)\\s*([^]*)\\s*(\\/\\*(\\s*\\/\\3)\\s*\\*\\/)(\\r\\n|\\r|\\n)*"
+                  ),
+                  (_, ...args) => {
+                    // Parse Controllers List
+                    const ControllersList = JSON.parse(args[3] || "[]").join(
+                      ", "
+                    );
 
-                  return `/* @${
-                    options.parent
-                  }ControllerChilds */ [${ControllersList}, ${
-                    options.name + "Controller"
-                  }] /* /${options.parent}ControllerChilds */`;
-                }
-              );
+                    return `/* @${options.parent}ControllerChilds */ [${
+                      ControllersList ? ControllersList + ", " : ""
+                    }${options.name + "Controller"}] /* /${
+                      options.parent
+                    }ControllerChilds */`;
+                  }
+                );
 
               // Save Parent Controller Content
               Fs.writeFileSync(ParentControllerPath, ParentControllerContent);
