@@ -32,7 +32,7 @@ Core.getConfiguration = () => {
     }
 };
 Core.setConfiguration = (data) => {
-    fs_1.default.writeFileSync(path_1.default.join(process.cwd(), "./epic.config.json"), JSON.stringify(data));
+    fs_1.default.writeFileSync(path_1.default.join(process.cwd(), "./epic.config.json"), JSON.stringify(data, undefined, 2));
 };
 Core.getTransactions = () => {
     try {
@@ -44,5 +44,5 @@ Core.getTransactions = () => {
     }
 };
 Core.setTransactions = (data) => {
-    fs_1.default.writeFileSync(path_1.default.join(process.cwd(), "./epic.transactions.json"), JSON.stringify(data));
+    fs_1.default.writeFileSync(path_1.default.join(process.cwd(), "./epic.transactions.json"), JSON.stringify(data, undefined, 2));
 };

@@ -49,7 +49,7 @@ export class Core {
   static setConfiguration = (data: Configuration) => {
     Fs.writeFileSync(
       Path.join(process.cwd(), "./epic.config.json"),
-      JSON.stringify(data)
+      JSON.stringify(data, undefined, 2)
     );
   };
 
@@ -68,7 +68,7 @@ export class Core {
   static setTransactions = (data: Transactions) => {
     Fs.writeFileSync(
       Path.join(process.cwd(), "./epic.transactions.json"),
-      JSON.stringify(data)
+      JSON.stringify(data, undefined, 2)
     );
   };
 }

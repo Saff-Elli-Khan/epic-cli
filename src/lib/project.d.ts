@@ -11,7 +11,6 @@ export interface CreateControllerOptions {
     description: string;
     version: number;
     prefix: string;
-    type: "Core" | "Custom";
     scope: "Parent" | "Child";
     template: string;
 }

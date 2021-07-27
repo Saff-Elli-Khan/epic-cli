@@ -95,7 +95,7 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
             task: (ctx) => {
                 // Update Controller Sample
                 ctx.controllerContent =
-                    `import { ${options.name} } from "@App/database/${options.type}/${options.name}"\n` + // Add Schema Import
+                    `import { ${options.name} } from "@App/database/${options.name}"\n` + // Add Schema Import
                         ctx.controllerContent
                             .replace(/\/\/(\s*@Temporary)(?:[^]+?)\/\/(\s*@\/Temporary)/g, "") // Remove Temporary Code
                             .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
@@ -108,7 +108,7 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
         {
             title: "Creating New Controller",
             task: ({ controllerContent }) => {
-                const ControllerDir = path_1.default.join(core_1.Core.AppPath, `./controllers/v${options.version}/${options.type}/`);
+                const ControllerDir = path_1.default.join(core_1.Core.AppPath, `./controllers/v${options.version}/`);
                 // Resolve Directory
                 fs_1.default.mkdirSync(ControllerDir, { recursive: true });
                 // Create Controller

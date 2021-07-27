@@ -19,7 +19,6 @@ export interface CreateControllerOptions {
   description: string;
   version: number;
   prefix: string;
-  type: "Core" | "Custom";
   scope: "Parent" | "Child";
   template: string;
 }
@@ -129,7 +128,7 @@ export class Project {
         task: (ctx: { controllerContent: string }) => {
           // Update Controller Sample
           ctx.controllerContent =
-            `import { ${options.name} } from "@App/database/${options.type}/${options.name}"\n` + // Add Schema Import
+            `import { ${options.name} } from "@App/database/${options.name}"\n` + // Add Schema Import
             ctx.controllerContent
               .replace(/\/\/(\s*@Temporary)(?:[^]+?)\/\/(\s*@\/Temporary)/g, "") // Remove Temporary Code
               .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
@@ -145,7 +144,7 @@ export class Project {
         task: ({ controllerContent }: { controllerContent: string }) => {
           const ControllerDir = Path.join(
             Core.AppPath,
-            `./controllers/v${options.version}/${options.type}/`
+            `./controllers/v${options.version}/`
           );
 
           // Resolve Directory

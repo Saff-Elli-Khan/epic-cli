@@ -103,15 +103,6 @@ export const ProjectCommands: LooseCommandInterface[] = [
       },
       {
         type: "list",
-        name: "type",
-        description: "Type of the controller.",
-        alias: ["--type", "-t"],
-        message: "Please provide a controller type:",
-        choices: ["Core", "Custom"],
-        default: "Custom",
-      },
-      {
-        type: "list",
         name: "scope",
         description: "Scope of the controller.",
         alias: ["--Scope", "-s"],
