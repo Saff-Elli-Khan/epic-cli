@@ -2,6 +2,9 @@ import Execa from "execa";
 import Listr from "listr";
 import Path from "path";
 import Fs from "fs";
+import { generateRandomKey } from "./utils";
+import { Core } from "./core";
+import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 
 export interface CreateOptions {
   name: string;
@@ -15,13 +18,17 @@ export interface CreateControllerOptions {
   name: string;
   description: string;
   version: number;
+  prefix: string;
   type: "Core" | "Custom";
   scope: "Parent" | "Child";
+  template: string;
 }
 
 export class Project {
   static PackagePath = Path.join(process.cwd(), "./package.json");
-  static Package = () => require(Project.PackagePath);
+  static SamplesPath = Path.join(Core.AppPath, "./samples/");
+
+  static getPackage = () => require(Project.PackagePath);
 
   static create = async (options: CreateOptions) => {
     // Queue the Tasks
@@ -40,9 +47,9 @@ export class Project {
         task: () => {
           if (Fs.existsSync(Project.PackagePath)) {
             // Update Package Information
-            Project.Package().name = options.name;
-            Project.Package().description = options.description;
-            Project.Package().brand = {
+            Project.getPackage().name = options.name;
+            Project.getPackage().description = options.description;
+            Project.getPackage().brand = {
               name: options.brandName,
               country: options.brandCountry,
               address: options.brandAddress,
@@ -51,8 +58,27 @@ export class Project {
             // Put Package Data
             Fs.writeFileSync(
               Project.PackagePath,
-              JSON.stringify(Project.Package(), undefined, 2)
+              JSON.stringify(Project.getPackage(), undefined, 2)
             );
+
+            // Create Environment Directory
+            Fs.mkdirSync(Path.join(process.cwd(), "./env/"), {
+              recursive: true,
+            });
+
+            // Create Environment Files
+            ["development", "production"].forEach((env) =>
+              Fs.writeFileSync(
+                Path.join(process.cwd(), `./env/.${env}.env`),
+                `ENCRYPTION_KEY=${generateRandomKey(32)}`
+              )
+            );
+
+            // Create Epic Configuration File
+            Core.setConfiguration(Core.DefaultConfig);
+
+            // Create Epic Transactions File
+            Core.setTransactions(Core.DefaultTransactions);
           } else
             throw new Error(
               `We did not found a 'package.json' in the project!`
@@ -80,12 +106,73 @@ export class Project {
     return true;
   };
 
-  static createController = async (options: CreateControllerOptions) => {
+  static createController = async (
+    options: CreateControllerOptions,
+    command: CommandInterface
+  ) => {
     // Queue the Tasks
     await new Listr([
       {
         title: "Loading controller sample",
-        task: (ctx) => {},
+        task: (ctx) => {
+          // Load Controller Sample
+          ctx.controllerContent = Fs.readFileSync(
+            Path.join(
+              Project.SamplesPath,
+              `./controller/${options.template}.ts`
+            )
+          ).toString();
+        },
+      },
+      {
+        title: "Preparing the Controller",
+        task: ({ controllerContent }: { controllerContent: string }) => {
+          // Update Controller Sample
+          controllerContent =
+            `import { ${options.name} } from "@App/database/${options.type}/${options.name}"\n` + // Add Schema Import
+            controllerContent
+              .replace(/\/\/(\s*@Temporary)(?:[^]+?)\/\/(\s*@\/Temporary)/g, "") // Remove Temporary Code
+              .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
+              .replace(/Sample/g, options.name); // Add Name
+
+          // Update Controller Scope
+          if (options.scope === "Child")
+            controllerContent.replace("Controller", "ChildController");
+        },
+      },
+      {
+        title: "Creating New Controller",
+        task: ({ controllerContent }: { controllerContent: string }) => {
+          const ControllerDir = Path.join(
+            Core.AppPath,
+            `./controllers/${options.type}/`
+          );
+
+          // Resolve Directory
+          Fs.mkdirSync(ControllerDir, { recursive: true });
+
+          // Create Controller
+          Fs.writeFileSync(
+            Path.join(ControllerDir, `./${options.name}.ts`),
+            controllerContent
+          );
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          // Get Transactions
+          const Transactions = Core.getTransactions();
+
+          // Update Transactions
+          Transactions.data.push({
+            command: command.name,
+            params: options,
+          });
+
+          // Set Transactions
+          Core.setTransactions(Transactions);
+        },
       },
     ]).run();
   };

@@ -1,10 +1,10 @@
-import { LooseCommandsInterface } from "@saffellikhan/epic-cli-builder";
+import { LooseCommandInterface } from "@saffellikhan/epic-cli-builder";
 import { Project } from "../lib/project";
 import { EpicGeo } from "epic-geo";
 import Path from "path";
 import Fs from "fs";
 
-export const ProjectCommands: LooseCommandsInterface[] = [
+export const ProjectCommands: LooseCommandInterface[] = [
   {
     name: "create-project",
     description: "Create a new Epic project quickly.",
@@ -16,6 +16,14 @@ export const ProjectCommands: LooseCommandsInterface[] = [
         description: "Name of the project.",
         alias: ["--name", "-n"],
         message: "Please provide a project name:",
+        validator: (value) => {
+          if (
+            !/^(?:@[a-z0-9-*~][a-z0-9-*._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/.test(
+              value
+            )
+          )
+            throw new Error("Please provide a valid lowercase project name!");
+        },
         default: Path.basename(Path.resolve()),
       },
       {
@@ -84,6 +92,14 @@ export const ProjectCommands: LooseCommandsInterface[] = [
           if (value < 1) throw new Error("Please provide a valid version!");
         },
         default: 1,
+      },
+      {
+        type: "input",
+        name: "prefix",
+        description: "Prefix of the controller.",
+        alias: ["--prefix", "-p"],
+        message: "Please provide a controller prefix:",
+        default: "/",
       },
       {
         type: "list",

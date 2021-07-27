@@ -7,7 +7,9 @@ import { ProjectCommands } from "./commands/project";
 const Package = require("../package.json");
 
 // Create New Cli
-const EpicCli = new CreateCli("Epic", Package.version, [...ProjectCommands]);
+export const EpicCli = new CreateCli("Epic", Package.version, [
+  ...ProjectCommands,
+]);
 
 // Initialize Cli
 EpicCli.init(process.argv);

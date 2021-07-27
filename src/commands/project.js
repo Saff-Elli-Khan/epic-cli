@@ -20,6 +20,10 @@ exports.ProjectCommands = [
                 description: "Name of the project.",
                 alias: ["--name", "-n"],
                 message: "Please provide a project name:",
+                validator: (value) => {
+                    if (!/^(?:@[a-z0-9-*~][a-z0-9-*._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/.test(value))
+                        throw new Error("Please provide a valid lowercase project name!");
+                },
                 default: path_1.default.basename(path_1.default.resolve()),
             },
             {
@@ -89,6 +93,14 @@ exports.ProjectCommands = [
                         throw new Error("Please provide a valid version!");
                 },
                 default: 1,
+            },
+            {
+                type: "input",
+                name: "prefix",
+                description: "Prefix of the controller.",
+                alias: ["--prefix", "-p"],
+                message: "Please provide a controller prefix:",
+                default: "/",
             },
             {
                 type: "list",

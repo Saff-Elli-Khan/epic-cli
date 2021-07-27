@@ -1,2 +1,2 @@
-import { LooseCommandsInterface } from "@saffellikhan/epic-cli-builder";
-export declare const ProjectCommands: LooseCommandsInterface[];
+import { LooseCommandInterface } from "@saffellikhan/epic-cli-builder";
+export declare const ProjectCommands: LooseCommandInterface[];
