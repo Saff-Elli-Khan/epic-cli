@@ -20,11 +20,13 @@ const fs_1 = __importDefault(require("fs"));
 class Project {
 }
 exports.Project = Project;
+Project.PackagePath = path_1.default.join(process.cwd(), "./package.json");
+Project.Package = require(Project.PackagePath);
 Project.create = (options) => __awaiter(void 0, void 0, void 0, function* () {
     // Queue the Tasks
     yield new listr_1.default([
         {
-            title: "Cloning repository to current directory!",
+            title: "Cloning repository to current directory",
             task: () => execa_1.default("git", [
                 "clone",
                 "https://github.com/Saff-Elli-Khan/epic-application",
@@ -32,25 +34,22 @@ Project.create = (options) => __awaiter(void 0, void 0, void 0, function* () {
             ]),
         },
         {
-            title: "Update project information",
+            title: "Configuring your project",
             task: () => {
-                // Check if package.json exists
-                const PackagePath = path_1.default.join(process.cwd(), "./package.json");
-                if (fs_1.default.existsSync(PackagePath)) {
-                    const Package = require(PackagePath);
+                if (fs_1.default.existsSync(Project.PackagePath)) {
                     // Update Package Information
-                    Package.name = options.name;
-                    Package.description = options.description;
-                    Package.brand = {
+                    Project.Package.name = options.name;
+                    Project.Package.description = options.description;
+                    Project.Package.brand = {
                         name: options.brandName,
                         country: options.brandCountry,
                         address: options.brandAddress,
                     };
                     // Put Package Data
-                    fs_1.default.writeFileSync(PackagePath, JSON.stringify(Package, undefined, 2));
+                    fs_1.default.writeFileSync(Project.PackagePath, JSON.stringify(Project.Package, undefined, 2));
                 }
                 else
-                    throw new Error(`We are unable to update project information!`);
+                    throw new Error(`We did not found a 'package.json' in the project!`);
             },
         },
         {
@@ -67,4 +66,13 @@ Project.create = (options) => __awaiter(void 0, void 0, void 0, function* () {
         },
     ]).run();
     return true;
+});
+Project.createController = (options) => __awaiter(void 0, void 0, void 0, function* () {
+    // Queue the Tasks
+    yield new listr_1.default([
+        {
+            title: "Loading controller sample",
+            task: (ctx) => { },
+        },
+    ]).run();
 });

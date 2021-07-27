@@ -50,4 +50,56 @@ export const ProjectCommands: LooseCommandsInterface[] = [
     ],
     method: Project.create,
   },
+  {
+    name: "create-controller",
+    description: "Create a new controller in your Epic project.",
+    params: [
+      {
+        type: "input",
+        name: "name",
+        description: "Name of the controller.",
+        alias: ["--name", "-n"],
+        message: "Please provide a controller name:",
+        validator: (value) => {
+          if (/^[A-Z]\w+$/.test(value)) return value;
+          else throw new Error(`Please provide a valid controller name!`);
+        },
+      },
+      {
+        type: "input",
+        name: "description",
+        description: "Description for the controller.",
+        alias: ["--description", "-d"],
+        message: "Please provide a controller description:",
+        default: "N/A",
+      },
+      {
+        type: "number",
+        name: "version",
+        description: "Version of the controller.",
+        alias: ["--version", "-v"],
+        message: "Please provide a controller version:",
+        default: 1,
+      },
+      {
+        type: "list",
+        name: "type",
+        description: "Type of the controller.",
+        alias: ["--type", "-t"],
+        message: "Please provide a controller type:",
+        choices: ["Core", "Custom"],
+        default: "Custom",
+      },
+      {
+        type: "list",
+        name: "scope",
+        description: "Scope of the controller.",
+        alias: ["--Scope", "-s"],
+        message: "Please provide a controller scope:",
+        choices: ["Parent", "Child"],
+        default: "Parent",
+      },
+    ],
+    method: Project.createController,
+  },
 ];

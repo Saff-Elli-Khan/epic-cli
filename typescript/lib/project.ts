@@ -11,12 +11,23 @@ export interface CreateOptions {
   brandAddress: string;
 }
 
+export interface CreateControllerOptions {
+  name: string;
+  description: string;
+  version: number;
+  type: "Core" | "Custom";
+  scope: "Parent" | "Child";
+}
+
 export class Project {
+  static PackagePath = Path.join(process.cwd(), "./package.json");
+  static Package = require(Project.PackagePath);
+
   static create = async (options: CreateOptions) => {
     // Queue the Tasks
     await new Listr([
       {
-        title: "Cloning repository to current directory!",
+        title: "Cloning repository to current directory",
         task: () =>
           Execa("git", [
             "clone",
@@ -25,18 +36,13 @@ export class Project {
           ]),
       },
       {
-        title: "Update project information",
+        title: "Configuring your project",
         task: () => {
-          // Check if package.json exists
-          const PackagePath = Path.join(process.cwd(), "./package.json");
-
-          if (Fs.existsSync(PackagePath)) {
-            const Package = require(PackagePath);
-
+          if (Fs.existsSync(Project.PackagePath)) {
             // Update Package Information
-            Package.name = options.name;
-            Package.description = options.description;
-            Package.brand = {
+            Project.Package.name = options.name;
+            Project.Package.description = options.description;
+            Project.Package.brand = {
               name: options.brandName,
               country: options.brandCountry,
               address: options.brandAddress,
@@ -44,11 +50,13 @@ export class Project {
 
             // Put Package Data
             Fs.writeFileSync(
-              PackagePath,
-              JSON.stringify(Package, undefined, 2)
+              Project.PackagePath,
+              JSON.stringify(Project.Package, undefined, 2)
             );
           } else
-            throw new Error(`We are unable to update project information!`);
+            throw new Error(
+              `We did not found a 'package.json' in the project!`
+            );
         },
       },
       {
@@ -70,5 +78,15 @@ export class Project {
     ]).run();
 
     return true;
+  };
+
+  static createController = async (options: CreateControllerOptions) => {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Loading controller sample",
+        task: (ctx) => {},
+      },
+    ]).run();
   };
 }
