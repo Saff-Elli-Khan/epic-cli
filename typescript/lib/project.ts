@@ -179,6 +179,8 @@ export class Project {
                 ParentControllerPath
               ).toString();
 
+              console.log(ParentControllerContent, ParentControllerPath);
+
               // Modify Parent Controller Content
               ParentControllerContent = ParentControllerContent.replace(
                 new RegExp(

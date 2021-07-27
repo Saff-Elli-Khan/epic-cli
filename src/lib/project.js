@@ -125,6 +125,7 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                         const ParentControllerPath = path_1.default.join(core_1.Core.AppPath, `./controllers/v${options.version}/${options.parent}.ts`);
                         // Get Parent Controller Content
                         let ParentControllerContent = fs_1.default.readFileSync(ParentControllerPath).toString();
+                        console.log(ParentControllerContent, ParentControllerPath);
                         // Modify Parent Controller Content
                         ParentControllerContent = ParentControllerContent.replace(new RegExp("\\n?(/*(s*@(" +
                             options.parent +

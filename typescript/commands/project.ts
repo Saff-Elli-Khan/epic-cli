@@ -125,15 +125,18 @@ export const ProjectCommands: LooseCommandInterface[] = [
         ],
       },
       {
-        type: "input",
+        type: "list",
         name: "parent",
         description: "Controller parent name.",
         alias: ["--parent", "-pr"],
         message: "Please provide the name of parent controller:",
-        validator: (value) => {
-          if (!value)
-            throw new Error("Please provide a valid parent controller name!");
-        },
+        choices: (options) => [
+          ...Fs.readdirSync(
+            Path.join(process.cwd(), `./src/controllers/v${options.version}/`)
+          )
+            .filter((file) => /\.ts$/g.test(file))
+            .map((file) => file.replace(/\.\w*/g, "")),
+        ],
         optional: (options) => options.scope !== "Child",
       },
       {
