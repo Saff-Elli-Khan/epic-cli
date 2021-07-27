@@ -109,7 +109,7 @@ export const ProjectCommands: LooseCommandsInterface[] = [
         description: "Template of the Controller",
         alias: ["--template", "-T"],
         message: "Please provide a controller template:",
-        choices: [
+        choices: () => [
           ...Fs.readdirSync(
             Path.join(process.cwd(), "./src/samples/controller/")
           )
