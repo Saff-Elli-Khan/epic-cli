@@ -1,6 +1,6 @@
 {
   "name": "@saffellikhan/epic-cli",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "description": "A powerful CLI to manage your Epic projects.",
   "main": "./src/index.js",
   "bin": {
