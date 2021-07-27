@@ -7,6 +7,7 @@ exports.ProjectCommands = void 0;
 const project_1 = require("../lib/project");
 const epic_geo_1 = require("epic-geo");
 const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
 exports.ProjectCommands = [
     {
         name: "create-project",
@@ -65,9 +66,7 @@ exports.ProjectCommands = [
                 alias: ["--name", "-n"],
                 message: "Please provide a controller name:",
                 validator: (value) => {
-                    if (/^[A-Z]\w+$/.test(value))
-                        return value;
-                    else
+                    if (!/^[A-Z]\w+$/.test(value))
                         throw new Error(`Please provide a valid controller name!`);
                 },
             },
@@ -85,6 +84,10 @@ exports.ProjectCommands = [
                 description: "Version of the controller.",
                 alias: ["--version", "-v"],
                 message: "Please provide a controller version:",
+                validator: (value) => {
+                    if (value < 1)
+                        throw new Error("Please provide a valid version!");
+                },
                 default: 1,
             },
             {
@@ -104,6 +107,18 @@ exports.ProjectCommands = [
                 message: "Please provide a controller scope:",
                 choices: ["Parent", "Child"],
                 default: "Parent",
+            },
+            {
+                type: "list",
+                name: "template",
+                description: "Template of the Controller",
+                alias: ["--template", "-T"],
+                message: "Please provide a controller template:",
+                choices: [
+                    ...fs_1.default.readdirSync(path_1.default.join(process.cwd(), "./src/samples/controller/"))
+                        .filter((file) => /\.ts$/g.test(file))
+                        .map((file) => file.replace(/\.\w*/g, "")),
+                ],
             },
         ],
         method: project_1.Project.createController,

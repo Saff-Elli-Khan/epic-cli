@@ -2,6 +2,7 @@ import { LooseCommandsInterface } from "@saffellikhan/epic-cli-builder";
 import { Project } from "../lib/project";
 import { EpicGeo } from "epic-geo";
 import Path from "path";
+import Fs from "fs";
 
 export const ProjectCommands: LooseCommandsInterface[] = [
   {
@@ -61,8 +62,8 @@ export const ProjectCommands: LooseCommandsInterface[] = [
         alias: ["--name", "-n"],
         message: "Please provide a controller name:",
         validator: (value) => {
-          if (/^[A-Z]\w+$/.test(value)) return value;
-          else throw new Error(`Please provide a valid controller name!`);
+          if (!/^[A-Z]\w+$/.test(value))
+            throw new Error(`Please provide a valid controller name!`);
         },
       },
       {
@@ -79,6 +80,9 @@ export const ProjectCommands: LooseCommandsInterface[] = [
         description: "Version of the controller.",
         alias: ["--version", "-v"],
         message: "Please provide a controller version:",
+        validator: (value) => {
+          if (value < 1) throw new Error("Please provide a valid version!");
+        },
         default: 1,
       },
       {
@@ -98,6 +102,20 @@ export const ProjectCommands: LooseCommandsInterface[] = [
         message: "Please provide a controller scope:",
         choices: ["Parent", "Child"],
         default: "Parent",
+      },
+      {
+        type: "list",
+        name: "template",
+        description: "Template of the Controller",
+        alias: ["--template", "-T"],
+        message: "Please provide a controller template:",
+        choices: [
+          ...Fs.readdirSync(
+            Path.join(process.cwd(), "./src/samples/controller/")
+          )
+            .filter((file) => /\.ts$/g.test(file))
+            .map((file) => file.replace(/\.\w*/g, "")),
+        ],
       },
     ],
     method: Project.createController,
