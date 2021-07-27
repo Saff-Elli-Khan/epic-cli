@@ -96,7 +96,7 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
             task: (ctx) => {
                 // Update Controller Sample
                 ctx.controllerContent =
-                    `import { ${options.name} } from "../../database/${options.name}"\n` + // Add Schema Import
+                    `import { ${options.name} } from "../../database/${options.name}";\n` + // Add Schema Import
                         ctx.controllerContent
                             .replace(/(\/\*(\s*@(Temporary))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)(\r\n|\r|\n)*/g, "") // Remove Temporary Code
                             .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
@@ -127,12 +127,12 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                         let ParentControllerContent = fs_1.default.readFileSync(ParentControllerPath).toString();
                         // Modify Parent Controller Content
                         ParentControllerContent =
-                            `import { ${options.name + "Controller"} } from "./${options.name}"\n` + // Add Schema Import
+                            `import { ${options.name + "Controller"} } from "./${options.name}";\n` + // Add Schema Import
                                 ParentControllerContent.replace(new RegExp("(\\/\\*(\\s*@(" +
                                     options.parent +
                                     "ControllerChilds))\\s*\\*\\/)\\s*([^]*)\\s*(\\/\\*(\\s*\\/\\3)\\s*\\*\\/)(\\r\\n|\\r|\\n)*"), (_, ...args) => {
                                     // Parse Controllers List
-                                    const ControllersList = JSON.parse(args[3] || "[]").join(", ");
+                                    const ControllersList = JSON.parse(args[3].replace(/(\w+)/g, `"$1"`) || "[]").join(", ");
                                     return `/* @${options.parent}ControllerChilds */ [${ControllersList ? ControllersList + ", " : ""}${options.name + "Controller"}] /* /${options.parent}ControllerChilds */`;
                                 });
                         // Save Parent Controller Content

@@ -131,7 +131,7 @@ export class Project {
         task: (ctx: { controllerContent: string }) => {
           // Update Controller Sample
           ctx.controllerContent =
-            `import { ${options.name} } from "../../database/${options.name}"\n` + // Add Schema Import
+            `import { ${options.name} } from "../../database/${options.name}";\n` + // Add Schema Import
             ctx.controllerContent
               .replace(
                 /(\/\*(\s*@(Temporary))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)(\r\n|\r|\n)*/g,
@@ -183,7 +183,7 @@ export class Project {
               ParentControllerContent =
                 `import { ${options.name + "Controller"} } from "./${
                   options.name
-                }"\n` + // Add Schema Import
+                }";\n` + // Add Schema Import
                 ParentControllerContent.replace(
                   new RegExp(
                     "(\\/\\*(\\s*@(" +
@@ -192,9 +192,9 @@ export class Project {
                   ),
                   (_, ...args) => {
                     // Parse Controllers List
-                    const ControllersList = JSON.parse(args[3] || "[]").join(
-                      ", "
-                    );
+                    const ControllersList = JSON.parse(
+                      (args[3] as string).replace(/(\w+)/g, `"$1"`) || "[]"
+                    ).join(", ");
 
                     return `/* @${options.parent}ControllerChilds */ [${
                       ControllersList ? ControllersList + ", " : ""
