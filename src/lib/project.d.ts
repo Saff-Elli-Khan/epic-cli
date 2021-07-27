@@ -14,7 +14,7 @@ export interface CreateControllerOptions {
 }
 export declare class Project {
     static PackagePath: string;
-    static Package: any;
+    static Package: () => any;
     static create: (options: CreateOptions) => Promise<boolean>;
     static createController: (options: CreateControllerOptions) => Promise<void>;
 }

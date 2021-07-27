@@ -21,7 +21,7 @@ class Project {
 }
 exports.Project = Project;
 Project.PackagePath = path_1.default.join(process.cwd(), "./package.json");
-Project.Package = require(Project.PackagePath);
+Project.Package = () => require(Project.PackagePath);
 Project.create = (options) => __awaiter(void 0, void 0, void 0, function* () {
     // Queue the Tasks
     yield new listr_1.default([
@@ -38,15 +38,15 @@ Project.create = (options) => __awaiter(void 0, void 0, void 0, function* () {
             task: () => {
                 if (fs_1.default.existsSync(Project.PackagePath)) {
                     // Update Package Information
-                    Project.Package.name = options.name;
-                    Project.Package.description = options.description;
-                    Project.Package.brand = {
+                    Project.Package().name = options.name;
+                    Project.Package().description = options.description;
+                    Project.Package().brand = {
                         name: options.brandName,
                         country: options.brandCountry,
                         address: options.brandAddress,
                     };
                     // Put Package Data
-                    fs_1.default.writeFileSync(Project.PackagePath, JSON.stringify(Project.Package, undefined, 2));
+                    fs_1.default.writeFileSync(Project.PackagePath, JSON.stringify(Project.Package(), undefined, 2));
                 }
                 else
                     throw new Error(`We did not found a 'package.json' in the project!`);

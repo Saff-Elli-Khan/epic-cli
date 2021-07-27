@@ -21,7 +21,7 @@ export interface CreateControllerOptions {
 
 export class Project {
   static PackagePath = Path.join(process.cwd(), "./package.json");
-  static Package = require(Project.PackagePath);
+  static Package = () => require(Project.PackagePath);
 
   static create = async (options: CreateOptions) => {
     // Queue the Tasks
@@ -40,9 +40,9 @@ export class Project {
         task: () => {
           if (Fs.existsSync(Project.PackagePath)) {
             // Update Package Information
-            Project.Package.name = options.name;
-            Project.Package.description = options.description;
-            Project.Package.brand = {
+            Project.Package().name = options.name;
+            Project.Package().description = options.description;
+            Project.Package().brand = {
               name: options.brandName,
               country: options.brandCountry,
               address: options.brandAddress,
@@ -51,7 +51,7 @@ export class Project {
             // Put Package Data
             Fs.writeFileSync(
               Project.PackagePath,
-              JSON.stringify(Project.Package, undefined, 2)
+              JSON.stringify(Project.Package(), undefined, 2)
             );
           } else
             throw new Error(
