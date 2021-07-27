@@ -134,7 +134,7 @@ export class Project {
             `import { ${options.name} } from "../../database/${options.name}"\n` + // Add Schema Import
             ctx.controllerContent
               .replace(
-                /\n?(\/\*(\s*@(Temporary))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)\n?/g,
+                /(\/\*(\s*@(Temporary))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)(\r\n|\r|\n)*/g,
                 ""
               ) // Remove Temporary Code
               .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
