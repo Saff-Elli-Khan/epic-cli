@@ -107,7 +107,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Scope of the controller.",
         alias: ["--Scope", "-s"],
         message: "Please provide a controller scope:",
-        choices: ["Parent", "Child"],
+        choices: ["Child", "Parent"],
         default: "Child",
       },
       {

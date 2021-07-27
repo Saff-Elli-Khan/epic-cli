@@ -135,7 +135,7 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                         fs_1.default.writeFileSync(ParentControllerPath, ParentControllerContent);
                     }
                     catch (e) {
-                        cli_1.EpicCli.Logger.warn("We are unable to parse controllers/index properly! Please add the child controller manually.");
+                        cli_1.EpicCli.Logger.warn("We are unable to parse controllers/index properly! Please add the child controller manually.").log();
                     }
                 }
                 // Get Transactions

@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/Saff-Elli-Khan/epic-cli#readme",
   "dependencies": {
-    "@saffellikhan/epic-cli-builder": "^1.0.5",
+    "@saffellikhan/epic-cli-builder": "^1.0.6",
     "@types/git": "0.0.18",
     "@types/listr": "^0.14.4",
     "epic-geo": "^2.0.7",

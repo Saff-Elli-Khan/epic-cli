@@ -27,7 +27,7 @@ Core.getConfiguration = () => {
         return require(path_1.default.join(process.cwd(), "./epic.config.json"));
     }
     catch (e) {
-        cli_1.EpicCli.Logger.warn("We are unable to find 'epic.config.json' file in your project! Creating new one.");
+        cli_1.EpicCli.Logger.warn("We are unable to find 'epic.config.json' file in your project! Creating new one.").log();
         return Core.DefaultConfig;
     }
 };
@@ -39,7 +39,7 @@ Core.getTransactions = () => {
         return require(path_1.default.join(process.cwd(), "./epic.transactions.json"));
     }
     catch (e) {
-        cli_1.EpicCli.Logger.warn("We are unable to find 'epic.transactions.json' file in your project! Creating new one.");
+        cli_1.EpicCli.Logger.warn("We are unable to find 'epic.transactions.json' file in your project! Creating new one.").log();
         return Core.DefaultTransactions;
     }
 };

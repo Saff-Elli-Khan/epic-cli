@@ -201,7 +201,7 @@ export class Project {
             } catch (e) {
               EpicCli.Logger.warn(
                 "We are unable to parse controllers/index properly! Please add the child controller manually."
-              );
+              ).log();
             }
           }
 

@@ -40,7 +40,7 @@ export class Core {
     } catch (e) {
       EpicCli.Logger.warn(
         "We are unable to find 'epic.config.json' file in your project! Creating new one."
-      );
+      ).log();
 
       return Core.DefaultConfig;
     }
@@ -59,7 +59,7 @@ export class Core {
     } catch (e) {
       EpicCli.Logger.warn(
         "We are unable to find 'epic.transactions.json' file in your project! Creating new one."
-      );
+      ).log();
 
       return Core.DefaultTransactions;
     }
