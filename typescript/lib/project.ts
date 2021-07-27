@@ -182,7 +182,9 @@ export class Project {
               // Modify Parent Controller Content
               ParentControllerContent = ParentControllerContent.replace(
                 new RegExp(
-                  `\n?(\/\*(\s*@(${options.parent}ControllerChilds))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)\n?`
+                  "\\n?(/*(s*@(" +
+                    options.parent +
+                    "ControllerChilds))s**/)s*([^]*)s*(/*(s*/\\3)s**/)\\n?"
                 ),
                 (_, ...args) => {
                   // Parse Controllers List
