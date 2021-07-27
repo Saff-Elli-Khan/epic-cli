@@ -132,7 +132,10 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                                     options.parent +
                                     "ControllerChilds))\\s*\\*\\/)\\s*([^]*)\\s*(\\/\\*(\\s*\\/\\3)\\s*\\*\\/)(\\r\\n|\\r|\\n)*"), (_, ...args) => {
                                     // Parse Controllers List
-                                    const ControllersList = JSON.parse(args[3].replace(/(\w+)/g, `"$1"`) || "[]").join(", ");
+                                    const ControllersList = (args[3] || "[]")
+                                        .replace(/\[([^]*)\]/g, "$1")
+                                        .replace(/\n*\s+/g, " ")
+                                        .replace(/^\s*|\s*,\s*$/g, "");
                                     return `/* @${options.parent}ControllerChilds */ [${ControllersList ? ControllersList + ", " : ""}${options.name + "Controller"}] /* /${options.parent}ControllerChilds */`;
                                 });
                         // Save Parent Controller Content

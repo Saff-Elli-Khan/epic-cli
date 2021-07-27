@@ -192,9 +192,10 @@ export class Project {
                   ),
                   (_, ...args) => {
                     // Parse Controllers List
-                    const ControllersList = JSON.parse(
-                      (args[3] as string).replace(/(\w+)/g, `"$1"`) || "[]"
-                    ).join(", ");
+                    const ControllersList = ((args[3] || "[]") as string)
+                      .replace(/\[([^]*)\]/g, "$1")
+                      .replace(/\n*\s+/g, " ")
+                      .replace(/^\s*|\s*,\s*$/g, "");
 
                     return `/* @${options.parent}ControllerChilds */ [${
                       ControllersList ? ControllersList + ", " : ""
