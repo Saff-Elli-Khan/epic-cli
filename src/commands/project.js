@@ -114,7 +114,7 @@ exports.ProjectCommands = [
                 description: "Template of the Controller",
                 alias: ["--template", "-T"],
                 message: "Please provide a controller template:",
-                choices: [
+                choices: () => [
                     ...fs_1.default.readdirSync(path_1.default.join(process.cwd(), "./src/samples/controller/"))
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, "")),
