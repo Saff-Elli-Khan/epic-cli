@@ -126,9 +126,9 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                         // Get Parent Controller Content
                         let ParentControllerContent = fs_1.default.readFileSync(ParentControllerPath).toString();
                         // Modify Parent Controller Content
-                        ParentControllerContent = ParentControllerContent.replace(new RegExp("\\n?(/*(s*@(" +
+                        ParentControllerContent = ParentControllerContent.replace(new RegExp("(\\/\\*(\\s*@(" +
                             options.parent +
-                            "ControllerChilds))s**/)s*([^]*)s*(/*(s*/\\3)s**/)\\n?"), (_, ...args) => {
+                            "ControllerChilds))\\s*\\*\\/)\\s*([^]*)\\s*(\\/\\*(\\s*\\/\\3)\\s*\\*\\/)(\\r\\n|\\r|\\n)*"), (_, ...args) => {
                             console.log("Args:", args);
                             // Parse Controllers List
                             const ControllersList = JSON.parse(args[3] || []).join(", ");
