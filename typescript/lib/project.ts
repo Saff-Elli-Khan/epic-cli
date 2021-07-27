@@ -179,8 +179,6 @@ export class Project {
                 ParentControllerPath
               ).toString();
 
-              console.log(ParentControllerContent, ParentControllerPath);
-
               // Modify Parent Controller Content
               ParentControllerContent = ParentControllerContent.replace(
                 new RegExp(
@@ -203,6 +201,7 @@ export class Project {
               // Save Parent Controller Content
               Fs.writeFileSync(ParentControllerPath, ParentControllerContent);
             } catch (e) {
+              console.log(e);
               EpicCli.Logger.warn(
                 "We are unable to parse controllers/index properly! Please add the child controller manually."
               ).log();

@@ -125,7 +125,6 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                         const ParentControllerPath = path_1.default.join(core_1.Core.AppPath, `./controllers/v${options.version}/${options.parent}.ts`);
                         // Get Parent Controller Content
                         let ParentControllerContent = fs_1.default.readFileSync(ParentControllerPath).toString();
-                        console.log(ParentControllerContent, ParentControllerPath);
                         // Modify Parent Controller Content
                         ParentControllerContent = ParentControllerContent.replace(new RegExp("\\n?(/*(s*@(" +
                             options.parent +
@@ -138,6 +137,7 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                         fs_1.default.writeFileSync(ParentControllerPath, ParentControllerContent);
                     }
                     catch (e) {
+                        console.log(e);
                         cli_1.EpicCli.Logger.warn("We are unable to parse controllers/index properly! Please add the child controller manually.").log();
                     }
                 }
