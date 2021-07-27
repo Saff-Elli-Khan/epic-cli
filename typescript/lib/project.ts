@@ -128,7 +128,7 @@ export class Project {
         task: (ctx: { controllerContent: string }) => {
           // Update Controller Sample
           ctx.controllerContent =
-            `import { ${options.name} } from "@App/database/${options.name}"\n` + // Add Schema Import
+            `import { ${options.name} } from "../../database/${options.name}"\n` + // Add Schema Import
             ctx.controllerContent
               .replace(/\/\/(\s*@Temporary)(?:[^]+?)\/\/(\s*@\/Temporary)/g, "") // Remove Temporary Code
               .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
