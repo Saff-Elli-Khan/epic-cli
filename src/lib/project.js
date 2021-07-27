@@ -129,6 +129,7 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                         ParentControllerContent = ParentControllerContent.replace(new RegExp("\\n?(/*(s*@(" +
                             options.parent +
                             "ControllerChilds))s**/)s*([^]*)s*(/*(s*/\\3)s**/)\\n?"), (_, ...args) => {
+                            console.log("Args:", args);
                             // Parse Controllers List
                             const ControllersList = JSON.parse(args[3] || []).join(", ");
                             return `/* @${options.parent}ControllerChilds */ [${ControllersList}, ${options.name + "Controller"}] /* /${options.parent}ControllerChilds */`;

@@ -187,6 +187,7 @@ export class Project {
                     "ControllerChilds))s**/)s*([^]*)s*(/*(s*/\\3)s**/)\\n?"
                 ),
                 (_, ...args) => {
+                  console.log("Args:", args);
                   // Parse Controllers List
                   const ControllersList = JSON.parse(args[3] || []).join(", ");
 
