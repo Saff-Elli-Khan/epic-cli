@@ -108,7 +108,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         alias: ["--Scope", "-s"],
         message: "Please provide a controller scope:",
         choices: ["Parent", "Child"],
-        default: "Parent",
+        default: "Child",
       },
       {
         type: "list",
@@ -123,6 +123,18 @@ export const ProjectCommands: LooseCommandInterface[] = [
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, "")),
         ],
+      },
+      {
+        type: "input",
+        name: "parent",
+        description: "Controller parent name.",
+        alias: ["--parent", "-pr"],
+        message: "Please provide the name of parent controller:",
+        validator: (value) => {
+          if (!value)
+            throw new Error("Please provide a valid parent controller name!");
+        },
+        optional: (options) => options.scope !== "Child",
       },
       {
         type: "input",

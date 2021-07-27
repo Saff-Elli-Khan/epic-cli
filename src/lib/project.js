@@ -19,6 +19,7 @@ const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const utils_1 = require("./utils");
 const core_1 = require("./core");
+const cli_1 = require("../cli");
 class Project {
 }
 exports.Project = Project;
@@ -97,7 +98,7 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                 ctx.controllerContent =
                     `import { ${options.name} } from "../../database/${options.name}"\n` + // Add Schema Import
                         ctx.controllerContent
-                            .replace(/\/\/(\s*@Temporary)(?:[^]+?)\/\/(\s*@\/Temporary)\n?/g, "") // Remove Temporary Code
+                            .replace(/\n?(\/\*(\s*@(Temporary))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)\n?/g, "") // Remove Temporary Code
                             .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
                             .replace(/Sample/g, options.name); // Add Name
                 // Update Controller Scope
@@ -118,6 +119,25 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
         {
             title: "Configuring your project",
             task: () => {
+                if (options.scope === "Child") {
+                    try {
+                        // Parent Controller Path
+                        const ParentControllerPath = path_1.default.join(core_1.Core.AppPath, `./controllers/v${options.version}/${options.parent}.ts`);
+                        // Get Parent Controller Content
+                        let ParentControllerContent = fs_1.default.readFileSync(ParentControllerPath).toString();
+                        // Modify Parent Controller Content
+                        ParentControllerContent = ParentControllerContent.replace(new RegExp(`\n?(\/\*(\s*@(${options.parent}ControllerChilds))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)\n?`), (_, ...args) => {
+                            // Parse Controllers List
+                            const ControllersList = JSON.parse(args[3] || []).join(", ");
+                            return `/* @${options.parent}ControllerChilds */ [${ControllersList}, ${options.name + "Controller"}] /* /${options.parent}ControllerChilds */`;
+                        });
+                        // Save Parent Controller Content
+                        fs_1.default.writeFileSync(ParentControllerPath, ParentControllerContent);
+                    }
+                    catch (e) {
+                        cli_1.EpicCli.Logger.warn("We are unable to parse controllers/index properly! Please add the child controller manually.");
+                    }
+                }
                 // Get Transactions
                 const Transactions = core_1.Core.getTransactions();
                 // Update Transactions

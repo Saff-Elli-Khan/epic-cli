@@ -5,6 +5,7 @@ import Fs from "fs";
 import { generateRandomKey } from "./utils";
 import { Core } from "./core";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
+import { EpicCli } from "../cli";
 
 export interface CreateOptions {
   name: string;
@@ -21,6 +22,7 @@ export interface CreateControllerOptions {
   prefix: string;
   scope: "Parent" | "Child";
   template: string;
+  parent: string;
   sampleDir?: string;
 }
 
@@ -132,7 +134,7 @@ export class Project {
             `import { ${options.name} } from "../../database/${options.name}"\n` + // Add Schema Import
             ctx.controllerContent
               .replace(
-                /\/\/(\s*@Temporary)(?:[^]+?)\/\/(\s*@\/Temporary)\n?/g,
+                /\n?(\/\*(\s*@(Temporary))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)\n?/g,
                 ""
               ) // Remove Temporary Code
               .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
@@ -164,6 +166,45 @@ export class Project {
       {
         title: "Configuring your project",
         task: () => {
+          if (options.scope === "Child") {
+            try {
+              // Parent Controller Path
+              const ParentControllerPath = Path.join(
+                Core.AppPath,
+                `./controllers/v${options.version}/${options.parent}.ts`
+              );
+
+              // Get Parent Controller Content
+              let ParentControllerContent = Fs.readFileSync(
+                ParentControllerPath
+              ).toString();
+
+              // Modify Parent Controller Content
+              ParentControllerContent = ParentControllerContent.replace(
+                new RegExp(
+                  `\n?(\/\*(\s*@(${options.parent}ControllerChilds))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)\n?`
+                ),
+                (_, ...args) => {
+                  // Parse Controllers List
+                  const ControllersList = JSON.parse(args[3] || []).join(", ");
+
+                  return `/* @${
+                    options.parent
+                  }ControllerChilds */ [${ControllersList}, ${
+                    options.name + "Controller"
+                  }] /* /${options.parent}ControllerChilds */`;
+                }
+              );
+
+              // Save Parent Controller Content
+              Fs.writeFileSync(ParentControllerPath, ParentControllerContent);
+            } catch (e) {
+              EpicCli.Logger.warn(
+                "We are unable to parse controllers/index properly! Please add the child controller manually."
+              );
+            }
+          }
+
           // Get Transactions
           const Transactions = Core.getTransactions();
 

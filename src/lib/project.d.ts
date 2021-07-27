@@ -13,6 +13,7 @@ export interface CreateControllerOptions {
     prefix: string;
     scope: "Parent" | "Child";
     template: string;
+    parent: string;
     sampleDir?: string;
 }
 export declare class Project {
