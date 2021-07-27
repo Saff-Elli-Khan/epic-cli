@@ -87,7 +87,7 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
             title: "Loading controller sample",
             task: (ctx) => {
                 // Load Controller Sample
-                ctx.controllerContent = fs_1.default.readFileSync(path_1.default.join(Project.SamplesPath, `./controller/${options.template}.ts`)).toString();
+                ctx.controllerContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.SamplesPath, `./controller/${options.template}.ts`)).toString();
             },
         },
         {
@@ -97,7 +97,7 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                 ctx.controllerContent =
                     `import { ${options.name} } from "../../database/${options.name}"\n` + // Add Schema Import
                         ctx.controllerContent
-                            .replace(/\/\/(\s*@Temporary)(?:[^]+?)\/\/(\s*@\/Temporary)/g, "") // Remove Temporary Code
+                            .replace(/\/\/(\s*@Temporary)(?:[^]+?)\/\/(\s*@\/Temporary)\n?/g, "") // Remove Temporary Code
                             .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
                             .replace(/Sample/g, options.name); // Add Name
                 // Update Controller Scope

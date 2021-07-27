@@ -21,6 +21,7 @@ export interface CreateControllerOptions {
   prefix: string;
   scope: "Parent" | "Child";
   template: string;
+  sampleDir?: string;
 }
 
 export class Project {
@@ -117,7 +118,7 @@ export class Project {
           // Load Controller Sample
           ctx.controllerContent = Fs.readFileSync(
             Path.join(
-              Project.SamplesPath,
+              options.sampleDir || Project.SamplesPath,
               `./controller/${options.template}.ts`
             )
           ).toString();
@@ -130,7 +131,10 @@ export class Project {
           ctx.controllerContent =
             `import { ${options.name} } from "../../database/${options.name}"\n` + // Add Schema Import
             ctx.controllerContent
-              .replace(/\/\/(\s*@Temporary)(?:[^]+?)\/\/(\s*@\/Temporary)/g, "") // Remove Temporary Code
+              .replace(
+                /\/\/(\s*@Temporary)(?:[^]+?)\/\/(\s*@\/Temporary)\n?/g,
+                ""
+              ) // Remove Temporary Code
               .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
               .replace(/Sample/g, options.name); // Add Name
 

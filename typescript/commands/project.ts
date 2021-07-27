@@ -124,6 +124,13 @@ export const ProjectCommands: LooseCommandInterface[] = [
             .map((file) => file.replace(/\.\w*/g, "")),
         ],
       },
+      {
+        type: "input",
+        name: "sampleDir",
+        description: "Controller samples container directory.",
+        alias: ["--sampleDir", "-sd"],
+        optional: true,
+      },
     ],
     method: Project.createController,
   },

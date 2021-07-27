@@ -123,6 +123,13 @@ exports.ProjectCommands = [
                         .map((file) => file.replace(/\.\w*/g, "")),
                 ],
             },
+            {
+                type: "input",
+                name: "sampleDir",
+                description: "Controller samples container directory.",
+                alias: ["--sampleDir", "-sd"],
+                optional: true,
+            },
         ],
         method: project_1.Project.createController,
     },
