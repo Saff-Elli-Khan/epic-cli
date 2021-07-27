@@ -92,23 +92,23 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
         },
         {
             title: "Preparing the Controller",
-            task: ({ controllerContent }) => {
+            task: (ctx) => {
                 // Update Controller Sample
-                controllerContent =
+                ctx.controllerContent =
                     `import { ${options.name} } from "@App/database/${options.type}/${options.name}"\n` + // Add Schema Import
-                        controllerContent
+                        ctx.controllerContent
                             .replace(/\/\/(\s*@Temporary)(?:[^]+?)\/\/(\s*@\/Temporary)/g, "") // Remove Temporary Code
                             .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
                             .replace(/Sample/g, options.name); // Add Name
                 // Update Controller Scope
                 if (options.scope === "Child")
-                    controllerContent.replace("Controller", "ChildController");
+                    ctx.controllerContent.replace("Controller", "ChildController");
             },
         },
         {
             title: "Creating New Controller",
             task: ({ controllerContent }) => {
-                const ControllerDir = path_1.default.join(core_1.Core.AppPath, `./controllers/${options.type}/`);
+                const ControllerDir = path_1.default.join(core_1.Core.AppPath, `./controllers/v${options.version}/${options.type}/`);
                 // Resolve Directory
                 fs_1.default.mkdirSync(ControllerDir, { recursive: true });
                 // Create Controller

@@ -126,18 +126,18 @@ export class Project {
       },
       {
         title: "Preparing the Controller",
-        task: ({ controllerContent }: { controllerContent: string }) => {
+        task: (ctx: { controllerContent: string }) => {
           // Update Controller Sample
-          controllerContent =
+          ctx.controllerContent =
             `import { ${options.name} } from "@App/database/${options.type}/${options.name}"\n` + // Add Schema Import
-            controllerContent
+            ctx.controllerContent
               .replace(/\/\/(\s*@Temporary)(?:[^]+?)\/\/(\s*@\/Temporary)/g, "") // Remove Temporary Code
               .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
               .replace(/Sample/g, options.name); // Add Name
 
           // Update Controller Scope
           if (options.scope === "Child")
-            controllerContent.replace("Controller", "ChildController");
+            ctx.controllerContent.replace("Controller", "ChildController");
         },
       },
       {
@@ -145,7 +145,7 @@ export class Project {
         task: ({ controllerContent }: { controllerContent: string }) => {
           const ControllerDir = Path.join(
             Core.AppPath,
-            `./controllers/${options.type}/`
+            `./controllers/v${options.version}/${options.type}/`
           );
 
           // Resolve Directory
