@@ -35,7 +35,7 @@ export interface InitializationOptions {
 
 export class Core {
   static RootPath = process.cwd();
-  static AppPath = Path.join(process.cwd(), "./src/");
+  static AppPath = Path.join(Core.RootPath, "./src/");
 
   static DefaultConfig: Configuration = {
     version: 1,

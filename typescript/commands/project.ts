@@ -25,7 +25,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
           )
             throw new Error("Please provide a valid lowercase project name!");
         },
-        default: Path.basename(Path.resolve()),
+        default: () => Path.basename(Path.resolve()),
       },
       {
         type: "input",
@@ -40,7 +40,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Name of the Brand for the project.",
         alias: ["--brand-name", "-bn"],
         message: "Please provide a brand name:",
-        default: "N/A",
+        default: () => "N/A",
       },
       {
         type: "list",
@@ -56,7 +56,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Address of the project Brand.",
         alias: ["--brand-address", "-ba"],
         message: "Please provide your address:",
-        default: "N/A",
+        default: () => "N/A",
       },
     ],
     default: {
@@ -94,18 +94,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Description for the controller.",
         alias: ["--description", "-d"],
         message: "Please provide a controller description:",
-        default: "N/A",
-      },
-      {
-        type: "number",
-        name: "version",
-        description: "Version of the controller.",
-        alias: ["--version", "-v"],
-        message: "Please provide a controller version:",
-        validator: (value) => {
-          if (value < 1) throw new Error("Please provide a valid version!");
-        },
-        default: 1,
+        default: () => "N/A",
       },
       {
         type: "input",
@@ -113,16 +102,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Prefix of the controller.",
         alias: ["--prefix", "-p"],
         message: "Please provide a controller prefix:",
-        default: "/",
-      },
-      {
-        type: "list",
-        name: "scope",
-        description: "Scope of the controller.",
-        alias: ["--Scope", "-s"],
-        message: "Please provide a controller scope:",
-        choices: ["Child", "Parent"],
-        default: "Child",
+        default: (options) => `/${options.name}/`,
       },
       {
         type: "input",
@@ -141,7 +121,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
           // Controller Path
           const ControllerDir =
             options.sampleDir ||
-            Path.join(process.cwd(), "./src/samples/controller/");
+            Path.join(Core.AppPath, "./samples/controller/");
 
           // Resolve Directory
           Fs.mkdirSync(ControllerDir, { recursive: true });
@@ -160,12 +140,9 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Controller parent name.",
         alias: ["--parent", "-pr"],
         message: "Please provide the name of parent controller:",
-        choices: (options) => {
+        choices: () => {
           // Controller Path
-          const ControllerDir = Path.join(
-            process.cwd(),
-            `./src/controllers/v${options.version}/`
-          );
+          const ControllerDir = Path.join(Core.AppPath, `./controllers/`);
 
           // Resolve Directory
           Fs.mkdirSync(ControllerDir, { recursive: true });
@@ -177,7 +154,6 @@ export const ProjectCommands: LooseCommandInterface[] = [
 
           return [...(List.length ? List : ["index"])];
         },
-        optional: (options) => options.scope !== "Child",
       },
     ],
     method: Project.createController,

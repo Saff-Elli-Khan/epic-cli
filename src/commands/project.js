@@ -25,7 +25,7 @@ exports.ProjectCommands = [
                     if (!/^(?:@[a-z0-9-*~][a-z0-9-*._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/.test(value))
                         throw new Error("Please provide a valid lowercase project name!");
                 },
-                default: path_1.default.basename(path_1.default.resolve()),
+                default: () => path_1.default.basename(path_1.default.resolve()),
             },
             {
                 type: "input",
@@ -40,7 +40,7 @@ exports.ProjectCommands = [
                 description: "Name of the Brand for the project.",
                 alias: ["--brand-name", "-bn"],
                 message: "Please provide a brand name:",
-                default: "N/A",
+                default: () => "N/A",
             },
             {
                 type: "list",
@@ -56,7 +56,7 @@ exports.ProjectCommands = [
                 description: "Address of the project Brand.",
                 alias: ["--brand-address", "-ba"],
                 message: "Please provide your address:",
-                default: "N/A",
+                default: () => "N/A",
             },
         ],
         default: {
@@ -94,19 +94,7 @@ exports.ProjectCommands = [
                 description: "Description for the controller.",
                 alias: ["--description", "-d"],
                 message: "Please provide a controller description:",
-                default: "N/A",
-            },
-            {
-                type: "number",
-                name: "version",
-                description: "Version of the controller.",
-                alias: ["--version", "-v"],
-                message: "Please provide a controller version:",
-                validator: (value) => {
-                    if (value < 1)
-                        throw new Error("Please provide a valid version!");
-                },
-                default: 1,
+                default: () => "N/A",
             },
             {
                 type: "input",
@@ -114,16 +102,7 @@ exports.ProjectCommands = [
                 description: "Prefix of the controller.",
                 alias: ["--prefix", "-p"],
                 message: "Please provide a controller prefix:",
-                default: "/",
-            },
-            {
-                type: "list",
-                name: "scope",
-                description: "Scope of the controller.",
-                alias: ["--Scope", "-s"],
-                message: "Please provide a controller scope:",
-                choices: ["Child", "Parent"],
-                default: "Child",
+                default: (options) => `/${options.name}/`,
             },
             {
                 type: "input",
@@ -141,7 +120,7 @@ exports.ProjectCommands = [
                 choices: (options) => {
                     // Controller Path
                     const ControllerDir = options.sampleDir ||
-                        path_1.default.join(process.cwd(), "./src/samples/controller/");
+                        path_1.default.join(core_1.Core.AppPath, "./samples/controller/");
                     // Resolve Directory
                     fs_1.default.mkdirSync(ControllerDir, { recursive: true });
                     // Samples List
@@ -157,9 +136,9 @@ exports.ProjectCommands = [
                 description: "Controller parent name.",
                 alias: ["--parent", "-pr"],
                 message: "Please provide the name of parent controller:",
-                choices: (options) => {
+                choices: () => {
                     // Controller Path
-                    const ControllerDir = path_1.default.join(process.cwd(), `./src/controllers/v${options.version}/`);
+                    const ControllerDir = path_1.default.join(core_1.Core.AppPath, `./controllers/`);
                     // Resolve Directory
                     fs_1.default.mkdirSync(ControllerDir, { recursive: true });
                     // Parents List
@@ -168,7 +147,6 @@ exports.ProjectCommands = [
                         .map((file) => file.replace(/\.\w*/g, ""));
                     return [...(List.length ? List : ["index"])];
                 },
-                optional: (options) => options.scope !== "Child",
             },
         ],
         method: project_1.Project.createController,

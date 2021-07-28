@@ -10,7 +10,7 @@ class Core {
 }
 exports.Core = Core;
 Core.RootPath = process.cwd();
-Core.AppPath = path_1.default.join(process.cwd(), "./src/");
+Core.AppPath = path_1.default.join(Core.RootPath, "./src/");
 Core.DefaultConfig = {
     version: 1,
     transactions: [],

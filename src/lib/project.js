@@ -23,8 +23,11 @@ const cli_1 = require("../cli");
 class Project {
 }
 exports.Project = Project;
-Project.PackagePath = path_1.default.join(process.cwd(), "./package.json");
+Project.PackagePath = path_1.default.join(core_1.Core.RootPath, "./package.json");
 Project.SamplesPath = path_1.default.join(core_1.Core.AppPath, "./samples/");
+Project.EnvironmentsPath = path_1.default.join(core_1.Core.RootPath, "./env/");
+Project.ControllersPath = path_1.default.join(core_1.Core.AppPath, "./controllers/");
+Project.SchemasPath = path_1.default.join(core_1.Core.AppPath, "./schemas/");
 Project.getPackage = () => require(Project.PackagePath);
 Project.create = () => __awaiter(void 0, void 0, void 0, function* () {
     // Queue the Tasks
@@ -71,11 +74,11 @@ Project.create = () => __awaiter(void 0, void 0, void 0, function* () {
                     // Re-Create Configuration
                     core_1.Core.setConfiguration(configuration);
                     // Create Environment Directory
-                    fs_1.default.mkdirSync(path_1.default.join(process.cwd(), "./env/"), {
+                    fs_1.default.mkdirSync(Project.EnvironmentsPath, {
                         recursive: true,
                     });
                     // Create Environment Files
-                    ["development", "production"].forEach((env) => fs_1.default.writeFileSync(path_1.default.join(process.cwd(), `./env/.${env}.env`), `ENCRYPTION_KEY=${utils_1.generateRandomKey(32)}`));
+                    ["development", "production"].forEach((env) => fs_1.default.writeFileSync(path_1.default.join(Project.EnvironmentsPath, `./.${env}.env`), `ENCRYPTION_KEY=${utils_1.generateRandomKey(32)}`));
                 }
                 else
                     throw new Error(`We did not found a 'package.json' in the project!`);
@@ -116,49 +119,43 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                             .replace(/(\/\*(\s*@(Temporary))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)(\r\n|\r|\n)*/g, "") // Remove Temporary Code
                             .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
                             .replace(/Sample/g, options.name); // Add Name
-                // Update Controller Scope
-                if (options.scope === "Child")
-                    ctx.controllerContent.replace("Controller", "ChildController");
             },
         },
         {
             title: "Creating New Controller",
             task: ({ controllerContent }) => {
-                const ControllerDir = path_1.default.join(core_1.Core.AppPath, `./controllers/v${options.version}/`);
                 // Resolve Directory
-                fs_1.default.mkdirSync(ControllerDir, { recursive: true });
+                fs_1.default.mkdirSync(Project.ControllersPath, { recursive: true });
                 // Create Controller
-                fs_1.default.writeFileSync(path_1.default.join(ControllerDir, `./${options.name}.ts`), controllerContent);
+                fs_1.default.writeFileSync(path_1.default.join(Project.ControllersPath, `./${options.name}.ts`), controllerContent);
             },
         },
         {
             title: "Configuring your project",
             task: () => {
-                if (options.scope === "Child") {
-                    try {
-                        // Parent Controller Path
-                        const ParentControllerPath = path_1.default.join(core_1.Core.AppPath, `./controllers/v${options.version}/${options.parent}.ts`);
-                        // Get Parent Controller Content
-                        let ParentControllerContent = fs_1.default.readFileSync(ParentControllerPath).toString();
-                        // Modify Parent Controller Content
-                        ParentControllerContent =
-                            `import { ${options.name + "Controller"} } from "./${options.name}";\n` + // Add Schema Import
-                                ParentControllerContent.replace(new RegExp("(\\/\\*(\\s*@(" +
-                                    options.parent +
-                                    "ControllerChilds))\\s*\\*\\/)\\s*([^]*)\\s*(\\/\\*(\\s*\\/\\3)\\s*\\*\\/)(\\r\\n|\\r|\\n)*"), (_, ...args) => {
-                                    // Parse Controllers List
-                                    const ControllersList = (args[3] || "[]")
-                                        .replace(/\[([^]*)\]/g, "$1")
-                                        .replace(/\n*\s+/g, " ")
-                                        .replace(/^\s*|\s*,\s*$/g, "");
-                                    return `/* @${options.parent}ControllerChilds */ [${ControllersList ? ControllersList + ", " : ""}${options.name + "Controller"}] /* /${options.parent}ControllerChilds */`;
-                                });
-                        // Save Parent Controller Content
-                        fs_1.default.writeFileSync(ParentControllerPath, ParentControllerContent);
-                    }
-                    catch (e) {
-                        cli_1.EpicCli.Logger.warn("We are unable to parse controllers/index properly! Please add the child controller manually.").log();
-                    }
+                try {
+                    // Parent Controller Path
+                    const ParentControllerPath = path_1.default.join(Project.ControllersPath, `./${options.parent}.ts`);
+                    // Get Parent Controller Content
+                    let ParentControllerContent = fs_1.default.readFileSync(ParentControllerPath).toString();
+                    // Modify Parent Controller Content
+                    ParentControllerContent =
+                        `import { ${options.name + "Controller"} } from "./${options.name}";\n` + // Add Schema Import
+                            ParentControllerContent.replace(new RegExp("(\\/\\*(\\s*@(" +
+                                options.parent +
+                                "ControllerChilds))\\s*\\*\\/)\\s*([^]*)\\s*(\\/\\*(\\s*\\/\\3)\\s*\\*\\/)(\\r\\n|\\r|\\n)*"), (_, ...args) => {
+                                // Parse Controllers List
+                                const ControllersList = (args[3] || "[]")
+                                    .replace(/\[([^]*)\]/g, "$1")
+                                    .replace(/\n*\s+/g, " ")
+                                    .replace(/^\s*|\s*,\s*$/g, "");
+                                return `/* @${options.parent}ControllerChilds */ [${ControllersList ? ControllersList + ", " : ""}${options.name + "Controller"}] /* /${options.parent}ControllerChilds */`;
+                            });
+                    // Save Parent Controller Content
+                    fs_1.default.writeFileSync(ParentControllerPath, ParentControllerContent);
+                }
+                catch (e) {
+                    cli_1.EpicCli.Logger.warn("We are unable to parse controllers/index properly! Please add the child controller manually.").log();
                 }
                 // Get Configuration
                 const Configuration = core_1.Core.getConfiguration();
