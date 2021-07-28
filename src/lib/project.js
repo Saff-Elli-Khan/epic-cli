@@ -104,6 +104,14 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
     // Queue the Tasks
     yield new listr_1.default([
         {
+            title: "Checking Configuration...",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Check Configuration File
+                if (!fs_1.default.readdirSync(core_1.Core.RootPath).length)
+                    yield execa_1.default("epic", ["create-project"]);
+            }),
+        },
+        {
             title: "Loading controller sample",
             task: (ctx) => {
                 // Load Controller Sample

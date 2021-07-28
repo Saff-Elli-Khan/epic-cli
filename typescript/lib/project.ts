@@ -136,6 +136,14 @@ export class Project {
     // Queue the Tasks
     await new Listr([
       {
+        title: "Checking Configuration...",
+        task: async () => {
+          // Check Configuration File
+          if (!Fs.readdirSync(Core.RootPath).length)
+            await Execa("epic", ["create-project"]);
+        },
+      },
+      {
         title: "Loading controller sample",
         task: (ctx) => {
           // Load Controller Sample
