@@ -10,9 +10,13 @@ class Core {
 }
 exports.Core = Core;
 Core.RootPath = process.cwd();
-Core.AppPath = path_1.default.join(Core.RootPath, "./src/");
 Core.DefaultConfig = {
     version: 1,
+    paths: {
+        samples: "./src/samples/",
+        contollers: "./src/controllers/",
+        schemas: "./src/schemas/",
+    },
     transactions: [],
 };
 Core.SupportedConfigVersions = [1];

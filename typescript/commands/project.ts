@@ -121,7 +121,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
           // Controller Path
           const ControllerDir =
             options.sampleDir ||
-            Path.join(Core.AppPath, "./samples/controller/");
+            Path.join(Project.SamplesPath, "./controller/");
 
           // Resolve Directory
           Fs.mkdirSync(ControllerDir, { recursive: true });
@@ -141,14 +141,11 @@ export const ProjectCommands: LooseCommandInterface[] = [
         alias: ["--parent", "-pr"],
         message: "Please provide the name of parent controller:",
         choices: () => {
-          // Controller Path
-          const ControllerDir = Path.join(Core.AppPath, `./controllers/`);
-
           // Resolve Directory
-          Fs.mkdirSync(ControllerDir, { recursive: true });
+          Fs.mkdirSync(Project.ControllersPath, { recursive: true });
 
           // Parents List
-          const List = Fs.readdirSync(ControllerDir)
+          const List = Fs.readdirSync(Project.ControllersPath)
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
 

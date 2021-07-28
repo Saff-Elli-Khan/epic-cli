@@ -120,7 +120,7 @@ exports.ProjectCommands = [
                 choices: (options) => {
                     // Controller Path
                     const ControllerDir = options.sampleDir ||
-                        path_1.default.join(core_1.Core.AppPath, "./samples/controller/");
+                        path_1.default.join(project_1.Project.SamplesPath, "./controller/");
                     // Resolve Directory
                     fs_1.default.mkdirSync(ControllerDir, { recursive: true });
                     // Samples List
@@ -137,12 +137,10 @@ exports.ProjectCommands = [
                 alias: ["--parent", "-pr"],
                 message: "Please provide the name of parent controller:",
                 choices: () => {
-                    // Controller Path
-                    const ControllerDir = path_1.default.join(core_1.Core.AppPath, `./controllers/`);
                     // Resolve Directory
-                    fs_1.default.mkdirSync(ControllerDir, { recursive: true });
+                    fs_1.default.mkdirSync(project_1.Project.ControllersPath, { recursive: true });
                     // Parents List
-                    const List = fs_1.default.readdirSync(ControllerDir)
+                    const List = fs_1.default.readdirSync(project_1.Project.ControllersPath)
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, ""));
                     return [...(List.length ? List : ["index"])];

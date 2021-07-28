@@ -9,8 +9,8 @@ export interface CreateControllerOptions {
 }
 export declare class Project {
     static PackagePath: string;
-    static SamplesPath: string;
     static EnvironmentsPath: string;
+    static SamplesPath: string;
     static ControllersPath: string;
     static SchemasPath: string;
     static getPackage: () => any;

@@ -1,11 +1,17 @@
 import Path from "path";
 import Fs from "fs";
-import { EpicCli } from "../cli";
 
 export interface Configuration {
   version: number;
+  paths: Paths;
   application?: Application;
   transactions: Array<Transaction>;
+}
+
+export interface Paths {
+  samples: string;
+  contollers: string;
+  schemas: string;
 }
 
 export interface Application {
@@ -35,10 +41,14 @@ export interface InitializationOptions {
 
 export class Core {
   static RootPath = process.cwd();
-  static AppPath = Path.join(Core.RootPath, "./src/");
 
   static DefaultConfig: Configuration = {
     version: 1,
+    paths: {
+      samples: "./src/samples/",
+      contollers: "./src/controllers/",
+      schemas: "./src/schemas/",
+    },
     transactions: [],
   };
 

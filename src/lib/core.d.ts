@@ -1,7 +1,13 @@
 export interface Configuration {
     version: number;
+    paths: Paths;
     application?: Application;
     transactions: Array<Transaction>;
+}
+export interface Paths {
+    samples: string;
+    contollers: string;
+    schemas: string;
 }
 export interface Application {
     name: string;
@@ -26,7 +32,6 @@ export interface InitializationOptions {
 }
 export declare class Core {
     static RootPath: string;
-    static AppPath: string;
     static DefaultConfig: Configuration;
     static SupportedConfigVersions: number[];
     static initialize: (options: InitializationOptions) => void;

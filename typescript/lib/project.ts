@@ -18,10 +18,19 @@ export interface CreateControllerOptions {
 
 export class Project {
   static PackagePath = Path.join(Core.RootPath, "./package.json");
-  static SamplesPath = Path.join(Core.AppPath, "./samples/");
   static EnvironmentsPath = Path.join(Core.RootPath, "./env/");
-  static ControllersPath = Path.join(Core.AppPath, "./controllers/");
-  static SchemasPath = Path.join(Core.AppPath, "./schemas/");
+  static SamplesPath = Path.join(
+    Core.RootPath,
+    Core.getConfiguration()!.paths.samples
+  );
+  static ControllersPath = Path.join(
+    Core.RootPath,
+    Core.getConfiguration()!.paths.contollers
+  );
+  static SchemasPath = Path.join(
+    Core.RootPath,
+    Core.getConfiguration()!.paths.schemas
+  );
 
   static getPackage = () => require(Project.PackagePath);
 
@@ -140,9 +149,15 @@ export class Project {
       {
         title: "Preparing the Controller",
         task: (ctx: { controllerContent: string }) => {
+          // Create Relative Path to Schemas
+          const SchemaPath = Path.relative(
+            Project.ControllersPath,
+            Path.join(Project.SchemasPath, options.name)
+          );
+
           // Update Controller Sample
           ctx.controllerContent =
-            `import { ${options.name} } from "../../schemas/${options.name}";\n` + // Add Schema Import
+            `import { ${options.name} } from "${SchemaPath}";\n` + // Add Schema Import
             ctx.controllerContent
               .replace(
                 /(\/\*(\s*@(Temporary))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)(\r\n|\r|\n)*/g,

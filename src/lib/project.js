@@ -24,10 +24,10 @@ class Project {
 }
 exports.Project = Project;
 Project.PackagePath = path_1.default.join(core_1.Core.RootPath, "./package.json");
-Project.SamplesPath = path_1.default.join(core_1.Core.AppPath, "./samples/");
 Project.EnvironmentsPath = path_1.default.join(core_1.Core.RootPath, "./env/");
-Project.ControllersPath = path_1.default.join(core_1.Core.AppPath, "./controllers/");
-Project.SchemasPath = path_1.default.join(core_1.Core.AppPath, "./schemas/");
+Project.SamplesPath = path_1.default.join(core_1.Core.RootPath, core_1.Core.getConfiguration().paths.samples);
+Project.ControllersPath = path_1.default.join(core_1.Core.RootPath, core_1.Core.getConfiguration().paths.contollers);
+Project.SchemasPath = path_1.default.join(core_1.Core.RootPath, core_1.Core.getConfiguration().paths.schemas);
 Project.getPackage = () => require(Project.PackagePath);
 Project.create = () => __awaiter(void 0, void 0, void 0, function* () {
     // Queue the Tasks
@@ -112,9 +112,11 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
         {
             title: "Preparing the Controller",
             task: (ctx) => {
+                // Create Relative Path to Schemas
+                const SchemaPath = path_1.default.relative(Project.ControllersPath, path_1.default.join(Project.SchemasPath, options.name));
                 // Update Controller Sample
                 ctx.controllerContent =
-                    `import { ${options.name} } from "../../schemas/${options.name}";\n` + // Add Schema Import
+                    `import { ${options.name} } from "${SchemaPath}";\n` + // Add Schema Import
                         ctx.controllerContent
                             .replace(/(\/\*(\s*@(Temporary))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)(\r\n|\r|\n)*/g, "") // Remove Temporary Code
                             .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
