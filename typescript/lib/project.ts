@@ -133,7 +133,7 @@ export class Project {
         task: (ctx: { controllerContent: string }) => {
           // Update Controller Sample
           ctx.controllerContent =
-            `import { ${options.name} } from "../../database/${options.name}";\n` + // Add Schema Import
+            `import { ${options.name} } from "../../schemas/${options.name}";\n` + // Add Schema Import
             ctx.controllerContent
               .replace(
                 /(\/\*(\s*@(Temporary))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)(\r\n|\r|\n)*/g,

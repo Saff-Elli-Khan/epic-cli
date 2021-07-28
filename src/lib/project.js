@@ -106,7 +106,7 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
             task: (ctx) => {
                 // Update Controller Sample
                 ctx.controllerContent =
-                    `import { ${options.name} } from "../../database/${options.name}";\n` + // Add Schema Import
+                    `import { ${options.name} } from "../../schemas/${options.name}";\n` + // Add Schema Import
                         ctx.controllerContent
                             .replace(/(\/\*(\s*@(Temporary))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)(\r\n|\r|\n)*/g, "") // Remove Temporary Code
                             .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
