@@ -345,6 +345,15 @@ export class Project {
             }
           }
 
+          // Remove Transaction
+          Configuration.transactions = Configuration.transactions.filter(
+            (transaction) =>
+              !(
+                transaction.command === "create-controller" &&
+                transaction.params.name === options.name
+              )
+          );
+
           // Set Transactions
           Core.setConfiguration(Configuration);
         },

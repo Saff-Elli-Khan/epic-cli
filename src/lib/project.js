@@ -232,6 +232,9 @@ Project.deleteController = (options, command) => __awaiter(void 0, void 0, void 
                         cli_1.EpicCli.Logger.warn(`We are unable to parse controllers/index properly! Please remove the child controller from "${Transaction.params.parent}" manually.`).log();
                     }
                 }
+                // Remove Transaction
+                Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-controller" &&
+                    transaction.params.name === options.name));
                 // Set Transactions
                 core_1.Core.setConfiguration(Configuration);
             },
