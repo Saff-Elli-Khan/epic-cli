@@ -333,7 +333,8 @@ export class Project {
                 new RegExp(
                   "import\\s*{\\s*(" +
                     options.name +
-                    "Controller)\\s*,?\\s*}\\s*from\\s*(\"|').*\\2\\s*;?\n*"
+                    "Controller)\\s*,?\\s*}\\s*from\\s*(\"|').*\\2\\s*;?\n*",
+                  "g"
                 ),
                 ""
               ).replace(
