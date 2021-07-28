@@ -138,6 +138,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
               .map((file) => file.replace(/\.\w*/g, "")),
           ];
         },
+        default: "default",
       },
       {
         type: "list",
@@ -162,6 +163,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
           ];
         },
         optional: (options) => options.scope !== "Child",
+        default: "index",
       },
     ],
     method: Project.createController,

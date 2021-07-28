@@ -136,6 +136,7 @@ exports.ProjectCommands = [
                             .map((file) => file.replace(/\.\w*/g, "")),
                     ];
                 },
+                default: "default",
             },
             {
                 type: "list",
@@ -155,6 +156,7 @@ exports.ProjectCommands = [
                     ];
                 },
                 optional: (options) => options.scope !== "Child",
+                default: "index",
             },
         ],
         method: project_1.Project.createController,
