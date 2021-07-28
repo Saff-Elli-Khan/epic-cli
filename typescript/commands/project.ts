@@ -40,6 +40,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Name of the Brand for the project.",
         alias: ["--brand-name", "-bn"],
         message: "Please provide a brand name:",
+        default: "N/A",
       },
       {
         type: "list",
@@ -58,6 +59,13 @@ export const ProjectCommands: LooseCommandInterface[] = [
         default: "N/A",
       },
     ],
+    default: {
+      name: "test",
+      description: "This is a test application.",
+      brandName: "N/A",
+      brandCountry: "N/A",
+      brandAddress: "N/A",
+    },
     method: Core.initialize,
   },
   {

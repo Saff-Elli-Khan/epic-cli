@@ -31,7 +31,8 @@ export class Project {
         title: "Checking Configuration...",
         task: async (ctx) => {
           // Check Configuration File
-          if (!Core.getConfiguration(true)) await Execa("epic", ["init"]);
+          if (!Core.getConfiguration(true))
+            await Execa("epic", ["init", "--yes"]);
 
           // Get Configuration
           ctx.configuration = Core.getConfiguration();

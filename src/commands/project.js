@@ -40,6 +40,7 @@ exports.ProjectCommands = [
                 description: "Name of the Brand for the project.",
                 alias: ["--brand-name", "-bn"],
                 message: "Please provide a brand name:",
+                default: "N/A",
             },
             {
                 type: "list",
@@ -58,6 +59,13 @@ exports.ProjectCommands = [
                 default: "N/A",
             },
         ],
+        default: {
+            name: "test",
+            description: "This is a test application.",
+            brandName: "N/A",
+            brandCountry: "N/A",
+            brandAddress: "N/A",
+        },
         method: core_1.Core.initialize,
     },
     {

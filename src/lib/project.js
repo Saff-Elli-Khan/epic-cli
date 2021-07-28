@@ -34,7 +34,7 @@ Project.create = () => __awaiter(void 0, void 0, void 0, function* () {
             task: (ctx) => __awaiter(void 0, void 0, void 0, function* () {
                 // Check Configuration File
                 if (!core_1.Core.getConfiguration(true))
-                    yield execa_1.default("epic", ["init"]);
+                    yield execa_1.default("epic", ["init", "--yes"]);
                 // Get Configuration
                 ctx.configuration = core_1.Core.getConfiguration();
                 // Remove Configuration
