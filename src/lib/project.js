@@ -106,9 +106,15 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
         {
             title: "Checking Configuration...",
             task: () => __awaiter(void 0, void 0, void 0, function* () {
+                var _a;
                 // Check Configuration File
                 if (!fs_1.default.readdirSync(core_1.Core.RootPath).length)
                     throw new Error("Please initialize a project first!");
+                else if ((_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.transactions.reduce((exists, transaction) => exists
+                    ? exists
+                    : transaction.command === "create-controller" &&
+                        transaction.params.name === options.name, false))
+                    throw new Error("Controller already exists!");
             }),
         },
         {
@@ -184,7 +190,7 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
         },
     ]).run();
 });
-Project.deleteController = (options, command) => __awaiter(void 0, void 0, void 0, function* () {
+Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, function* () {
     // Queue the Tasks
     yield new listr_1.default([
         {

@@ -145,6 +145,17 @@ export class Project {
           // Check Configuration File
           if (!Fs.readdirSync(Core.RootPath).length)
             throw new Error("Please initialize a project first!");
+          else if (
+            Core.getConfiguration()?.transactions.reduce<boolean>(
+              (exists, transaction) =>
+                exists
+                  ? exists
+                  : transaction.command === "create-controller" &&
+                    transaction.params.name === options.name,
+              false
+            )
+          )
+            throw new Error("Controller already exists!");
         },
       },
       {
@@ -265,10 +276,7 @@ export class Project {
     ]).run();
   };
 
-  static deleteController = async (
-    options: DeleteControllerOptions,
-    command: CommandInterface
-  ) => {
+  static deleteController = async (options: DeleteControllerOptions) => {
     // Queue the Tasks
     await new Listr([
       {

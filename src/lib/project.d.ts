@@ -20,5 +20,5 @@ export declare class Project {
     static getPackage: () => any;
     static create: () => Promise<boolean>;
     static createController: (options: CreateControllerOptions, command: CommandInterface) => Promise<void>;
-    static deleteController: (options: DeleteControllerOptions, command: CommandInterface) => Promise<void>;
+    static deleteController: (options: DeleteControllerOptions) => Promise<void>;
 }
