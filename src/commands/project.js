@@ -115,7 +115,6 @@ exports.ProjectCommands = [
                 type: "list",
                 name: "template",
                 description: "Template of the Controller",
-                alias: ["--template", "-T"],
                 message: "Please provide a controller template:",
                 choices: (options) => {
                     // Controller Path
@@ -134,12 +133,11 @@ exports.ProjectCommands = [
                 type: "list",
                 name: "parent",
                 description: "Controller parent name.",
-                alias: ["--parent", "-pr"],
                 message: "Please provide the name of parent controller:",
                 choices: () => {
                     // Resolve Directory
                     fs_1.default.mkdirSync(project_1.Project.ControllersPath, { recursive: true });
-                    // Parents List
+                    // Controllers List
                     const List = fs_1.default.readdirSync(project_1.Project.ControllersPath)
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, ""));
@@ -148,5 +146,27 @@ exports.ProjectCommands = [
             },
         ],
         method: project_1.Project.createController,
+    },
+    {
+        name: "delete-controller",
+        description: "Remove controller from project.",
+        params: [
+            {
+                type: "list",
+                name: "name",
+                description: "Name of the controller.",
+                message: "Please provide a controller name:",
+                choices: () => {
+                    // Resolve Directory
+                    fs_1.default.mkdirSync(project_1.Project.ControllersPath, { recursive: true });
+                    // Controllers List
+                    const List = fs_1.default.readdirSync(project_1.Project.ControllersPath)
+                        .filter((file) => /\.ts$/g.test(file))
+                        .map((file) => file.replace(/\.\w*/g, ""));
+                    return [...(List.length ? List : ["index"])];
+                },
+            },
+        ],
+        method: project_1.Project.deleteController,
     },
 ];
