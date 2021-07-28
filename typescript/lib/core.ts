@@ -1,5 +1,6 @@
 import Path from "path";
 import Fs from "fs";
+import { EpicCli } from "../cli";
 
 export interface ConfigurationInterface {
   version: number;
@@ -68,11 +69,19 @@ export class Core {
 
     // Set New Configuration
     Core.setConfiguration(Core.DefaultConfig);
+
+    // Success Log
+    EpicCli.Logger.success(
+      "Configuration has been successfully created!"
+    ).log();
   };
 
   static getConfiguration = (strict = false): ConfigurationInterface | null => {
     try {
-      return require(Path.join(Core.RootPath, "./epic.config.json"));
+      return (Core.DefaultConfig = require(Path.join(
+        Core.RootPath,
+        "./epic.config.json"
+      )));
     } catch (e) {
       if (strict) return null;
       else return Core.DefaultConfig;

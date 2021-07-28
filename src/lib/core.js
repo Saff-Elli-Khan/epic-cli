@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Core = void 0;
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
+const cli_1 = require("../cli");
 class Core {
 }
 exports.Core = Core;
@@ -33,10 +34,12 @@ Core.initialize = (options) => {
     };
     // Set New Configuration
     Core.setConfiguration(Core.DefaultConfig);
+    // Success Log
+    cli_1.EpicCli.Logger.success("Configuration has been successfully created!").log();
 };
 Core.getConfiguration = (strict = false) => {
     try {
-        return require(path_1.default.join(Core.RootPath, "./epic.config.json"));
+        return (Core.DefaultConfig = require(path_1.default.join(Core.RootPath, "./epic.config.json")));
     }
     catch (e) {
         if (strict)
