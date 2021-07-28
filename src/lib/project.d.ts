@@ -1,4 +1,5 @@
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
+import { ConfigurationInterface } from "./core";
 export interface CreateControllerOptions {
     name: string;
     description: string;
@@ -18,6 +19,7 @@ export declare class Project {
     static ControllersPath: string;
     static SchemasPath: string;
     static getPackage: () => any;
+    static configure: (Configuration: ConfigurationInterface) => void;
     static create: () => Promise<boolean>;
     static createController: (options: CreateControllerOptions, command: CommandInterface) => Promise<void>;
     static deleteController: (options: DeleteControllerOptions) => Promise<void>;

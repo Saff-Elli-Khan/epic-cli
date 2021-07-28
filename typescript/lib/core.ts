@@ -1,6 +1,7 @@
 import Path from "path";
 import Fs from "fs";
-import { EpicCli } from "../cli";
+import Listr from "listr";
+import { Project } from "./project";
 
 export interface ConfigurationInterface {
   version: number;
@@ -55,25 +56,41 @@ export class Core {
 
   static SupportedConfigVersions = [1];
 
-  static initialize = (options: InitializationOptions) => {
-    // Update Configuration
-    Core.getConfiguration()!.application = {
-      name: options.name,
-      description: options.description,
-      brand: {
-        name: options.brandName,
-        country: options.brandCountry,
-        address: options.brandAddress,
+  static initialize = async (options: InitializationOptions) => {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Creating/Updating configuration...",
+        task: () => {
+          // Update Configuration
+          Core.getConfiguration()!.application = {
+            name: options.name,
+            description: options.description,
+            brand: {
+              name: options.brandName,
+              country: options.brandCountry,
+              address: options.brandAddress,
+            },
+          };
+        },
       },
-    };
-
-    // Set New Configuration
-    Core.setConfiguration(Core.DefaultConfig);
-
-    // Success Log
-    EpicCli.Logger.success(
-      "Configuration has been successfully created!"
-    ).log();
+      {
+        title: "Saving Configuration",
+        task: () => {
+          // Set New Configuration
+          Core.setConfiguration(Core.DefaultConfig);
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          if (Fs.existsSync(Project.PackagePath)) {
+            // Configure Project
+            Project.configure(Core.getConfiguration()!);
+          }
+        },
+      },
+    ]).run();
   };
 
   static getConfiguration = (strict = false): ConfigurationInterface | null => {

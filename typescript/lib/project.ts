@@ -4,7 +4,7 @@ import Path from "path";
 import Fs from "fs";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 import { generateRandomKey } from "./utils";
-import { Core, TransactionInterface } from "./core";
+import { ConfigurationInterface, Core, TransactionInterface } from "./core";
 import { EpicCli } from "../cli";
 
 export interface CreateControllerOptions {
@@ -39,6 +39,35 @@ export class Project {
 
   static getPackage = () => require(Project.PackagePath);
 
+  static configure = (Configuration: ConfigurationInterface) => {
+    // Update Package Information
+    const Package = Project.getPackage();
+    Package.name = Configuration?.application?.name || Package.name;
+    Package.description =
+      Configuration?.application?.description || Package.description;
+    Package.brand = {
+      name: Configuration?.application?.brand?.name || Package.brand.name,
+      country:
+        Configuration?.application?.brand?.country || Package.brand.country,
+      address:
+        Configuration?.application?.brand?.address || Package.brand.address,
+    };
+
+    // Put Package Data
+    Fs.writeFileSync(
+      Project.PackagePath,
+      JSON.stringify(Package, undefined, 2)
+    );
+
+    // Re-Create Configuration
+    Core.setConfiguration(Configuration);
+
+    // Create Environment Directory
+    Fs.mkdirSync(Project.EnvironmentsPath, {
+      recursive: true,
+    });
+  };
+
   static create = async () => {
     // Queue the Tasks
     await new Listr([
@@ -69,35 +98,8 @@ export class Project {
         title: "Configuring your project",
         task: ({ configuration }) => {
           if (Fs.existsSync(Project.PackagePath)) {
-            // Update Package Information
-            const Package = Project.getPackage();
-            Package.name = configuration?.application?.name || Package.name;
-            Package.description =
-              configuration?.application?.description || Package.description;
-            Package.brand = {
-              name:
-                configuration?.application?.brand?.name || Package.brand.name,
-              country:
-                configuration?.application?.brand?.country ||
-                Package.brand.country,
-              address:
-                configuration?.application?.brand?.address ||
-                Package.brand.address,
-            };
-
-            // Put Package Data
-            Fs.writeFileSync(
-              Project.PackagePath,
-              JSON.stringify(Package, undefined, 2)
-            );
-
-            // Re-Create Configuration
-            Core.setConfiguration(configuration);
-
-            // Create Environment Directory
-            Fs.mkdirSync(Project.EnvironmentsPath, {
-              recursive: true,
-            });
+            // Configure Project
+            Project.configure(configuration);
 
             // Create Environment Files
             ["development", "production"].forEach((env) =>

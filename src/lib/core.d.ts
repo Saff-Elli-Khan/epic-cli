@@ -34,7 +34,7 @@ export declare class Core {
     static RootPath: string;
     static DefaultConfig: ConfigurationInterface;
     static SupportedConfigVersions: number[];
-    static initialize: (options: InitializationOptions) => void;
+    static initialize: (options: InitializationOptions) => Promise<void>;
     static getConfiguration: (strict?: boolean) => ConfigurationInterface | null;
     static setConfiguration: (data: ConfigurationInterface) => void;
     static removeConfiguration: () => void;
