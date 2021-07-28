@@ -60,8 +60,8 @@ exports.ProjectCommands = [
             },
         ],
         default: {
-            name: "test",
-            description: "This is a test application.",
+            name: path_1.default.basename(path_1.default.resolve()),
+            description: "N/A",
             brandName: "N/A",
             brandCountry: "N/A",
             brandAddress: "N/A",
