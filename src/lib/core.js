@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Core = void 0;
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
-const cli_1 = require("../cli");
 class Core {
 }
 exports.Core = Core;
@@ -36,7 +35,6 @@ Core.getConfiguration = (strict = false) => {
         return require(path_1.default.join(Core.RootPath, "./epic.config.json"));
     }
     catch (e) {
-        cli_1.EpicCli.Logger.warn("We are unable to find 'epic.config.json' file in your project!").log();
         if (strict)
             return null;
         else
@@ -45,4 +43,7 @@ Core.getConfiguration = (strict = false) => {
 };
 Core.setConfiguration = (data) => {
     fs_1.default.writeFileSync(path_1.default.join(Core.RootPath, "./epic.config.json"), JSON.stringify(data, undefined, 2));
+};
+Core.removeConfiguration = () => {
+    fs_1.default.unlinkSync(path_1.default.join(Core.RootPath, "./epic.config.json"));
 };

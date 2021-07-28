@@ -64,10 +64,6 @@ export class Core {
     try {
       return require(Path.join(Core.RootPath, "./epic.config.json"));
     } catch (e) {
-      EpicCli.Logger.warn(
-        "We are unable to find 'epic.config.json' file in your project!"
-      ).log();
-
       if (strict) return null;
       else return Core.DefaultConfig;
     }
@@ -78,5 +74,9 @@ export class Core {
       Path.join(Core.RootPath, "./epic.config.json"),
       JSON.stringify(data, undefined, 2)
     );
+  };
+
+  static removeConfiguration = () => {
+    Fs.unlinkSync(Path.join(Core.RootPath, "./epic.config.json"));
   };
 }

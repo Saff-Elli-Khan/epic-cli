@@ -29,8 +29,15 @@ export class Project {
     await new Listr([
       {
         title: "Checking Configuration...",
-        task: async () => {
+        task: async (ctx) => {
+          // Check Configuration File
           if (!Core.getConfiguration(true)) await Execa("epic", ["init"]);
+
+          // Get Configuration
+          ctx.configuration = Core.getConfiguration();
+
+          // Remove Configuration
+          Core.removeConfiguration();
         },
       },
       {
@@ -44,24 +51,21 @@ export class Project {
       },
       {
         title: "Configuring your project",
-        task: () => {
+        task: ({ configuration }) => {
           if (Fs.existsSync(Project.PackagePath)) {
-            // Get Configuration
-            const Configuration = Core.getConfiguration();
-
             // Update Package Information
             const Package = Project.getPackage();
-            Package.name = Configuration?.application?.name || Package.name;
+            Package.name = configuration?.application?.name || Package.name;
             Package.description =
-              Configuration?.application?.description || Package.description;
+              configuration?.application?.description || Package.description;
             Package.brand = {
               name:
-                Configuration?.application?.brand?.name || Package.brand.name,
+                configuration?.application?.brand?.name || Package.brand.name,
               country:
-                Configuration?.application?.brand?.country ||
+                configuration?.application?.brand?.country ||
                 Package.brand.country,
               address:
-                Configuration?.application?.brand?.address ||
+                configuration?.application?.brand?.address ||
                 Package.brand.address,
             };
 
@@ -70,6 +74,9 @@ export class Project {
               Project.PackagePath,
               JSON.stringify(Package, undefined, 2)
             );
+
+            // Re-Create Configuration
+            Core.setConfiguration(configuration);
 
             // Create Environment Directory
             Fs.mkdirSync(Path.join(process.cwd(), "./env/"), {

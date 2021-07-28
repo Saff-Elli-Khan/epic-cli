@@ -32,4 +32,5 @@ export declare class Core {
     static initialize: (options: InitializationOptions) => void;
     static getConfiguration: (strict?: boolean) => Configuration | null;
     static setConfiguration: (data: Configuration) => void;
+    static removeConfiguration: () => void;
 }

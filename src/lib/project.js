@@ -31,9 +31,14 @@ Project.create = () => __awaiter(void 0, void 0, void 0, function* () {
     yield new listr_1.default([
         {
             title: "Checking Configuration...",
-            task: () => __awaiter(void 0, void 0, void 0, function* () {
+            task: (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+                // Check Configuration File
                 if (!core_1.Core.getConfiguration(true))
                     yield execa_1.default("epic", ["init"]);
+                // Get Configuration
+                ctx.configuration = core_1.Core.getConfiguration();
+                // Remove Configuration
+                core_1.Core.removeConfiguration();
             }),
         },
         {
@@ -46,25 +51,25 @@ Project.create = () => __awaiter(void 0, void 0, void 0, function* () {
         },
         {
             title: "Configuring your project",
-            task: () => {
+            task: ({ configuration }) => {
                 var _a, _b, _c, _d, _e, _f, _g, _h;
                 if (fs_1.default.existsSync(Project.PackagePath)) {
-                    // Get Configuration
-                    const Configuration = core_1.Core.getConfiguration();
                     // Update Package Information
                     const Package = Project.getPackage();
-                    Package.name = ((_a = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _a === void 0 ? void 0 : _a.name) || Package.name;
+                    Package.name = ((_a = configuration === null || configuration === void 0 ? void 0 : configuration.application) === null || _a === void 0 ? void 0 : _a.name) || Package.name;
                     Package.description =
-                        ((_b = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _b === void 0 ? void 0 : _b.description) || Package.description;
+                        ((_b = configuration === null || configuration === void 0 ? void 0 : configuration.application) === null || _b === void 0 ? void 0 : _b.description) || Package.description;
                     Package.brand = {
-                        name: ((_d = (_c = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _c === void 0 ? void 0 : _c.brand) === null || _d === void 0 ? void 0 : _d.name) || Package.brand.name,
-                        country: ((_f = (_e = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _e === void 0 ? void 0 : _e.brand) === null || _f === void 0 ? void 0 : _f.country) ||
+                        name: ((_d = (_c = configuration === null || configuration === void 0 ? void 0 : configuration.application) === null || _c === void 0 ? void 0 : _c.brand) === null || _d === void 0 ? void 0 : _d.name) || Package.brand.name,
+                        country: ((_f = (_e = configuration === null || configuration === void 0 ? void 0 : configuration.application) === null || _e === void 0 ? void 0 : _e.brand) === null || _f === void 0 ? void 0 : _f.country) ||
                             Package.brand.country,
-                        address: ((_h = (_g = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _g === void 0 ? void 0 : _g.brand) === null || _h === void 0 ? void 0 : _h.address) ||
+                        address: ((_h = (_g = configuration === null || configuration === void 0 ? void 0 : configuration.application) === null || _g === void 0 ? void 0 : _g.brand) === null || _h === void 0 ? void 0 : _h.address) ||
                             Package.brand.address,
                     };
                     // Put Package Data
                     fs_1.default.writeFileSync(Project.PackagePath, JSON.stringify(Package, undefined, 2));
+                    // Re-Create Configuration
+                    core_1.Core.setConfiguration(configuration);
                     // Create Environment Directory
                     fs_1.default.mkdirSync(path_1.default.join(process.cwd(), "./env/"), {
                         recursive: true,
