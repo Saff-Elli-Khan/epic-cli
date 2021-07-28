@@ -154,13 +154,13 @@ export class Project {
           const SchemaPath = Path.relative(
             Project.ControllersPath,
             Path.join(Project.SchemasPath, options.name)
-          ).replace("\\", "/");
+          ).replace(/\\/g, "/");
 
           // Create Relative Path To App
           const AppPath = Path.relative(
             Project.ControllersPath,
             Project.AppPath
-          ).replace("\\", "/");
+          ).replace(/\\/g, "/");
 
           // Update Controller Sample
           ctx.controllerContent =
@@ -170,7 +170,7 @@ export class Project {
                 /(\/\*(\s*@(Temporary))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)(\r\n|\r|\n)*/g,
                 ""
               ) // Remove Temporary Code
-              .replace("@AppPath", AppPath)
+              .replace(/@AppPath/g, AppPath)
               .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
               .replace(/Sample/g, options.name); // Add Name
         },

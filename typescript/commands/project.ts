@@ -102,7 +102,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Prefix of the controller.",
         alias: ["--prefix", "-p"],
         message: "Please provide a controller prefix:",
-        default: (options) => `/${options.name}/`,
+        default: (options) => `/${(options.name as string).toLowerCase()}/`,
       },
       {
         type: "input",

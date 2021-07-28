@@ -114,15 +114,15 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
             title: "Preparing the Controller",
             task: (ctx) => {
                 // Create Relative Path to Schemas
-                const SchemaPath = path_1.default.relative(Project.ControllersPath, path_1.default.join(Project.SchemasPath, options.name)).replace("\\", "/");
+                const SchemaPath = path_1.default.relative(Project.ControllersPath, path_1.default.join(Project.SchemasPath, options.name)).replace(/\\/g, "/");
                 // Create Relative Path To App
-                const AppPath = path_1.default.relative(Project.ControllersPath, Project.AppPath).replace("\\", "/");
+                const AppPath = path_1.default.relative(Project.ControllersPath, Project.AppPath).replace(/\\/g, "/");
                 // Update Controller Sample
                 ctx.controllerContent =
                     `import { ${options.name} } from "${SchemaPath}";\n` + // Add Schema Import
                         ctx.controllerContent
                             .replace(/(\/\*(\s*@(Temporary))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)(\r\n|\r|\n)*/g, "") // Remove Temporary Code
-                            .replace("@AppPath", AppPath)
+                            .replace(/@AppPath/g, AppPath)
                             .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
                             .replace(/Sample/g, options.name); // Add Name
             },

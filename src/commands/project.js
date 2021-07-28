@@ -102,7 +102,7 @@ exports.ProjectCommands = [
                 description: "Prefix of the controller.",
                 alias: ["--prefix", "-p"],
                 message: "Please provide a controller prefix:",
-                default: (options) => `/${options.name}/`,
+                default: (options) => `/${options.name.toLowerCase()}/`,
             },
             {
                 type: "input",
