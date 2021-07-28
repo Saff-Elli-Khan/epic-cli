@@ -130,13 +130,12 @@ exports.ProjectCommands = [
                         path_1.default.join(process.cwd(), "./src/samples/controller/");
                     // Resolve Directory
                     fs_1.default.mkdirSync(ControllerDir, { recursive: true });
-                    return [
-                        ...fs_1.default.readdirSync(ControllerDir)
-                            .filter((file) => /\.ts$/g.test(file))
-                            .map((file) => file.replace(/\.\w*/g, "")),
-                    ];
+                    // Samples List
+                    const List = fs_1.default.readdirSync(ControllerDir)
+                        .filter((file) => /\.ts$/g.test(file))
+                        .map((file) => file.replace(/\.\w*/g, ""));
+                    return [...(List.length ? List : ["default"])];
                 },
-                default: "default",
             },
             {
                 type: "list",
@@ -149,14 +148,13 @@ exports.ProjectCommands = [
                     const ControllerDir = path_1.default.join(process.cwd(), `./src/controllers/v${options.version}/`);
                     // Resolve Directory
                     fs_1.default.mkdirSync(ControllerDir, { recursive: true });
-                    return [
-                        ...fs_1.default.readdirSync(ControllerDir)
-                            .filter((file) => /\.ts$/g.test(file))
-                            .map((file) => file.replace(/\.\w*/g, "")),
-                    ];
+                    // Parents List
+                    const List = fs_1.default.readdirSync(ControllerDir)
+                        .filter((file) => /\.ts$/g.test(file))
+                        .map((file) => file.replace(/\.\w*/g, ""));
+                    return [...(List.length ? List : ["index"])];
                 },
                 optional: (options) => options.scope !== "Child",
-                default: "index",
             },
         ],
         method: project_1.Project.createController,

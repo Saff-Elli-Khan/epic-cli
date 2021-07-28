@@ -132,13 +132,13 @@ export const ProjectCommands: LooseCommandInterface[] = [
           // Resolve Directory
           Fs.mkdirSync(ControllerDir, { recursive: true });
 
-          return [
-            ...Fs.readdirSync(ControllerDir)
-              .filter((file) => /\.ts$/g.test(file))
-              .map((file) => file.replace(/\.\w*/g, "")),
-          ];
+          // Samples List
+          const List = Fs.readdirSync(ControllerDir)
+            .filter((file) => /\.ts$/g.test(file))
+            .map((file) => file.replace(/\.\w*/g, ""));
+
+          return [...(List.length ? List : ["default"])];
         },
-        default: "default",
       },
       {
         type: "list",
@@ -156,14 +156,14 @@ export const ProjectCommands: LooseCommandInterface[] = [
           // Resolve Directory
           Fs.mkdirSync(ControllerDir, { recursive: true });
 
-          return [
-            ...Fs.readdirSync(ControllerDir)
-              .filter((file) => /\.ts$/g.test(file))
-              .map((file) => file.replace(/\.\w*/g, "")),
-          ];
+          // Parents List
+          const List = Fs.readdirSync(ControllerDir)
+            .filter((file) => /\.ts$/g.test(file))
+            .map((file) => file.replace(/\.\w*/g, ""));
+
+          return [...(List.length ? List : ["index"])];
         },
         optional: (options) => options.scope !== "Child",
-        default: "index",
       },
     ],
     method: Project.createController,
