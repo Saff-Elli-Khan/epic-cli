@@ -5,13 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProjectCommands = void 0;
 const project_1 = require("../lib/project");
+const core_1 = require("../lib/core");
 const epic_geo_1 = require("epic-geo");
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 exports.ProjectCommands = [
     {
-        name: "create-project",
-        description: "Create a new Epic project quickly.",
+        name: "init",
+        description: "Initialize an Epic project.",
         alias: ["--init"],
         params: [
             {
@@ -57,6 +58,11 @@ exports.ProjectCommands = [
                 default: "N/A",
             },
         ],
+        method: core_1.Core.initialize,
+    },
+    {
+        name: "create-project",
+        description: "Create a new Epic project quickly.",
         method: project_1.Project.create,
     },
     {

@@ -13,36 +13,36 @@ exports.Core = Core;
 Core.RootPath = process.cwd();
 Core.AppPath = path_1.default.join(process.cwd(), "./src/");
 Core.DefaultConfig = {
-    version: "1.0",
-    type: "Application",
+    version: 1,
+    transactions: [],
 };
-Core.DefaultTransactions = {
-    version: "1.0",
-    data: [],
+Core.SupportedConfigVersions = [1];
+Core.initialize = (options) => {
+    // Update Configuration
+    Core.getConfiguration().application = {
+        name: options.name,
+        description: options.description,
+        brand: {
+            name: options.brandName,
+            country: options.brandCountry,
+            address: options.brandAddress,
+        },
+    };
+    // Set New Configuration
+    Core.setConfiguration(Core.DefaultConfig);
 };
-Core.SupportedConfigVersions = ["1.0"];
-Core.SupportedTransVersions = ["1.0"];
-Core.getConfiguration = () => {
+Core.getConfiguration = (strict = false) => {
     try {
-        return require(path_1.default.join(process.cwd(), "./epic.config.json"));
+        return require(path_1.default.join(Core.RootPath, "./epic.config.json"));
     }
     catch (e) {
-        cli_1.EpicCli.Logger.warn("We are unable to find 'epic.config.json' file in your project! Creating new one.").log();
-        return Core.DefaultConfig;
+        cli_1.EpicCli.Logger.warn("We are unable to find 'epic.config.json' file in your project!").log();
+        if (strict)
+            return null;
+        else
+            return Core.DefaultConfig;
     }
 };
 Core.setConfiguration = (data) => {
-    fs_1.default.writeFileSync(path_1.default.join(process.cwd(), "./epic.config.json"), JSON.stringify(data, undefined, 2));
-};
-Core.getTransactions = () => {
-    try {
-        return require(path_1.default.join(process.cwd(), "./epic.transactions.json"));
-    }
-    catch (e) {
-        cli_1.EpicCli.Logger.warn("We are unable to find 'epic.transactions.json' file in your project! Creating new one.").log();
-        return Core.DefaultTransactions;
-    }
-};
-Core.setTransactions = (data) => {
-    fs_1.default.writeFileSync(path_1.default.join(process.cwd(), "./epic.transactions.json"), JSON.stringify(data, undefined, 2));
+    fs_1.default.writeFileSync(path_1.default.join(Core.RootPath, "./epic.config.json"), JSON.stringify(data, undefined, 2));
 };

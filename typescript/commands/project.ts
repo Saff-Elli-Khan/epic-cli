@@ -1,13 +1,14 @@
 import { LooseCommandInterface } from "@saffellikhan/epic-cli-builder";
 import { Project } from "../lib/project";
+import { Core } from "../lib/core";
 import { EpicGeo } from "epic-geo";
 import Path from "path";
 import Fs from "fs";
 
 export const ProjectCommands: LooseCommandInterface[] = [
   {
-    name: "create-project",
-    description: "Create a new Epic project quickly.",
+    name: "init",
+    description: "Initialize an Epic project.",
     alias: ["--init"],
     params: [
       {
@@ -57,6 +58,11 @@ export const ProjectCommands: LooseCommandInterface[] = [
         default: "N/A",
       },
     ],
+    method: Core.initialize,
+  },
+  {
+    name: "create-project",
+    description: "Create a new Epic project quickly.",
     method: Project.create,
   },
   {

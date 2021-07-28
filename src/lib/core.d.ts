@@ -1,24 +1,35 @@
 export interface Configuration {
-    version: string;
-    type: "Application";
+    version: number;
+    application?: Application;
+    transactions: Array<Transaction>;
 }
-export interface Transactions {
-    version: string;
-    data: Array<Transaction>;
+export interface Application {
+    name: string;
+    description: string;
+    brand: Brand;
+}
+export interface Brand {
+    name: string;
+    country: string;
+    address: string;
 }
 export interface Transaction {
     command: string;
     params: Record<string, any>;
 }
+export interface InitializationOptions {
+    name: string;
+    description: string;
+    brandName: string;
+    brandCountry: string;
+    brandAddress: string;
+}
 export declare class Core {
     static RootPath: string;
     static AppPath: string;
     static DefaultConfig: Configuration;
-    static DefaultTransactions: Transactions;
-    static SupportedConfigVersions: string[];
-    static SupportedTransVersions: string[];
-    static getConfiguration: () => Configuration;
+    static SupportedConfigVersions: number[];
+    static initialize: (options: InitializationOptions) => void;
+    static getConfiguration: (strict?: boolean) => Configuration | null;
     static setConfiguration: (data: Configuration) => void;
-    static getTransactions: () => Transactions;
-    static setTransactions: (data: Transactions) => void;
 }

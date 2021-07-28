@@ -26,9 +26,16 @@ exports.Project = Project;
 Project.PackagePath = path_1.default.join(process.cwd(), "./package.json");
 Project.SamplesPath = path_1.default.join(core_1.Core.AppPath, "./samples/");
 Project.getPackage = () => require(Project.PackagePath);
-Project.create = (options) => __awaiter(void 0, void 0, void 0, function* () {
+Project.create = () => __awaiter(void 0, void 0, void 0, function* () {
     // Queue the Tasks
     yield new listr_1.default([
+        {
+            title: "Checking Configuration...",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                if (!core_1.Core.getConfiguration(true))
+                    yield execa_1.default("epic", ["init"]);
+            }),
+        },
         {
             title: "Cloning repository to current directory",
             task: () => execa_1.default("git", [
@@ -40,27 +47,30 @@ Project.create = (options) => __awaiter(void 0, void 0, void 0, function* () {
         {
             title: "Configuring your project",
             task: () => {
+                var _a, _b, _c, _d, _e, _f, _g, _h;
                 if (fs_1.default.existsSync(Project.PackagePath)) {
+                    // Get Configuration
+                    const Configuration = core_1.Core.getConfiguration();
                     // Update Package Information
-                    Project.getPackage().name = options.name;
-                    Project.getPackage().description = options.description;
-                    Project.getPackage().brand = {
-                        name: options.brandName,
-                        country: options.brandCountry,
-                        address: options.brandAddress,
+                    const Package = Project.getPackage();
+                    Package.name = ((_a = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _a === void 0 ? void 0 : _a.name) || Package.name;
+                    Package.description =
+                        ((_b = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _b === void 0 ? void 0 : _b.description) || Package.description;
+                    Package.brand = {
+                        name: ((_d = (_c = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _c === void 0 ? void 0 : _c.brand) === null || _d === void 0 ? void 0 : _d.name) || Package.brand.name,
+                        country: ((_f = (_e = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _e === void 0 ? void 0 : _e.brand) === null || _f === void 0 ? void 0 : _f.country) ||
+                            Package.brand.country,
+                        address: ((_h = (_g = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _g === void 0 ? void 0 : _g.brand) === null || _h === void 0 ? void 0 : _h.address) ||
+                            Package.brand.address,
                     };
                     // Put Package Data
-                    fs_1.default.writeFileSync(Project.PackagePath, JSON.stringify(Project.getPackage(), undefined, 2));
+                    fs_1.default.writeFileSync(Project.PackagePath, JSON.stringify(Package, undefined, 2));
                     // Create Environment Directory
                     fs_1.default.mkdirSync(path_1.default.join(process.cwd(), "./env/"), {
                         recursive: true,
                     });
                     // Create Environment Files
                     ["development", "production"].forEach((env) => fs_1.default.writeFileSync(path_1.default.join(process.cwd(), `./env/.${env}.env`), `ENCRYPTION_KEY=${utils_1.generateRandomKey(32)}`));
-                    // Create Epic Configuration File
-                    core_1.Core.setConfiguration(core_1.Core.DefaultConfig);
-                    // Create Epic Transactions File
-                    core_1.Core.setTransactions(core_1.Core.DefaultTransactions);
                 }
                 else
                     throw new Error(`We did not found a 'package.json' in the project!`);
@@ -145,15 +155,15 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                         cli_1.EpicCli.Logger.warn("We are unable to parse controllers/index properly! Please add the child controller manually.").log();
                     }
                 }
-                // Get Transactions
-                const Transactions = core_1.Core.getTransactions();
+                // Get Configuration
+                const Configuration = core_1.Core.getConfiguration();
                 // Update Transactions
-                Transactions.data.push({
+                Configuration.transactions.push({
                     command: command.name,
                     params: options,
                 });
                 // Set Transactions
-                core_1.Core.setTransactions(Transactions);
+                core_1.Core.setConfiguration(Configuration);
             },
         },
     ]).run();

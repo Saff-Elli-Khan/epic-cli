@@ -7,14 +7,6 @@ import { generateRandomKey } from "./utils";
 import { Core } from "./core";
 import { EpicCli } from "../cli";
 
-export interface CreateOptions {
-  name: string;
-  description: string;
-  brandName: string;
-  brandCountry: string;
-  brandAddress: string;
-}
-
 export interface CreateControllerOptions {
   name: string;
   description: string;
@@ -32,9 +24,15 @@ export class Project {
 
   static getPackage = () => require(Project.PackagePath);
 
-  static create = async (options: CreateOptions) => {
+  static create = async () => {
     // Queue the Tasks
     await new Listr([
+      {
+        title: "Checking Configuration...",
+        task: async () => {
+          if (!Core.getConfiguration(true)) await Execa("epic", ["init"]);
+        },
+      },
       {
         title: "Cloning repository to current directory",
         task: () =>
@@ -48,19 +46,29 @@ export class Project {
         title: "Configuring your project",
         task: () => {
           if (Fs.existsSync(Project.PackagePath)) {
+            // Get Configuration
+            const Configuration = Core.getConfiguration();
+
             // Update Package Information
-            Project.getPackage().name = options.name;
-            Project.getPackage().description = options.description;
-            Project.getPackage().brand = {
-              name: options.brandName,
-              country: options.brandCountry,
-              address: options.brandAddress,
+            const Package = Project.getPackage();
+            Package.name = Configuration?.application?.name || Package.name;
+            Package.description =
+              Configuration?.application?.description || Package.description;
+            Package.brand = {
+              name:
+                Configuration?.application?.brand?.name || Package.brand.name,
+              country:
+                Configuration?.application?.brand?.country ||
+                Package.brand.country,
+              address:
+                Configuration?.application?.brand?.address ||
+                Package.brand.address,
             };
 
             // Put Package Data
             Fs.writeFileSync(
               Project.PackagePath,
-              JSON.stringify(Project.getPackage(), undefined, 2)
+              JSON.stringify(Package, undefined, 2)
             );
 
             // Create Environment Directory
@@ -75,12 +83,6 @@ export class Project {
                 `ENCRYPTION_KEY=${generateRandomKey(32)}`
               )
             );
-
-            // Create Epic Configuration File
-            Core.setConfiguration(Core.DefaultConfig);
-
-            // Create Epic Transactions File
-            Core.setTransactions(Core.DefaultTransactions);
           } else
             throw new Error(
               `We did not found a 'package.json' in the project!`
@@ -214,17 +216,17 @@ export class Project {
             }
           }
 
-          // Get Transactions
-          const Transactions = Core.getTransactions();
+          // Get Configuration
+          const Configuration = Core.getConfiguration()!;
 
           // Update Transactions
-          Transactions.data.push({
+          Configuration.transactions.push({
             command: command.name,
             params: options,
           });
 
           // Set Transactions
-          Core.setTransactions(Transactions);
+          Core.setConfiguration(Configuration);
         },
       },
     ]).run();
