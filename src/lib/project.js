@@ -230,7 +230,7 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
                         // Modify Parent Controller Content
                         ParentControllerContent = ParentControllerContent.replace(new RegExp("import\\s*{\\s*(" +
                             options.name +
-                            "Controller)\\s*,?\\s*}\\s*from\\s*(\"|').*\\2\\s*;?\n*"), "").replace(new RegExp("\\s*(" + options.name + "Controller)\\s*,?\\s*", "g"), "");
+                            "Controller)\\s*,?\\s*}\\s*from\\s*(\"|').*\\2\\s*;?\n*", "g"), "").replace(new RegExp("\\s*(" + options.name + "Controller)\\s*,?\\s*", "g"), "");
                         // Save Parent Controller Content
                         fs_1.default.writeFileSync(ParentControllerPath, ParentControllerContent);
                     }
