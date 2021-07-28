@@ -112,16 +112,30 @@ exports.ProjectCommands = [
                 default: "Child",
             },
             {
+                type: "input",
+                name: "sampleDir",
+                description: "Controller samples container directory.",
+                alias: ["--sampleDir", "-sd"],
+                optional: true,
+            },
+            {
                 type: "list",
                 name: "template",
                 description: "Template of the Controller",
                 alias: ["--template", "-T"],
                 message: "Please provide a controller template:",
-                choices: () => [
-                    ...fs_1.default.readdirSync(path_1.default.join(process.cwd(), "./src/samples/controller/"))
-                        .filter((file) => /\.ts$/g.test(file))
-                        .map((file) => file.replace(/\.\w*/g, "")),
-                ],
+                choices: (options) => {
+                    // Controller Path
+                    const ControllerDir = options.sampleDir ||
+                        path_1.default.join(process.cwd(), "./src/samples/controller/");
+                    // Resolve Directory
+                    fs_1.default.mkdirSync(ControllerDir, { recursive: true });
+                    return [
+                        ...fs_1.default.readdirSync(ControllerDir)
+                            .filter((file) => /\.ts$/g.test(file))
+                            .map((file) => file.replace(/\.\w*/g, "")),
+                    ];
+                },
             },
             {
                 type: "list",
@@ -129,19 +143,18 @@ exports.ProjectCommands = [
                 description: "Controller parent name.",
                 alias: ["--parent", "-pr"],
                 message: "Please provide the name of parent controller:",
-                choices: (options) => [
-                    ...fs_1.default.readdirSync(path_1.default.join(process.cwd(), `./src/controllers/v${options.version}/`))
-                        .filter((file) => /\.ts$/g.test(file))
-                        .map((file) => file.replace(/\.\w*/g, "")),
-                ],
+                choices: (options) => {
+                    // Controller Path
+                    const ControllerDir = path_1.default.join(process.cwd(), `./src/controllers/v${options.version}/`);
+                    // Resolve Directory
+                    fs_1.default.mkdirSync(ControllerDir, { recursive: true });
+                    return [
+                        ...fs_1.default.readdirSync(ControllerDir)
+                            .filter((file) => /\.ts$/g.test(file))
+                            .map((file) => file.replace(/\.\w*/g, "")),
+                    ];
+                },
                 optional: (options) => options.scope !== "Child",
-            },
-            {
-                type: "input",
-                name: "sampleDir",
-                description: "Controller samples container directory.",
-                alias: ["--sampleDir", "-sd"],
-                optional: true,
             },
         ],
         method: project_1.Project.createController,

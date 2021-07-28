@@ -2,9 +2,9 @@ import Execa from "execa";
 import Listr from "listr";
 import Path from "path";
 import Fs from "fs";
+import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 import { generateRandomKey } from "./utils";
 import { Core } from "./core";
-import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 import { EpicCli } from "../cli";
 
 export interface CreateOptions {
@@ -208,7 +208,6 @@ export class Project {
               // Save Parent Controller Content
               Fs.writeFileSync(ParentControllerPath, ParentControllerContent);
             } catch (e) {
-              console.log(e);
               EpicCli.Logger.warn(
                 "We are unable to parse controllers/index properly! Please add the child controller manually."
               ).log();
