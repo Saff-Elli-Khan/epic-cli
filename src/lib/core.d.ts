@@ -1,25 +1,25 @@
-export interface Configuration {
+export interface ConfigurationInterface {
     version: number;
-    paths: Paths;
-    application?: Application;
-    transactions: Array<Transaction>;
+    paths: PathsInterface;
+    application?: ApplicationInterface;
+    transactions: Array<TransactionInterface>;
 }
-export interface Paths {
+export interface PathsInterface {
     samples: string;
     contollers: string;
     schemas: string;
 }
-export interface Application {
+export interface ApplicationInterface {
     name: string;
     description: string;
-    brand: Brand;
+    brand: BrandInterface;
 }
-export interface Brand {
+export interface BrandInterface {
     name: string;
     country: string;
     address: string;
 }
-export interface Transaction {
+export interface TransactionInterface {
     command: string;
     params: Record<string, any>;
 }
@@ -32,10 +32,10 @@ export interface InitializationOptions {
 }
 export declare class Core {
     static RootPath: string;
-    static DefaultConfig: Configuration;
+    static DefaultConfig: ConfigurationInterface;
     static SupportedConfigVersions: number[];
     static initialize: (options: InitializationOptions) => void;
-    static getConfiguration: (strict?: boolean) => Configuration | null;
-    static setConfiguration: (data: Configuration) => void;
+    static getConfiguration: (strict?: boolean) => ConfigurationInterface | null;
+    static setConfiguration: (data: ConfigurationInterface) => void;
     static removeConfiguration: () => void;
 }

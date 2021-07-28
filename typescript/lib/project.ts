@@ -4,7 +4,7 @@ import Path from "path";
 import Fs from "fs";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 import { generateRandomKey } from "./utils";
-import { Core } from "./core";
+import { Core, TransactionInterface } from "./core";
 import { EpicCli } from "../cli";
 
 export interface CreateControllerOptions {
@@ -14,6 +14,10 @@ export interface CreateControllerOptions {
   template: string;
   parent: string;
   sampleDir?: string;
+}
+
+export interface DeleteControllerOptions {
+  name: string;
 }
 
 export class Project {
@@ -140,7 +144,7 @@ export class Project {
         task: async () => {
           // Check Configuration File
           if (!Fs.readdirSync(Core.RootPath).length)
-            await Execa("epic", ["create-project"]);
+            throw new Error("Please initialize a project first!");
         },
       },
       {
@@ -253,6 +257,93 @@ export class Project {
             command: command.name,
             params: options,
           });
+
+          // Set Transactions
+          Core.setConfiguration(Configuration);
+        },
+      },
+    ]).run();
+  };
+
+  static deleteController = async (
+    options: DeleteControllerOptions,
+    command: CommandInterface
+  ) => {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Checking Configuration...",
+        task: async () => {
+          // Check Configuration File
+          if (!Fs.readdirSync(Core.RootPath).length)
+            throw new Error("Please initialize a project first!");
+        },
+      },
+      {
+        title: "Deleting the controller",
+        task: async () => {
+          // Delete Controller
+          Fs.unlinkSync(
+            Path.join(Project.ControllersPath, `./${options.name}.ts`)
+          );
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          // Get Configuration
+          const Configuration = Core.getConfiguration()!;
+
+          // Find Create Controller Transaction related to this Controller
+          const Transaction = Configuration.transactions.reduce<TransactionInterface | null>(
+            (result, transaction) =>
+              result
+                ? result
+                : transaction.command === "create-controller" &&
+                  transaction.params.name === options.name
+                ? transaction
+                : null,
+            null
+          );
+
+          // If Transaction Exists
+          if (Transaction) {
+            try {
+              // Parent Controller Path
+              const ParentControllerPath = Path.join(
+                Project.ControllersPath,
+                `./${Transaction.params.parent}.ts`
+              );
+
+              // Get Parent Controller Content
+              let ParentControllerContent = Fs.readFileSync(
+                ParentControllerPath
+              ).toString();
+
+              // Modify Parent Controller Content
+              ParentControllerContent = ParentControllerContent.replace(
+                new RegExp(
+                  "import\\s*{\\s*(" +
+                    options.name +
+                    "Controller)\\s*,?\\s*}\\s*from\\s*(\"|').*\\2\\s*;?\n*"
+                ),
+                ""
+              ).replace(
+                new RegExp(
+                  "\\s*(" + options.name + "Controller)\\s*,?\\s*",
+                  "g"
+                ),
+                ""
+              );
+
+              // Save Parent Controller Content
+              Fs.writeFileSync(ParentControllerPath, ParentControllerContent);
+            } catch (e) {
+              EpicCli.Logger.warn(
+                `We are unable to parse controllers/index properly! Please remove the child controller from "${Transaction.params.parent}" manually.`
+              ).log();
+            }
+          }
 
           // Set Transactions
           Core.setConfiguration(Configuration);

@@ -108,7 +108,7 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
             task: () => __awaiter(void 0, void 0, void 0, function* () {
                 // Check Configuration File
                 if (!fs_1.default.readdirSync(core_1.Core.RootPath).length)
-                    yield execa_1.default("epic", ["create-project"]);
+                    throw new Error("Please initialize a project first!");
             }),
         },
         {
@@ -178,6 +178,60 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                     command: command.name,
                     params: options,
                 });
+                // Set Transactions
+                core_1.Core.setConfiguration(Configuration);
+            },
+        },
+    ]).run();
+});
+Project.deleteController = (options, command) => __awaiter(void 0, void 0, void 0, function* () {
+    // Queue the Tasks
+    yield new listr_1.default([
+        {
+            title: "Checking Configuration...",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Check Configuration File
+                if (!fs_1.default.readdirSync(core_1.Core.RootPath).length)
+                    throw new Error("Please initialize a project first!");
+            }),
+        },
+        {
+            title: "Deleting the controller",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Delete Controller
+                fs_1.default.unlinkSync(path_1.default.join(Project.ControllersPath, `./${options.name}.ts`));
+            }),
+        },
+        {
+            title: "Configuring your project",
+            task: () => {
+                // Get Configuration
+                const Configuration = core_1.Core.getConfiguration();
+                // Find Create Controller Transaction related to this Controller
+                const Transaction = Configuration.transactions.reduce((result, transaction) => result
+                    ? result
+                    : transaction.command === "create-controller" &&
+                        transaction.params.name === options.name
+                        ? transaction
+                        : null, null);
+                // If Transaction Exists
+                if (Transaction) {
+                    try {
+                        // Parent Controller Path
+                        const ParentControllerPath = path_1.default.join(Project.ControllersPath, `./${Transaction.params.parent}.ts`);
+                        // Get Parent Controller Content
+                        let ParentControllerContent = fs_1.default.readFileSync(ParentControllerPath).toString();
+                        // Modify Parent Controller Content
+                        ParentControllerContent = ParentControllerContent.replace(new RegExp("import\\s*{\\s*(" +
+                            options.name +
+                            "Controller)\\s*,?\\s*}\\s*from\\s*(\"|').*\\2\\s*;?\n*"), "").replace(new RegExp("\\s*(" + options.name + "Controller)\\s*,?\\s*", "g"), "");
+                        // Save Parent Controller Content
+                        fs_1.default.writeFileSync(ParentControllerPath, ParentControllerContent);
+                    }
+                    catch (e) {
+                        cli_1.EpicCli.Logger.warn(`We are unable to parse controllers/index properly! Please remove the child controller from "${Transaction.params.parent}" manually.`).log();
+                    }
+                }
                 // Set Transactions
                 core_1.Core.setConfiguration(Configuration);
             },

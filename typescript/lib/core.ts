@@ -1,32 +1,32 @@
 import Path from "path";
 import Fs from "fs";
 
-export interface Configuration {
+export interface ConfigurationInterface {
   version: number;
-  paths: Paths;
-  application?: Application;
-  transactions: Array<Transaction>;
+  paths: PathsInterface;
+  application?: ApplicationInterface;
+  transactions: Array<TransactionInterface>;
 }
 
-export interface Paths {
+export interface PathsInterface {
   samples: string;
   contollers: string;
   schemas: string;
 }
 
-export interface Application {
+export interface ApplicationInterface {
   name: string;
   description: string;
-  brand: Brand;
+  brand: BrandInterface;
 }
 
-export interface Brand {
+export interface BrandInterface {
   name: string;
   country: string;
   address: string;
 }
 
-export interface Transaction {
+export interface TransactionInterface {
   command: string;
   params: Record<string, any>;
 }
@@ -42,7 +42,7 @@ export interface InitializationOptions {
 export class Core {
   static RootPath = process.cwd();
 
-  static DefaultConfig: Configuration = {
+  static DefaultConfig: ConfigurationInterface = {
     version: 1,
     paths: {
       samples: "./src/samples/",
@@ -70,7 +70,7 @@ export class Core {
     Core.setConfiguration(Core.DefaultConfig);
   };
 
-  static getConfiguration = (strict = false): Configuration | null => {
+  static getConfiguration = (strict = false): ConfigurationInterface | null => {
     try {
       return require(Path.join(Core.RootPath, "./epic.config.json"));
     } catch (e) {
@@ -79,7 +79,7 @@ export class Core {
     }
   };
 
-  static setConfiguration = (data: Configuration) => {
+  static setConfiguration = (data: ConfigurationInterface) => {
     Fs.writeFileSync(
       Path.join(Core.RootPath, "./epic.config.json"),
       JSON.stringify(data, undefined, 2)

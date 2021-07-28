@@ -7,6 +7,9 @@ export interface CreateControllerOptions {
     parent: string;
     sampleDir?: string;
 }
+export interface DeleteControllerOptions {
+    name: string;
+}
 export declare class Project {
     static PackagePath: string;
     static EnvironmentsPath: string;
@@ -17,4 +20,5 @@ export declare class Project {
     static getPackage: () => any;
     static create: () => Promise<boolean>;
     static createController: (options: CreateControllerOptions, command: CommandInterface) => Promise<void>;
+    static deleteController: (options: DeleteControllerOptions, command: CommandInterface) => Promise<void>;
 }
