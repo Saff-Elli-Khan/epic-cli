@@ -19,6 +19,7 @@ export interface CreateControllerOptions {
 export class Project {
   static PackagePath = Path.join(Core.RootPath, "./package.json");
   static EnvironmentsPath = Path.join(Core.RootPath, "./env/");
+  static AppPath = Path.join(Core.RootPath, "./src/");
   static SamplesPath = Path.join(
     Core.RootPath,
     Core.getConfiguration()!.paths.samples
@@ -153,7 +154,13 @@ export class Project {
           const SchemaPath = Path.relative(
             Project.ControllersPath,
             Path.join(Project.SchemasPath, options.name)
-          );
+          ).replace("\\", "/");
+
+          // Create Relative Path To App
+          const AppPath = Path.relative(
+            Project.ControllersPath,
+            Project.AppPath
+          ).replace("\\", "/");
 
           // Update Controller Sample
           ctx.controllerContent =
@@ -163,6 +170,7 @@ export class Project {
                 /(\/\*(\s*@(Temporary))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)(\r\n|\r|\n)*/g,
                 ""
               ) // Remove Temporary Code
+              .replace("@AppPath", AppPath)
               .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
               .replace(/Sample/g, options.name); // Add Name
         },
