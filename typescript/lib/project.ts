@@ -254,7 +254,7 @@ export class Project {
             Parsed.push(
               "ControllerChildsContainer",
               "ControllerChildsListTemplate",
-              options.name + "ControllerChilds",
+              options.parent + "ControllerChilds",
               (content) => {
                 // Parse Controllers List
                 const ControllersList = ((content || "[]") as string)

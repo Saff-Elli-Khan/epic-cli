@@ -172,7 +172,7 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                         location: `./${options.name}`,
                     });
                     // Push Child Controller
-                    Parsed.push("ControllerChildsContainer", "ControllerChildsListTemplate", options.name + "ControllerChilds", (content) => {
+                    Parsed.push("ControllerChildsContainer", "ControllerChildsListTemplate", options.parent + "ControllerChilds", (content) => {
                         // Parse Controllers List
                         const ControllersList = (content || "[]")
                             .replace(/\[([^]*)\]/g, "$1")
