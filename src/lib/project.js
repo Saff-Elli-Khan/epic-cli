@@ -176,7 +176,8 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                         // Parse Controllers List
                         const ControllersList = (content || "[]")
                             .replace(/\[([^]*)\]\s*,\s*/g, "$1")
-                            .split(/\s*,\s*/g);
+                            .split(/\s*,\s*/g)
+                            .filter((v) => v);
                         // Push New Controller
                         ControllersList.push(options.name + "Controller");
                         return {
@@ -253,6 +254,69 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
                 // Remove Transaction
                 Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-controller" &&
                     transaction.params.name === options.name));
+                // Set Transactions
+                core_1.Core.setConfiguration(Configuration);
+            },
+        },
+    ]).run();
+});
+Project.createSchema = (options, command) => __awaiter(void 0, void 0, void 0, function* () {
+    // Queue the Tasks
+    yield new listr_1.default([
+        {
+            title: "Checking Configuration...",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                var _b;
+                // Check Configuration File
+                if (!fs_1.default.readdirSync(core_1.Core.RootPath).length)
+                    throw new Error("Please initialize a project first!");
+                else if ((_b = core_1.Core.getConfiguration()) === null || _b === void 0 ? void 0 : _b.transactions.reduce((exists, transaction) => exists
+                    ? exists
+                    : transaction.command === "create-schema" &&
+                        transaction.params.name === options.name, false))
+                    throw new Error("Schema already exists!");
+            }),
+        },
+        {
+            title: "Loading schema sample",
+            task: (ctx) => {
+                // Load Schema Sample
+                ctx.schemaContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.SamplesPath, `./schema/${options.template}.ts`)).toString();
+            },
+        },
+        {
+            title: "Preparing the Schema",
+            task: (ctx) => {
+                // Create Relative Path To App
+                const AppPath = path_1.default.relative(Project.SchemasPath, Project.AppPath).replace(/\\/g, "/");
+                // Parse Template
+                const Parsed = new epic_parser_1.Parser(ctx.schemaContent
+                    .replace(/@AppPath/g, AppPath) // Add App Path
+                    .replace(/Sample/g, options.name) // Add Name
+                ).parse();
+                // Update Schema Sample
+                ctx.schemaContent = Parsed.render();
+            },
+        },
+        {
+            title: "Creating New Schema",
+            task: ({ schemaContent }) => {
+                // Resolve Directory
+                fs_1.default.mkdirSync(Project.SchemasPath, { recursive: true });
+                // Create Schema
+                fs_1.default.writeFileSync(path_1.default.join(Project.SchemasPath, `./${options.name}.ts`), schemaContent);
+            },
+        },
+        {
+            title: "Configuring your project",
+            task: () => {
+                // Get Configuration
+                const Configuration = core_1.Core.getConfiguration();
+                // Update Transactions
+                Configuration.transactions.push({
+                    command: command.name,
+                    params: options,
+                });
                 // Set Transactions
                 core_1.Core.setConfiguration(Configuration);
             },

@@ -11,6 +11,12 @@ export interface CreateControllerOptions {
 export interface DeleteControllerOptions {
     name: string;
 }
+export interface CreateSchemaOptions {
+    name: string;
+    description: string;
+    template: string;
+    sampleDir?: string;
+}
 export declare class Project {
     static PackagePath: string;
     static EnvironmentsPath: string;
@@ -23,4 +29,5 @@ export declare class Project {
     static create: () => Promise<boolean>;
     static createController: (options: CreateControllerOptions, command: CommandInterface) => Promise<void>;
     static deleteController: (options: DeleteControllerOptions) => Promise<void>;
+    static createSchema: (options: CreateSchemaOptions, command: CommandInterface) => Promise<void>;
 }

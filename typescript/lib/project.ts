@@ -21,6 +21,13 @@ export interface DeleteControllerOptions {
   name: string;
 }
 
+export interface CreateSchemaOptions {
+  name: string;
+  description: string;
+  template: string;
+  sampleDir?: string;
+}
+
 export class Project {
   static PackagePath = Path.join(Core.RootPath, "./package.json");
   static EnvironmentsPath = Path.join(Core.RootPath, "./env/");
@@ -141,7 +148,7 @@ export class Project {
     command: CommandInterface
   ) => {
     // Queue the Tasks
-    await new Listr([
+    await new Listr<{ controllerContent: string }>([
       {
         title: "Checking Configuration...",
         task: async () => {
@@ -175,7 +182,7 @@ export class Project {
       },
       {
         title: "Preparing the Controller",
-        task: (ctx: { controllerContent: string }) => {
+        task: (ctx) => {
           // Create Relative Path to Schemas
           const SchemaPath = Path.relative(
             Project.ControllersPath,
@@ -259,7 +266,8 @@ export class Project {
                 // Parse Controllers List
                 const ControllersList = ((content || "[]") as string)
                   .replace(/\[([^]*)\]\s*,\s*/g, "$1")
-                  .split(/\s*,\s*/g);
+                  .split(/\s*,\s*/g)
+                  .filter((v) => v);
 
                 // Push New Controller
                 ControllersList.push(options.name + "Controller");
@@ -374,6 +382,95 @@ export class Project {
                 transaction.params.name === options.name
               )
           );
+
+          // Set Transactions
+          Core.setConfiguration(Configuration);
+        },
+      },
+    ]).run();
+  };
+
+  static createSchema = async (
+    options: CreateSchemaOptions,
+    command: CommandInterface
+  ) => {
+    // Queue the Tasks
+    await new Listr<{ schemaContent: string }>([
+      {
+        title: "Checking Configuration...",
+        task: async () => {
+          // Check Configuration File
+          if (!Fs.readdirSync(Core.RootPath).length)
+            throw new Error("Please initialize a project first!");
+          else if (
+            Core.getConfiguration()?.transactions.reduce<boolean>(
+              (exists, transaction) =>
+                exists
+                  ? exists
+                  : transaction.command === "create-schema" &&
+                    transaction.params.name === options.name,
+              false
+            )
+          )
+            throw new Error("Schema already exists!");
+        },
+      },
+      {
+        title: "Loading schema sample",
+        task: (ctx) => {
+          // Load Schema Sample
+          ctx.schemaContent = Fs.readFileSync(
+            Path.join(
+              options.sampleDir || Project.SamplesPath,
+              `./schema/${options.template}.ts`
+            )
+          ).toString();
+        },
+      },
+      {
+        title: "Preparing the Schema",
+        task: (ctx) => {
+          // Create Relative Path To App
+          const AppPath = Path.relative(
+            Project.SchemasPath,
+            Project.AppPath
+          ).replace(/\\/g, "/");
+
+          // Parse Template
+          const Parsed = new Parser(
+            ctx.schemaContent
+              .replace(/@AppPath/g, AppPath) // Add App Path
+              .replace(/Sample/g, options.name) // Add Name
+          ).parse();
+
+          // Update Schema Sample
+          ctx.schemaContent = Parsed.render();
+        },
+      },
+      {
+        title: "Creating New Schema",
+        task: ({ schemaContent }) => {
+          // Resolve Directory
+          Fs.mkdirSync(Project.SchemasPath, { recursive: true });
+
+          // Create Schema
+          Fs.writeFileSync(
+            Path.join(Project.SchemasPath, `./${options.name}.ts`),
+            schemaContent
+          );
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          // Get Configuration
+          const Configuration = Core.getConfiguration()!;
+
+          // Update Transactions
+          Configuration.transactions.push({
+            command: command.name,
+            params: options,
+          });
 
           // Set Transactions
           Core.setConfiguration(Configuration);

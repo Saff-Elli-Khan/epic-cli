@@ -160,6 +160,7 @@ exports.ProjectCommands = [
             {
                 type: "list",
                 name: "name",
+                alias: ["--name", "-n"],
                 description: "Name of the controller.",
                 message: "Please provide a controller name:",
                 choices: () => {
@@ -174,5 +175,55 @@ exports.ProjectCommands = [
             },
         ],
         method: project_1.Project.deleteController,
+    },
+    {
+        name: "create-schema",
+        description: "Create a database schema",
+        params: [
+            {
+                type: "input",
+                name: "name",
+                description: "Name of the schema.",
+                alias: ["--name", "-n"],
+                message: "Please provide a schema name:",
+                validator: (value) => {
+                    if (!/^[A-Z]\w+$/.test(value))
+                        throw new Error(`Please provide a valid schema name!`);
+                },
+            },
+            {
+                type: "input",
+                name: "description",
+                description: "Description for the schema.",
+                alias: ["--description", "-d"],
+                message: "Please provide a schema description:",
+                default: () => "N/A",
+            },
+            {
+                type: "input",
+                name: "sampleDir",
+                description: "Schema samples container directory.",
+                alias: ["--sampleDir", "-sd"],
+                optional: true,
+            },
+            {
+                type: "list",
+                name: "template",
+                description: "Template of the Schema",
+                message: "Please provide a schema template:",
+                choices: (options) => {
+                    // Schema Path
+                    const SchemaDir = options.sampleDir || path_1.default.join(project_1.Project.SamplesPath, "./schema/");
+                    // Resolve Directory
+                    fs_1.default.mkdirSync(SchemaDir, { recursive: true });
+                    // Samples List
+                    const List = fs_1.default.readdirSync(SchemaDir)
+                        .filter((file) => /\.ts$/g.test(file))
+                        .map((file) => file.replace(/\.\w*/g, ""));
+                    return [...(List.length ? List : ["default"])];
+                },
+            },
+        ],
+        method: project_1.Project.createSchema,
     },
 ];
