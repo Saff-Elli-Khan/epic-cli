@@ -258,14 +258,12 @@ export class Project {
               (content) => {
                 // Parse Controllers List
                 const ControllersList = ((content || "[]") as string)
-                  .replace(/\[([^]*)\]/g, "$1")
-                  .replace(/\n*\s+/g, " ")
-                  .replace(/^\s*|\s*,\s*$/g, "");
+                  .replace(/\[([^]*)\]\s*,\s*/g, "$1")
+                  .split(/\s*,\s*/g)
+                  .push(options.name + "Controller");
 
                 return {
-                  childs: `${ControllersList ? ControllersList + ", " : ""}${
-                    options.name + "Controller"
-                  }`,
+                  childs: ControllersList,
                 };
               }
             );

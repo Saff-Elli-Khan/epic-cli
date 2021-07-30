@@ -175,11 +175,11 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                     Parsed.push("ControllerChildsContainer", "ControllerChildsListTemplate", options.parent + "ControllerChilds", (content) => {
                         // Parse Controllers List
                         const ControllersList = (content || "[]")
-                            .replace(/\[([^]*)\]/g, "$1")
-                            .replace(/\n*\s+/g, " ")
-                            .replace(/^\s*|\s*,\s*$/g, "");
+                            .replace(/\[([^]*)\]\s*,\s*/g, "$1")
+                            .split(/\s*,\s*/g)
+                            .push(options.name + "Controller");
                         return {
-                            childs: `${ControllersList ? ControllersList + ", " : ""}${options.name + "Controller"}`,
+                            childs: ControllersList,
                         };
                     });
                     // Save Parent Controller Content
