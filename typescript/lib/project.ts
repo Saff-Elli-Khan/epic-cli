@@ -259,8 +259,10 @@ export class Project {
                 // Parse Controllers List
                 const ControllersList = ((content || "[]") as string)
                   .replace(/\[([^]*)\]\s*,\s*/g, "$1")
-                  .split(/\s*,\s*/g)
-                  .push(options.name + "Controller");
+                  .split(/\s*,\s*/g);
+
+                // Push New Controller
+                ControllersList.push(options.name + "Controller");
 
                 return {
                   childs: ControllersList,

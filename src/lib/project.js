@@ -176,8 +176,9 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                         // Parse Controllers List
                         const ControllersList = (content || "[]")
                             .replace(/\[([^]*)\]\s*,\s*/g, "$1")
-                            .split(/\s*,\s*/g)
-                            .push(options.name + "Controller");
+                            .split(/\s*,\s*/g);
+                        // Push New Controller
+                        ControllersList.push(options.name + "Controller");
                         return {
                             childs: ControllersList,
                         };
