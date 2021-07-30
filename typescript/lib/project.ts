@@ -6,6 +6,7 @@ import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 import { generateRandomKey } from "./utils";
 import { ConfigurationInterface, Core, TransactionInterface } from "./core";
 import { EpicCli } from "../cli";
+import { Parser } from "@saffellikhan/epic-parser";
 
 export interface CreateControllerOptions {
   name: string;
@@ -187,17 +188,27 @@ export class Project {
             Project.AppPath
           ).replace(/\\/g, "/");
 
-          // Update Controller Sample
-          ctx.controllerContent =
-            `import { ${options.name} } from "${SchemaPath}";\n` + // Add Schema Import
+          // Parse Template
+          const Parsed = new Parser(
             ctx.controllerContent
-              .replace(
-                /(\/\*(\s*@(Temporary))\s*\*\/)\s*([^]*)\s*(\/\*(\s*\/\3)\s*\*\/)(\r\n|\r|\n)*/g,
-                ""
-              ) // Remove Temporary Code
-              .replace(/@AppPath/g, AppPath)
+              .replace(/@AppPath/g, AppPath) // Add App Path
               .replace("{ControllerPrefix}", options.prefix) // Add Controler Prefix
-              .replace(/Sample/g, options.name); // Add Name
+              .replace(/Sample/g, options.name) // Add Name
+          ).parse();
+
+          // Push Import
+          Parsed.push(
+            "ImportsContainer",
+            "ImportsTemplate",
+            options.name + "Import",
+            {
+              modules: [options.name],
+              location: SchemaPath,
+            }
+          );
+
+          // Update Controller Sample
+          ctx.controllerContent = Parsed.render();
         },
       },
       {
@@ -223,39 +234,44 @@ export class Project {
               `./${options.parent}.ts`
             );
 
-            // Get Parent Controller Content
-            let ParentControllerContent = Fs.readFileSync(
-              ParentControllerPath
-            ).toString();
+            // Get Parent Controller Content & Parse Template
+            const Parsed = new Parser(
+              Fs.readFileSync(ParentControllerPath).toString()
+            ).parse();
 
-            // Modify Parent Controller Content
-            ParentControllerContent =
-              `import { ${options.name + "Controller"} } from "./${
-                options.name
-              }";\n` + // Add Schema Import
-              ParentControllerContent.replace(
-                new RegExp(
-                  "(\\/\\*(\\s*@(" +
-                    options.parent +
-                    "ControllerChilds))\\s*\\*\\/)\\s*([^]*)\\s*(\\/\\*(\\s*\\/\\3)\\s*\\*\\/)(\\r\\n|\\r|\\n)*"
-                ),
-                (_, ...args) => {
-                  // Parse Controllers List
-                  const ControllersList = ((args[3] || "[]") as string)
-                    .replace(/\[([^]*)\]/g, "$1")
-                    .replace(/\n*\s+/g, " ")
-                    .replace(/^\s*|\s*,\s*$/g, "");
+            // Push Import
+            Parsed.push(
+              "ImportsContainer",
+              "ImportsTemplate",
+              options.name + "Import",
+              {
+                modules: [options.name + "Controller"],
+                location: `./${options.name}`,
+              }
+            );
 
-                  return `/* @${options.parent}ControllerChilds */ [${
-                    ControllersList ? ControllersList + ", " : ""
-                  }${options.name + "Controller"}] /* /${
-                    options.parent
-                  }ControllerChilds */`;
-                }
-              );
+            // Push Child Controller
+            Parsed.push(
+              "ControllerChildsContainer",
+              "ControllerChildsListTemplate",
+              options.name + "ControllerChilds",
+              (content) => {
+                // Parse Controllers List
+                const ControllersList = ((content || "[]") as string)
+                  .replace(/\[([^]*)\]/g, "$1")
+                  .replace(/\n*\s+/g, " ")
+                  .replace(/^\s*|\s*,\s*$/g, "");
+
+                return {
+                  childs: `${ControllersList ? ControllersList + ", " : ""}${
+                    options.name + "Controller"
+                  }`,
+                };
+              }
+            );
 
             // Save Parent Controller Content
-            Fs.writeFileSync(ParentControllerPath, ParentControllerContent);
+            Fs.writeFileSync(ParentControllerPath, Parsed.render());
           } catch (e) {
             EpicCli.Logger.warn(
               "We are unable to parse controllers/index properly! Please add the child controller manually."
@@ -325,30 +341,24 @@ export class Project {
                 `./${Transaction.params.parent}.ts`
               );
 
-              // Get Parent Controller Content
-              let ParentControllerContent = Fs.readFileSync(
-                ParentControllerPath
-              ).toString();
+              // Get Parent Controller Content & Parse Template
+              const Parsed = new Parser(
+                Fs.readFileSync(ParentControllerPath)
+                  .toString()
+                  .replace(
+                    new RegExp(
+                      "\\s*(" + options.name + "Controller)\\s*,?\\s*",
+                      "g"
+                    ),
+                    ""
+                  )
+              ).parse();
 
-              // Modify Parent Controller Content
-              ParentControllerContent = ParentControllerContent.replace(
-                new RegExp(
-                  "import\\s*{\\s*(" +
-                    options.name +
-                    "Controller)\\s*,?\\s*}\\s*from\\s*(\"|').*\\2\\s*;?\n*",
-                  "g"
-                ),
-                ""
-              ).replace(
-                new RegExp(
-                  "\\s*(" + options.name + "Controller)\\s*,?\\s*",
-                  "g"
-                ),
-                ""
-              );
+              // Remove Child Controller Import
+              Parsed.pop("ImportsContainer", options.name + "Import");
 
               // Save Parent Controller Content
-              Fs.writeFileSync(ParentControllerPath, ParentControllerContent);
+              Fs.writeFileSync(ParentControllerPath, Parsed.render());
             } catch (e) {
               EpicCli.Logger.warn(
                 `We are unable to parse controllers/index properly! Please remove the child controller from "${Transaction.params.parent}" manually.`
