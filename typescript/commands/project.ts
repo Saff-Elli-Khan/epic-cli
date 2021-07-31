@@ -259,7 +259,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
 
-          return [...(List.length ? List : ["index"])];
+          return List.filter((v) => v !== "index");
         },
       },
     ],
@@ -284,7 +284,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
 
-          return [...(List.length ? List : ["index"])];
+          return List.filter((v) => v !== "index");
         },
       },
       {
@@ -344,10 +344,27 @@ export const ProjectCommands: LooseCommandInterface[] = [
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
 
-          return [...(List.length ? List : ["index"])];
+          return List.filter((v) => v !== "index");
         },
         optional: (options) =>
           options.type !== "Relation" && options.arrayof !== "Relation",
+      },
+      {
+        type: "array",
+        name: "mapping",
+        description: "Column relation mapping.",
+        message:
+          "Please provide two column relation mapping separated by comma:",
+        validator: (value) => {
+          if (value instanceof Array) {
+            if (value.length > 2)
+              throw new Error(`Please provide just two columns!`);
+            else if (value.length < 2)
+              throw new Error(`Please provide at least two columns!`);
+          } else
+            throw new Error(`Please provide a valid list of column names!`);
+        },
+        optional: (options) => !options.relation,
       },
       {
         type: "input",
@@ -355,8 +372,12 @@ export const ProjectCommands: LooseCommandInterface[] = [
         alias: ["--name", "-n"],
         description: "Name of the column.",
         message: "Please provide a column name:",
+        validator: (value) => {
+          if (!/^[A-Z]\w+$/.test(value))
+            throw new Error(`Please provide a valid column name!`);
+        },
         default: (options) =>
-          options.type !== "Relation" || options.arrayof !== "Relation"
+          options.relation
             ? options.type === "Array"
               ? options.relation + "s"
               : options.relation
@@ -368,8 +389,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         alias: ["--nullable"],
         description: "Is the column nullable or not.",
         message: "Is this column nullable?",
-        optional: (options) =>
-          options.type === "Relation" || options.arrayof === "Relation",
+        optional: (options) => options.relation,
       },
       {
         type: "input",
@@ -377,12 +397,14 @@ export const ProjectCommands: LooseCommandInterface[] = [
         alias: ["--default"],
         description: "Default column value.",
         message: "Please provide a default value (code):",
+        optional: (options) => options.relation,
       },
       {
         type: "confirm",
         name: "advancedProperties",
         description: "Should add advanced properties to the column or not.",
         message: "Do you want to add advanced properties?",
+        optional: (options) => options.relation,
       },
       {
         type: "input",

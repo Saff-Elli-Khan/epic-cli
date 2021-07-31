@@ -56,7 +56,7 @@ Project.create = () => __awaiter(void 0, void 0, void 0, function* () {
     // Queue the Tasks
     yield new listr_1.default([
         {
-            title: "Checking Configuration...",
+            title: "Checking configuration...",
             task: (ctx) => __awaiter(void 0, void 0, void 0, function* () {
                 // Check Configuration File
                 if (!core_1.Core.getConfiguration(true))
@@ -107,7 +107,7 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
     // Queue the Tasks
     yield new listr_1.default([
         {
-            title: "Checking Configuration...",
+            title: "Checking configuration...",
             task: () => __awaiter(void 0, void 0, void 0, function* () {
                 var _a;
                 // Check Configuration File
@@ -207,7 +207,7 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
     // Queue the Tasks
     yield new listr_1.default([
         {
-            title: "Checking Configuration...",
+            title: "Checking configuration...",
             task: () => __awaiter(void 0, void 0, void 0, function* () {
                 // Check Configuration File
                 if (!fs_1.default.readdirSync(core_1.Core.RootPath).length)
@@ -264,7 +264,7 @@ Project.createSchema = (options, command) => __awaiter(void 0, void 0, void 0, f
     // Queue the Tasks
     yield new listr_1.default([
         {
-            title: "Checking Configuration...",
+            title: "Checking configuration...",
             task: () => __awaiter(void 0, void 0, void 0, function* () {
                 var _b;
                 // Check Configuration File
@@ -327,7 +327,7 @@ Project.deleteSchema = (options) => __awaiter(void 0, void 0, void 0, function* 
     // Queue the Tasks
     yield new listr_1.default([
         {
-            title: "Checking Configuration...",
+            title: "Checking configuration...",
             task: () => __awaiter(void 0, void 0, void 0, function* () {
                 // Check Configuration File
                 if (!fs_1.default.readdirSync(core_1.Core.RootPath).length)
@@ -355,6 +355,83 @@ Project.deleteSchema = (options) => __awaiter(void 0, void 0, void 0, function* 
         },
     ]).run();
 });
-Project.createSchemaColumn = (options) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(options);
+Project.createSchemaColumn = (options, command) => __awaiter(void 0, void 0, void 0, function* () {
+    // Queue the Tasks
+    yield new listr_1.default([
+        {
+            title: "Checking configuration...",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Check Configuration File
+                if (!fs_1.default.readdirSync(core_1.Core.RootPath).length)
+                    throw new Error("Please initialize a project first!");
+            }),
+        },
+        {
+            title: "Loading schema",
+            task: (ctx) => {
+                // Load Schema Sample
+                ctx.schemaContent = fs_1.default.readFileSync(path_1.default.join(Project.SchemasPath, `./${options.schema}.ts`)).toString();
+            },
+        },
+        {
+            title: "Preparing the Schema",
+            task: (ctx) => {
+                var _a, _b, _c;
+                // Parse Template
+                const Parsed = new epic_parser_1.Parser(ctx.schemaContent).parse();
+                // Push Column
+                Parsed.push("ColumnsContainer", options.relation
+                    ? options.arrayof === "Relation"
+                        ? "ManyRelationTemplate"
+                        : "OneRelationTemplate"
+                    : "ColumnTemplate", options.name + "Column", {
+                    name: options.name,
+                    datatype: options.type === "Array"
+                        ? `Array<${options.arrayof === "Record"
+                            ? "Record<string, any>"
+                            : (_a = options.arrayof) === null || _a === void 0 ? void 0 : _a.toLowerCase()}>`
+                        : options.type === "Enum"
+                            ? (_b = options.choices) === null || _b === void 0 ? void 0 : _b.join(" | ")
+                            : options.type === "Record"
+                                ? "Record<string, any>"
+                                : options.type.toLowerCase(),
+                    options: `{${options.length !== undefined
+                        ? `\nlength: ${options.length || null},`
+                        : ""}${options.collation ? `\ncollation: "${options.collation}",` : ""}${options.choices ? `\nchoices: [${options.choices}],` : ""}${options.nullable !== undefined
+                        ? `\nnullable: ${options.nullable},`
+                        : ""}${((_c = options.index) === null || _c === void 0 ? void 0 : _c.length) ? `\nindex: [${options.index}]` : ""}${options.defaultValue
+                        ? `\ndefaultValue: ${options.defaultValue},`
+                        : ""}${options.onUpdate ? `\nonUpdate: ${options.onUpdate},` : ""}\n}`,
+                    schema: options.schema,
+                    relation: options.relation,
+                    mapping: JSON.stringify(options.mapping),
+                });
+                // Updated Schema
+                ctx.schemaContent = Parsed.render();
+            },
+        },
+        {
+            title: "Creating New Column",
+            task: ({ schemaContent }) => {
+                // Resolve Directory
+                fs_1.default.mkdirSync(Project.SchemasPath, { recursive: true });
+                // Create Schema
+                fs_1.default.writeFileSync(path_1.default.join(Project.SchemasPath, `./${options.schema}.ts`), schemaContent);
+            },
+        },
+        {
+            title: "Configuring your project",
+            task: () => {
+                // Get Configuration
+                const Configuration = core_1.Core.getConfiguration();
+                // Update Transactions
+                Configuration.transactions.push({
+                    command: command.name,
+                    params: options,
+                });
+                // Set Transactions
+                core_1.Core.setConfiguration(Configuration);
+            },
+        },
+    ]).run();
 });

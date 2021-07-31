@@ -42,11 +42,17 @@ export interface CreateSchemaColumnOptions {
     | "Record"
     | "Array"
     | "Relation";
-  choices: string[];
-  arrayof: "String" | "Number" | "Boolean" | "Record" | "Relation";
-  relation: string;
+  choices?: string[];
+  arrayof?: "String" | "Number" | "Boolean" | "Record" | "Relation";
+  length?: number;
+  relation?: string;
+  mapping?: string[];
   name: string;
-  nullable: boolean;
+  nullable?: boolean;
+  defaultValue?: string;
+  collation?: string;
+  index?: "None" | "FULLTEXT" | "UNIQUE" | "INDEX" | "SPATIAL";
+  onUpdate?: string;
 }
 
 export interface DeleteSchemaColumnOptions {
@@ -106,7 +112,7 @@ export class Project {
     // Queue the Tasks
     await new Listr([
       {
-        title: "Checking Configuration...",
+        title: "Checking configuration...",
         task: async (ctx) => {
           // Check Configuration File
           if (!Core.getConfiguration(true))
@@ -176,7 +182,7 @@ export class Project {
     // Queue the Tasks
     await new Listr<{ controllerContent: string }>([
       {
-        title: "Checking Configuration...",
+        title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
           if (!Fs.readdirSync(Core.RootPath).length)
@@ -332,7 +338,7 @@ export class Project {
     // Queue the Tasks
     await new Listr([
       {
-        title: "Checking Configuration...",
+        title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
           if (!Fs.readdirSync(Core.RootPath).length)
@@ -423,7 +429,7 @@ export class Project {
     // Queue the Tasks
     await new Listr<{ schemaContent: string }>([
       {
-        title: "Checking Configuration...",
+        title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
           if (!Fs.readdirSync(Core.RootPath).length)
@@ -509,7 +515,7 @@ export class Project {
     // Queue the Tasks
     await new Listr([
       {
-        title: "Checking Configuration...",
+        title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
           if (!Fs.readdirSync(Core.RootPath).length)
@@ -545,7 +551,114 @@ export class Project {
     ]).run();
   };
 
-  static createSchemaColumn = async (options: CreateSchemaColumnOptions) => {
-    console.log(options);
+  static createSchemaColumn = async (
+    options: CreateSchemaColumnOptions,
+    command: CommandInterface
+  ) => {
+    // Queue the Tasks
+    await new Listr<{ schemaContent: string }>([
+      {
+        title: "Checking configuration...",
+        task: async () => {
+          // Check Configuration File
+          if (!Fs.readdirSync(Core.RootPath).length)
+            throw new Error("Please initialize a project first!");
+        },
+      },
+      {
+        title: "Loading schema",
+        task: (ctx) => {
+          // Load Schema Sample
+          ctx.schemaContent = Fs.readFileSync(
+            Path.join(Project.SchemasPath, `./${options.schema}.ts`)
+          ).toString();
+        },
+      },
+      {
+        title: "Preparing the Schema",
+        task: (ctx) => {
+          // Parse Template
+          const Parsed = new Parser(ctx.schemaContent).parse();
+
+          // Push Column
+          Parsed.push(
+            "ColumnsContainer",
+            options.relation
+              ? options.arrayof === "Relation"
+                ? "ManyRelationTemplate"
+                : "OneRelationTemplate"
+              : "ColumnTemplate",
+            options.name + "Column",
+            {
+              name: options.name,
+              datatype:
+                options.type === "Array"
+                  ? `Array<${
+                      options.arrayof === "Record"
+                        ? "Record<string, any>"
+                        : options.arrayof?.toLowerCase()
+                    }>`
+                  : options.type === "Enum"
+                  ? options.choices?.join(" | ")
+                  : options.type === "Record"
+                  ? "Record<string, any>"
+                  : options.type.toLowerCase(),
+              options: `{${
+                options.length !== undefined
+                  ? `\nlength: ${options.length || null},`
+                  : ""
+              }${
+                options.collation ? `\ncollation: "${options.collation}",` : ""
+              }${options.choices ? `\nchoices: [${options.choices}],` : ""}${
+                options.nullable !== undefined
+                  ? `\nnullable: ${options.nullable},`
+                  : ""
+              }${options.index?.length ? `\nindex: [${options.index}]` : ""}${
+                options.defaultValue
+                  ? `\ndefaultValue: ${options.defaultValue},`
+                  : ""
+              }${
+                options.onUpdate ? `\nonUpdate: ${options.onUpdate},` : ""
+              }\n}`,
+              schema: options.schema,
+              relation: options.relation,
+              mapping: JSON.stringify(options.mapping),
+            }
+          );
+
+          // Updated Schema
+          ctx.schemaContent = Parsed.render();
+        },
+      },
+      {
+        title: "Creating New Column",
+        task: ({ schemaContent }) => {
+          // Resolve Directory
+          Fs.mkdirSync(Project.SchemasPath, { recursive: true });
+
+          // Create Schema
+          Fs.writeFileSync(
+            Path.join(Project.SchemasPath, `./${options.schema}.ts`),
+            schemaContent
+          );
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          // Get Configuration
+          const Configuration = Core.getConfiguration()!;
+
+          // Update Transactions
+          Configuration.transactions.push({
+            command: command.name,
+            params: options,
+          });
+
+          // Set Transactions
+          Core.setConfiguration(Configuration);
+        },
+      },
+    ]).run();
   };
 }
