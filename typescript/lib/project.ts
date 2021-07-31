@@ -28,6 +28,10 @@ export interface CreateSchemaOptions {
   sampleDir?: string;
 }
 
+export interface DeleteSchemaOptions {
+  name: string;
+}
+
 export class Project {
   static PackagePath = Path.join(Core.RootPath, "./package.json");
   static EnvironmentsPath = Path.join(Core.RootPath, "./env/");
@@ -471,6 +475,46 @@ export class Project {
             command: command.name,
             params: options,
           });
+
+          // Set Transactions
+          Core.setConfiguration(Configuration);
+        },
+      },
+    ]).run();
+  };
+
+  static deleteSchema = async (options: DeleteSchemaOptions) => {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Checking Configuration...",
+        task: async () => {
+          // Check Configuration File
+          if (!Fs.readdirSync(Core.RootPath).length)
+            throw new Error("Please initialize a project first!");
+        },
+      },
+      {
+        title: "Deleting the schema",
+        task: async () => {
+          // Delete Schema
+          Fs.unlinkSync(Path.join(Project.SchemasPath, `./${options.name}.ts`));
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          // Get Configuration
+          const Configuration = Core.getConfiguration()!;
+
+          // Remove Transaction
+          Configuration.transactions = Configuration.transactions.filter(
+            (transaction) =>
+              !(
+                transaction.command === "create-schema" &&
+                transaction.params.name === options.name
+              )
+          );
 
           // Set Transactions
           Core.setConfiguration(Configuration);

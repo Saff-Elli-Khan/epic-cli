@@ -323,3 +323,35 @@ Project.createSchema = (options, command) => __awaiter(void 0, void 0, void 0, f
         },
     ]).run();
 });
+Project.deleteSchema = (options) => __awaiter(void 0, void 0, void 0, function* () {
+    // Queue the Tasks
+    yield new listr_1.default([
+        {
+            title: "Checking Configuration...",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Check Configuration File
+                if (!fs_1.default.readdirSync(core_1.Core.RootPath).length)
+                    throw new Error("Please initialize a project first!");
+            }),
+        },
+        {
+            title: "Deleting the schema",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Delete Schema
+                fs_1.default.unlinkSync(path_1.default.join(Project.SchemasPath, `./${options.name}.ts`));
+            }),
+        },
+        {
+            title: "Configuring your project",
+            task: () => {
+                // Get Configuration
+                const Configuration = core_1.Core.getConfiguration();
+                // Remove Transaction
+                Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-schema" &&
+                    transaction.params.name === options.name));
+                // Set Transactions
+                core_1.Core.setConfiguration(Configuration);
+            },
+        },
+    ]).run();
+});

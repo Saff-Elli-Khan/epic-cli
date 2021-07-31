@@ -240,4 +240,29 @@ export const ProjectCommands: LooseCommandInterface[] = [
     ],
     method: Project.createSchema,
   },
+  {
+    name: "delete-schema",
+    description: "Remove schema from project.",
+    params: [
+      {
+        type: "list",
+        name: "name",
+        alias: ["--name", "-n"],
+        description: "Name of the schema.",
+        message: "Please provide a schema name:",
+        choices: () => {
+          // Resolve Directory
+          Fs.mkdirSync(Project.SchemasPath, { recursive: true });
+
+          // Schemas List
+          const List = Fs.readdirSync(Project.SchemasPath)
+            .filter((file) => /\.ts$/g.test(file))
+            .map((file) => file.replace(/\.\w*/g, ""));
+
+          return [...(List.length ? List : ["index"])];
+        },
+      },
+    ],
+    method: Project.deleteSchema,
+  },
 ];
