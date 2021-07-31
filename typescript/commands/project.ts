@@ -265,4 +265,95 @@ export const ProjectCommands: LooseCommandInterface[] = [
     ],
     method: Project.deleteSchema,
   },
+  {
+    name: "create-schema-column",
+    description: "Create new schema column.",
+    params: [
+      {
+        type: "list",
+        name: "schema",
+        alias: ["--schema", "-s"],
+        description: "Name of the schema.",
+        message: "Please provide a schema:",
+        choices: () => {
+          // Resolve Directory
+          Fs.mkdirSync(Project.SchemasPath, { recursive: true });
+
+          // Schemas List
+          const List = Fs.readdirSync(Project.SchemasPath)
+            .filter((file) => /\.ts$/g.test(file))
+            .map((file) => file.replace(/\.\w*/g, ""));
+
+          return [...(List.length ? List : ["index"])];
+        },
+      },
+      {
+        type: "list",
+        name: "type",
+        alias: ["--type", "-t"],
+        description: "Type of the column.",
+        message: "Please provide a column type:",
+        choices: ["String", "Number", "Boolean", "Record", "Array", "Relation"],
+        default: () => "String",
+      },
+      {
+        type: "list",
+        name: "arrayof",
+        description: "Column is an array of type.",
+        message: "Array of type:",
+        choices: ["String", "Number", "Boolean", "Record", "Array", "Relation"],
+        default: () => "String",
+        optional: (options) => options.type !== "Array",
+      },
+      {
+        type: "list",
+        name: "relation",
+        alias: ["--relation", "-r"],
+        description: "Name of the Relation schema.",
+        message: "Please provide a relation schema:",
+        choices: () => {
+          // Resolve Directory
+          Fs.mkdirSync(Project.SchemasPath, { recursive: true });
+
+          // Schemas List
+          const List = Fs.readdirSync(Project.SchemasPath)
+            .filter((file) => /\.ts$/g.test(file))
+            .map((file) => file.replace(/\.\w*/g, ""));
+
+          return [...(List.length ? List : ["index"])];
+        },
+        optional: (options) =>
+          options.type !== "Relation" && options.arrayof !== "Relation",
+      },
+      {
+        type: "input",
+        name: "name",
+        alias: ["--name", "-n"],
+        description: "Name of the column.",
+        message: "Please provide a column name:",
+        default: (options) =>
+          options.type !== "Relation" && options.arrayof !== "Relation"
+            ? undefined
+            : options.type === "Array"
+            ? options.relationSchema + "s"
+            : options.relationSchema,
+      },
+      {
+        type: "confirm",
+        name: "isNullable",
+        alias: ["--nullable"],
+        description: "If the column is nullable or not.",
+        message: "Is this column nullable?",
+        optional: (options) =>
+          options.type === "Relation" || options.arrayof === "Relation",
+      },
+      {
+        type: "confirm",
+        name: "advancedProperties",
+        description: "If add advanced properties to the column.",
+        message: "Do you want to add advanced properties?",
+      },
+    ],
+    method: () => {},
+  },
 ];
