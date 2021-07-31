@@ -394,13 +394,12 @@ exports.ProjectCommands = [
                 optional: (options) => !options.advancedProperties,
             },
             {
-                type: "list",
+                type: "checkbox",
                 name: "index",
                 alias: ["--index", "-i"],
                 description: "Index on the column.",
                 message: "Please provide a column index:",
-                choices: ["None", "FULLTEXT", "UNIQUE", "INDEX", "SPATIAL"],
-                default: () => "None",
+                choices: ["FULLTEXT", "UNIQUE", "INDEX", "SPATIAL"],
                 optional: (options) => !options.advancedProperties,
             },
             {

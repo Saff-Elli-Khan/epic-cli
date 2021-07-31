@@ -32,7 +32,7 @@ export interface CreateSchemaColumnOptions {
     nullable?: boolean;
     defaultValue?: string;
     collation?: string;
-    index?: "None" | "FULLTEXT" | "UNIQUE" | "INDEX" | "SPATIAL";
+    index?: ("FULLTEXT" | "UNIQUE" | "INDEX" | "SPATIAL")[];
     onUpdate?: string;
 }
 export interface DeleteSchemaColumnOptions {

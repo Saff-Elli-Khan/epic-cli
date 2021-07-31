@@ -51,7 +51,7 @@ export interface CreateSchemaColumnOptions {
   nullable?: boolean;
   defaultValue?: string;
   collation?: string;
-  index?: "None" | "FULLTEXT" | "UNIQUE" | "INDEX" | "SPATIAL";
+  index?: ("FULLTEXT" | "UNIQUE" | "INDEX" | "SPATIAL")[];
   onUpdate?: string;
 }
 
@@ -580,6 +580,18 @@ export class Project {
           // Parse Template
           const Parsed = new Parser(ctx.schemaContent).parse();
 
+          // Push Relation Import
+          if (options.relation)
+            Parsed.push(
+              "ImportsContainer",
+              "ImportsTemplate",
+              options.relation + "Import",
+              {
+                modules: [options.relation],
+                location: `./${options.relation}`,
+              }
+            );
+
           // Push Column
           Parsed.push(
             "ColumnsContainer",
@@ -599,7 +611,7 @@ export class Project {
                         : options.arrayof?.toLowerCase()
                     }>`
                   : options.type === "Enum"
-                  ? options.choices?.join(" | ")
+                  ? `"${options.choices?.join('" | "')}"`
                   : options.type === "Record"
                   ? "Record<string, any>"
                   : options.type.toLowerCase(),
@@ -609,11 +621,19 @@ export class Project {
                   : ""
               }${
                 options.collation ? `\ncollation: "${options.collation}",` : ""
-              }${options.choices ? `\nchoices: [${options.choices}],` : ""}${
+              }${
+                options.choices
+                  ? `\nchoices: ["${options.choices.join('", "')}"],`
+                  : ""
+              }${
                 options.nullable !== undefined
                   ? `\nnullable: ${options.nullable},`
                   : ""
-              }${options.index?.length ? `\nindex: [${options.index}]` : ""}${
+              }${
+                options.index?.length
+                  ? `\nindex: ["${options.index.join('", "')}"]`
+                  : ""
+              }${
                 options.defaultValue
                   ? `\ndefaultValue: ${options.defaultValue},`
                   : ""

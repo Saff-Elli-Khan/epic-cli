@@ -379,6 +379,12 @@ Project.createSchemaColumn = (options, command) => __awaiter(void 0, void 0, voi
                 var _a, _b, _c;
                 // Parse Template
                 const Parsed = new epic_parser_1.Parser(ctx.schemaContent).parse();
+                // Push Relation Import
+                if (options.relation)
+                    Parsed.push("ImportsContainer", "ImportsTemplate", options.relation + "Import", {
+                        modules: [options.relation],
+                        location: `./${options.relation}`,
+                    });
                 // Push Column
                 Parsed.push("ColumnsContainer", options.relation
                     ? options.arrayof === "Relation"
@@ -391,15 +397,19 @@ Project.createSchemaColumn = (options, command) => __awaiter(void 0, void 0, voi
                             ? "Record<string, any>"
                             : (_a = options.arrayof) === null || _a === void 0 ? void 0 : _a.toLowerCase()}>`
                         : options.type === "Enum"
-                            ? (_b = options.choices) === null || _b === void 0 ? void 0 : _b.join(" | ")
+                            ? `"${(_b = options.choices) === null || _b === void 0 ? void 0 : _b.join('" | "')}"`
                             : options.type === "Record"
                                 ? "Record<string, any>"
                                 : options.type.toLowerCase(),
                     options: `{${options.length !== undefined
                         ? `\nlength: ${options.length || null},`
-                        : ""}${options.collation ? `\ncollation: "${options.collation}",` : ""}${options.choices ? `\nchoices: [${options.choices}],` : ""}${options.nullable !== undefined
+                        : ""}${options.collation ? `\ncollation: "${options.collation}",` : ""}${options.choices
+                        ? `\nchoices: ["${options.choices.join('", "')}"],`
+                        : ""}${options.nullable !== undefined
                         ? `\nnullable: ${options.nullable},`
-                        : ""}${((_c = options.index) === null || _c === void 0 ? void 0 : _c.length) ? `\nindex: [${options.index}]` : ""}${options.defaultValue
+                        : ""}${((_c = options.index) === null || _c === void 0 ? void 0 : _c.length)
+                        ? `\nindex: ["${options.index.join('", "')}"]`
+                        : ""}${options.defaultValue
                         ? `\ndefaultValue: ${options.defaultValue},`
                         : ""}${options.onUpdate ? `\nonUpdate: ${options.onUpdate},` : ""}\n}`,
                     schema: options.schema,
