@@ -310,11 +310,11 @@ exports.ProjectCommands = [
                 alias: ["--name", "-n"],
                 description: "Name of the column.",
                 message: "Please provide a column name:",
-                default: (options) => options.type !== "Relation" && options.arrayof !== "Relation"
-                    ? undefined
-                    : options.type === "Array"
-                        ? options.relationSchema + "s"
-                        : options.relationSchema,
+                default: (options) => options.type !== "Relation" || options.arrayof !== "Relation"
+                    ? options.type === "Array"
+                        ? options.relation + "s"
+                        : options.relation
+                    : undefined,
             },
             {
                 type: "confirm",
