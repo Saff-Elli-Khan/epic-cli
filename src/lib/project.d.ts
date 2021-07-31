@@ -20,6 +20,19 @@ export interface CreateSchemaOptions {
 export interface DeleteSchemaOptions {
     name: string;
 }
+export interface CreateSchemaColumnOptions {
+    schema: string;
+    type: "String" | "Number" | "Boolean" | "Enum" | "Record" | "Array" | "Relation";
+    choices: string[];
+    arrayof: "String" | "Number" | "Boolean" | "Record" | "Relation";
+    relation: string;
+    name: string;
+    nullable: boolean;
+}
+export interface DeleteSchemaColumnOptions {
+    schema: string;
+    name: string;
+}
 export declare class Project {
     static PackagePath: string;
     static EnvironmentsPath: string;
@@ -34,4 +47,5 @@ export declare class Project {
     static deleteController: (options: DeleteControllerOptions) => Promise<void>;
     static createSchema: (options: CreateSchemaOptions, command: CommandInterface) => Promise<void>;
     static deleteSchema: (options: DeleteSchemaOptions) => Promise<void>;
+    static createSchemaColumn: (options: CreateSchemaColumnOptions) => Promise<void>;
 }

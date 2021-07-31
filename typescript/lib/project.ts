@@ -32,6 +32,28 @@ export interface DeleteSchemaOptions {
   name: string;
 }
 
+export interface CreateSchemaColumnOptions {
+  schema: string;
+  type:
+    | "String"
+    | "Number"
+    | "Boolean"
+    | "Enum"
+    | "Record"
+    | "Array"
+    | "Relation";
+  choices: string[];
+  arrayof: "String" | "Number" | "Boolean" | "Record" | "Relation";
+  relation: string;
+  name: string;
+  nullable: boolean;
+}
+
+export interface DeleteSchemaColumnOptions {
+  schema: string;
+  name: string;
+}
+
 export class Project {
   static PackagePath = Path.join(Core.RootPath, "./package.json");
   static EnvironmentsPath = Path.join(Core.RootPath, "./env/");
@@ -521,5 +543,9 @@ export class Project {
         },
       },
     ]).run();
+  };
+
+  static createSchemaColumn = async (options: CreateSchemaColumnOptions) => {
+    console.log(options);
   };
 }
