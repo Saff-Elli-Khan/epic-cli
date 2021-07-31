@@ -631,7 +631,7 @@ export class Project {
                   : ""
               }${
                 options.index?.length
-                  ? `\nindex: ["${options.index.join('", "')}"]`
+                  ? `\nindex: ["${options.index.join('", "')}"],`
                   : ""
               }${
                 options.defaultValue

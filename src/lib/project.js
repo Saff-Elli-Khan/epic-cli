@@ -408,7 +408,7 @@ Project.createSchemaColumn = (options, command) => __awaiter(void 0, void 0, voi
                         : ""}${options.nullable !== undefined
                         ? `\nnullable: ${options.nullable},`
                         : ""}${((_c = options.index) === null || _c === void 0 ? void 0 : _c.length)
-                        ? `\nindex: ["${options.index.join('", "')}"]`
+                        ? `\nindex: ["${options.index.join('", "')}"],`
                         : ""}${options.defaultValue
                         ? `\ndefaultValue: ${options.defaultValue},`
                         : ""}${options.onUpdate ? `\nonUpdate: ${options.onUpdate},` : ""}\n}`,
