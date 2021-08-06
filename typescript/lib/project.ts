@@ -44,6 +44,7 @@ export interface CreateSchemaColumnOptions {
     | "Relation";
   choices?: string[];
   arrayof?: "String" | "Number" | "Boolean" | "Record" | "Relation";
+  recordType?: string;
   length?: number;
   relation?: string;
   mapping?: string[];
@@ -680,13 +681,13 @@ export class Project {
                 options.type === "Array"
                   ? `Array<${
                       options.arrayof === "Record"
-                        ? "Record<string, any>"
+                        ? `Record<string, ${options.recordType || "any"}>`
                         : options.arrayof?.toLowerCase()
                     }>`
                   : options.type === "Enum"
                   ? `"${options.choices?.join('" | "')}"`
                   : options.type === "Record"
-                  ? "Record<string, any>"
+                  ? `Record<string, ${options.recordType || "any"}>`
                   : options.type.toLowerCase(),
               options: `{${
                 options.length !== undefined && options.length !== 50

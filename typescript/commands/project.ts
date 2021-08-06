@@ -335,6 +335,15 @@ export const ProjectCommands: LooseCommandInterface[] = [
         optional: (options) => options.type !== "Array",
       },
       {
+        type: "input",
+        name: "recordType",
+        description: "Type of the record.",
+        message: "Please provide the type of the record:",
+        default: () => "any",
+        optional: (options) =>
+          options.type !== "Record" && options.arrayof !== "Record",
+      },
+      {
         type: "number",
         name: "length",
         alias: ["--length", "-l"],

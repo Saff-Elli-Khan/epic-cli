@@ -427,12 +427,12 @@ Project.createSchemaColumn = (options, command) => __awaiter(void 0, void 0, voi
                     name: options.name,
                     datatype: options.type === "Array"
                         ? `Array<${options.arrayof === "Record"
-                            ? "Record<string, any>"
+                            ? `Record<string, ${options.recordType || "any"}>`
                             : (_a = options.arrayof) === null || _a === void 0 ? void 0 : _a.toLowerCase()}>`
                         : options.type === "Enum"
                             ? `"${(_b = options.choices) === null || _b === void 0 ? void 0 : _b.join('" | "')}"`
                             : options.type === "Record"
-                                ? "Record<string, any>"
+                                ? `Record<string, ${options.recordType || "any"}>`
                                 : options.type.toLowerCase(),
                     options: `{${options.length !== undefined && options.length !== 50
                         ? `\nlength: ${options.length || null},`
