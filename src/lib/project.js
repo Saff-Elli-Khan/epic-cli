@@ -301,7 +301,7 @@ Project.createSchema = (options, command) => __awaiter(void 0, void 0, void 0, f
                 // Import Schema
                 ParsedSchemaContainer.push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
                     modules: options.name,
-                    location: `./${options.name}.ts`,
+                    location: `./${options.name}`,
                 });
                 // Add Schema to Container
                 ParsedSchemaContainer.push("SchemasContainer", "SchemaTemplate", options.name + "Schema", { schema: options.name });

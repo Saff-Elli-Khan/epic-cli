@@ -493,7 +493,7 @@ export class Project {
               options.name + "Import",
               {
                 modules: options.name,
-                location: `./${options.name}.ts`,
+                location: `./${options.name}`,
               }
             );
 
