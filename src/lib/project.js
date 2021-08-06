@@ -376,9 +376,12 @@ Project.deleteSchema = (options) => __awaiter(void 0, void 0, void 0, function* 
             task: () => {
                 // Get Configuration
                 const Configuration = core_1.Core.getConfiguration();
-                // Remove Transaction
+                // Remove Schema Transaction
                 Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-schema" &&
                     transaction.params.name === options.name));
+                // Remove Column Transactions
+                Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-schema-column" &&
+                    transaction.params.schema === options.name));
                 // Set Transactions
                 core_1.Core.setConfiguration(Configuration);
             },

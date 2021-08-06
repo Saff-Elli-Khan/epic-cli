@@ -599,12 +599,21 @@ export class Project {
           // Get Configuration
           const Configuration = Core.getConfiguration()!;
 
-          // Remove Transaction
+          // Remove Schema Transaction
           Configuration.transactions = Configuration.transactions.filter(
             (transaction) =>
               !(
                 transaction.command === "create-schema" &&
                 transaction.params.name === options.name
+              )
+          );
+
+          // Remove Column Transactions
+          Configuration.transactions = Configuration.transactions.filter(
+            (transaction) =>
+              !(
+                transaction.command === "create-schema-column" &&
+                transaction.params.schema === options.name
               )
           );
 
