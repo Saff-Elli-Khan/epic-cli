@@ -382,8 +382,9 @@ export const ProjectCommands: LooseCommandInterface[] = [
           if (value instanceof Array) {
             if (value.length > 2)
               throw new Error(`Please provide just two columns!`);
-            else if (value.length < 2)
-              throw new Error(`Please provide at least two columns!`);
+            else if (value.length < 1)
+              throw new Error(`Please provide at least one column!`);
+            else if (value.length < 2) return [value[0], value[0]];
           } else
             throw new Error(`Please provide a valid list of column names!`);
         },
