@@ -435,4 +435,40 @@ export const ProjectCommands: LooseCommandInterface[] = [
     ],
     method: Project.createSchemaColumn,
   },
+  {
+    name: "delete-schema-column",
+    description: "Delete a schema column.",
+    params: [
+      {
+        type: "input",
+        name: "name",
+        alias: ["--name", "-n"],
+        description: "Name of the column.",
+        message: "Please provide a column name:",
+        validator: (value) => {
+          if (!/^[A-Z]\w+$/.test(value))
+            throw new Error(`Please provide a valid column name!`);
+        },
+      },
+      {
+        type: "list",
+        name: "schema",
+        alias: ["--schema", "-s"],
+        description: "Name of the schema.",
+        message: "Please provide a schema:",
+        choices: () => {
+          // Resolve Directory
+          Fs.mkdirSync(Project.SchemasPath, { recursive: true });
+
+          // Schemas List
+          const List = Fs.readdirSync(Project.SchemasPath)
+            .filter((file) => /\.ts$/g.test(file))
+            .map((file) => file.replace(/\.\w*/g, ""));
+
+          return List.filter((v) => v !== "index");
+        },
+      },
+    ],
+    method: Project.deleteSchemaColumn,
+  },
 ];
