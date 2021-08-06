@@ -326,7 +326,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         alias: ["--length", "-l"],
         description: "Length of the column.",
         message: "Please provide a column length:",
-        default: (options) => (options.type === "String" ? 50 : 15),
+        default: () => 50,
         optional: (options) => !["String", "Number"].includes(options.type),
       },
       {
