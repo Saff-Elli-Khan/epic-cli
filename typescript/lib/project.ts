@@ -427,88 +427,128 @@ export class Project {
     command: CommandInterface
   ) => {
     // Queue the Tasks
-    await new Listr<{ schemaContent: string }>([
-      {
-        title: "Checking configuration...",
-        task: async () => {
-          // Check Configuration File
-          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
-            throw new Error("Please initialize a project first!");
-          else if (
-            Core.getConfiguration()?.transactions.reduce<boolean>(
-              (exists, transaction) =>
-                exists
-                  ? exists
-                  : transaction.command === "create-schema" &&
-                    transaction.params.name === options.name,
-              false
+    await new Listr<{ schemaContent: string; schemasContainerContent: string }>(
+      [
+        {
+          title: "Checking configuration...",
+          task: async () => {
+            // Check Configuration File
+            if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
+              throw new Error("Please initialize a project first!");
+            else if (
+              Core.getConfiguration()?.transactions.reduce<boolean>(
+                (exists, transaction) =>
+                  exists
+                    ? exists
+                    : transaction.command === "create-schema" &&
+                      transaction.params.name === options.name,
+                false
+              )
             )
-          )
-            throw new Error("Schema already exists!");
+              throw new Error("Schema already exists!");
+          },
         },
-      },
-      {
-        title: "Loading schema sample",
-        task: (ctx) => {
-          // Load Schema Sample
-          ctx.schemaContent = Fs.readFileSync(
-            Path.join(
-              options.sampleDir || Project.SamplesPath,
-              `./schema/${options.template}.ts`
-            )
-          ).toString();
+        {
+          title: "Loading schema sample & container",
+          task: (ctx) => {
+            // Load Schema Sample
+            ctx.schemaContent = Fs.readFileSync(
+              Path.join(
+                options.sampleDir || Project.SamplesPath,
+                `./schema/${options.template}.ts`
+              )
+            ).toString();
+
+            // Load Schemas Container
+            ctx.schemasContainerContent = Fs.readFileSync(
+              Path.join(Project.SchemasPath, `./index.ts`)
+            ).toString();
+          },
         },
-      },
-      {
-        title: "Preparing the Schema",
-        task: (ctx) => {
-          // Create Relative Path To App
-          const AppPath = Path.relative(
-            Project.SchemasPath,
-            Project.AppPath
-          ).replace(/\\/g, "/");
+        {
+          title: "Preparing the schema & container",
+          task: (ctx) => {
+            // Create Relative Path To App
+            const AppPath = Path.relative(
+              Project.SchemasPath,
+              Project.AppPath
+            ).replace(/\\/g, "/");
 
-          // Parse Template
-          const Parsed = new Parser(
-            ctx.schemaContent
-              .replace(/@AppPath/g, AppPath) // Add App Path
-              .replace(/Sample/g, options.name) // Add Name
-          ).parse();
+            // Parse Schema Template
+            const ParsedSchema = new Parser(
+              ctx.schemaContent
+                .replace(/@AppPath/g, AppPath) // Add App Path
+                .replace(/Sample/g, options.name) // Add Name
+            ).parse();
 
-          // Update Schema Sample
-          ctx.schemaContent = Parsed.render();
+            // Parse Schema Container Template
+            const ParsedSchemaContainer = new Parser(
+              ctx.schemasContainerContent
+            ).parse();
+
+            // Import Schema
+            ParsedSchemaContainer.push(
+              "ImportsContainer",
+              "ImportsTemplate",
+              options.name + "Import",
+              {
+                modules: options.name,
+                location: `./${options.name}.ts`,
+              }
+            );
+
+            // Add Schema to Container
+            ParsedSchemaContainer.push(
+              "SchemasContainer",
+              "SchemaTemplate",
+              options.name + "Schema",
+              { schema: options.name }
+            );
+
+            // Update Schema Sample
+            ctx.schemaContent = ParsedSchema.render();
+
+            // Update Container
+            ctx.schemasContainerContent = ParsedSchemaContainer.render();
+          },
         },
-      },
-      {
-        title: "Creating New Schema",
-        task: ({ schemaContent }) => {
-          // Resolve Directory
-          Fs.mkdirSync(Project.SchemasPath, { recursive: true });
+        {
+          title: "Creating New Schema",
+          task: ({ schemaContent, schemasContainerContent }) => {
+            // Resolve Directory
+            Fs.mkdirSync(Project.SchemasPath, { recursive: true });
 
-          // Create Schema
-          Fs.writeFileSync(
-            Path.join(Project.SchemasPath, `./${options.name}.ts`),
-            schemaContent
-          );
+            // Create Schema
+            Fs.writeFileSync(
+              Path.join(Project.SchemasPath, `./${options.name}.ts`),
+              schemaContent
+            );
+
+            // Update Schemas Container
+            Fs.writeFileSync(
+              Path.join(Project.SchemasPath, `./index.ts`),
+              schemasContainerContent
+            );
+          },
         },
-      },
-      {
-        title: "Configuring your project",
-        task: () => {
-          // Get Configuration
-          const Configuration = Core.getConfiguration()!;
+        {
+          title: "Configuring your project",
+          task: () => {
+            // Get Configuration
+            const Configuration = Core.getConfiguration()!;
 
-          // Update Transactions
-          Configuration.transactions.push({
-            command: command.name,
-            params: options,
-          });
+            // Update Transactions
+            Configuration.transactions.push({
+              command: command.name,
+              params: options,
+            });
 
-          // Set Transactions
-          Core.setConfiguration(Configuration);
+            // Set Transactions
+            Core.setConfiguration(Configuration);
+          },
         },
-      },
-    ]).run();
+      ]
+    ).run();
   };
 
   static deleteSchema = async (options: DeleteSchemaOptions) => {
@@ -527,6 +567,30 @@ export class Project {
         task: async () => {
           // Delete Schema
           Fs.unlinkSync(Path.join(Project.SchemasPath, `./${options.name}.ts`));
+        },
+      },
+      {
+        title: "Updating schema container",
+        task: async () => {
+          // Load Schemas Container
+          const SchemasContainer = Fs.readFileSync(
+            Path.join(Project.SchemasPath, `./index.ts`)
+          ).toString();
+
+          // Parse Template
+          const Parsed = new Parser(SchemasContainer).parse();
+
+          // Import Schema
+          Parsed.pop("ImportsContainer", options.name + "Import");
+
+          // Add Schema to Container
+          Parsed.pop("SchemasContainer", options.name + "Schema");
+
+          // Update Schemas Container
+          Fs.writeFileSync(
+            Path.join(Project.SchemasPath, `./index.ts`),
+            Parsed.render()
+          );
         },
       },
       {

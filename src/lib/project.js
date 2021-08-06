@@ -278,33 +278,48 @@ Project.createSchema = (options, command) => __awaiter(void 0, void 0, void 0, f
             }),
         },
         {
-            title: "Loading schema sample",
+            title: "Loading schema sample & container",
             task: (ctx) => {
                 // Load Schema Sample
                 ctx.schemaContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.SamplesPath, `./schema/${options.template}.ts`)).toString();
+                // Load Schemas Container
+                ctx.schemasContainerContent = fs_1.default.readFileSync(path_1.default.join(Project.SchemasPath, `./index.ts`)).toString();
             },
         },
         {
-            title: "Preparing the Schema",
+            title: "Preparing the schema & container",
             task: (ctx) => {
                 // Create Relative Path To App
                 const AppPath = path_1.default.relative(Project.SchemasPath, Project.AppPath).replace(/\\/g, "/");
-                // Parse Template
-                const Parsed = new epic_parser_1.Parser(ctx.schemaContent
+                // Parse Schema Template
+                const ParsedSchema = new epic_parser_1.Parser(ctx.schemaContent
                     .replace(/@AppPath/g, AppPath) // Add App Path
                     .replace(/Sample/g, options.name) // Add Name
                 ).parse();
+                // Parse Schema Container Template
+                const ParsedSchemaContainer = new epic_parser_1.Parser(ctx.schemasContainerContent).parse();
+                // Import Schema
+                ParsedSchemaContainer.push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
+                    modules: options.name,
+                    location: `./${options.name}.ts`,
+                });
+                // Add Schema to Container
+                ParsedSchemaContainer.push("SchemasContainer", "SchemaTemplate", options.name + "Schema", { schema: options.name });
                 // Update Schema Sample
-                ctx.schemaContent = Parsed.render();
+                ctx.schemaContent = ParsedSchema.render();
+                // Update Container
+                ctx.schemasContainerContent = ParsedSchemaContainer.render();
             },
         },
         {
             title: "Creating New Schema",
-            task: ({ schemaContent }) => {
+            task: ({ schemaContent, schemasContainerContent }) => {
                 // Resolve Directory
                 fs_1.default.mkdirSync(Project.SchemasPath, { recursive: true });
                 // Create Schema
                 fs_1.default.writeFileSync(path_1.default.join(Project.SchemasPath, `./${options.name}.ts`), schemaContent);
+                // Update Schemas Container
+                fs_1.default.writeFileSync(path_1.default.join(Project.SchemasPath, `./index.ts`), schemasContainerContent);
             },
         },
         {
@@ -339,6 +354,21 @@ Project.deleteSchema = (options) => __awaiter(void 0, void 0, void 0, function* 
             task: () => __awaiter(void 0, void 0, void 0, function* () {
                 // Delete Schema
                 fs_1.default.unlinkSync(path_1.default.join(Project.SchemasPath, `./${options.name}.ts`));
+            }),
+        },
+        {
+            title: "Updating schema container",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Load Schemas Container
+                const SchemasContainer = fs_1.default.readFileSync(path_1.default.join(Project.SchemasPath, `./index.ts`)).toString();
+                // Parse Template
+                const Parsed = new epic_parser_1.Parser(SchemasContainer).parse();
+                // Import Schema
+                Parsed.pop("ImportsContainer", options.name + "Import");
+                // Add Schema to Container
+                Parsed.pop("SchemasContainer", options.name + "Schema");
+                // Update Schemas Container
+                fs_1.default.writeFileSync(path_1.default.join(Project.SchemasPath, `./index.ts`), Parsed.render());
             }),
         },
         {
