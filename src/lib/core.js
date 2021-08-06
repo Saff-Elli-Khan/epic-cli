@@ -70,7 +70,7 @@ Core.initialize = (options) => __awaiter(void 0, void 0, void 0, function* () {
         },
     ]).run();
 });
-Core.import = (options) => __awaiter(void 0, void 0, void 0, function* () {
+Core.install = () => __awaiter(void 0, void 0, void 0, function* () {
     // Queue the Tasks
     yield new listr_1.default([
         {
@@ -82,31 +82,18 @@ Core.import = (options) => __awaiter(void 0, void 0, void 0, function* () {
             }),
         },
         {
-            title: "Importing configuration file",
-            task: (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-                // Load Configuration File
-                ctx.configuration = require(path_1.default.join(Core.RootPath, options.path));
-            }),
-        },
-        {
             title: "Executing commands",
-            task: (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-                for (const Transaction of ctx.configuration.transactions) {
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Get Configuration
+                const Configuration = Core.getConfiguration();
+                // Execute Each Transaction
+                for (const Transaction of Configuration.transactions) {
                     // Get Command
                     const Command = cli_1.EpicCli.getCommand(Transaction.command);
                     // Execute Command
                     yield Command.method(Transaction.params, Command);
                 }
             }),
-        },
-        {
-            title: "Configuring your project",
-            task: (ctx) => {
-                if (fs_1.default.existsSync(project_1.Project.PackagePath)) {
-                    // Configure Project
-                    project_1.Project.configure(ctx.configuration);
-                }
-            },
         },
     ]).run();
 });

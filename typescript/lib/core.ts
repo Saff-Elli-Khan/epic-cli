@@ -98,9 +98,9 @@ export class Core {
     ]).run();
   };
 
-  static import = async (options: { path: string }) => {
+  static install = async () => {
     // Queue the Tasks
-    await new Listr<{ configuration: ConfigurationInterface }>([
+    await new Listr([
       {
         title: "Checking configuration...",
         task: async () => {
@@ -110,30 +110,18 @@ export class Core {
         },
       },
       {
-        title: "Importing configuration file",
-        task: async (ctx) => {
-          // Load Configuration File
-          ctx.configuration = require(Path.join(Core.RootPath, options.path));
-        },
-      },
-      {
         title: "Executing commands",
-        task: async (ctx) => {
-          for (const Transaction of ctx.configuration.transactions) {
+        task: async () => {
+          // Get Configuration
+          const Configuration = Core.getConfiguration()!;
+
+          // Execute Each Transaction
+          for (const Transaction of Configuration.transactions) {
             // Get Command
             const Command = EpicCli.getCommand(Transaction.command);
 
             // Execute Command
             await Command.method(Transaction.params, Command);
-          }
-        },
-      },
-      {
-        title: "Configuring your project",
-        task: (ctx) => {
-          if (Fs.existsSync(Project.PackagePath)) {
-            // Configure Project
-            Project.configure(ctx.configuration);
           }
         },
       },

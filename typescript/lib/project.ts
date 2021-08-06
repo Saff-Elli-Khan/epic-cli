@@ -188,17 +188,6 @@ export class Project {
           // Check Configuration File
           if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
             throw new Error("Please initialize a project first!");
-          else if (
-            Core.getConfiguration()?.transactions.reduce<boolean>(
-              (exists, transaction) =>
-                exists
-                  ? exists
-                  : transaction.command === "create-controller" &&
-                    transaction.params.name === options.name,
-              false
-            )
-          )
-            throw new Error("Controller already exists!");
         },
       },
       {
@@ -322,6 +311,15 @@ export class Project {
           // Get Configuration
           const Configuration = Core.getConfiguration()!;
 
+          // Remove Duplicate Transaction
+          Configuration.transactions = Configuration.transactions.filter(
+            (transaction) =>
+              !(
+                transaction.command === "create-controller" &&
+                transaction.params.name === options.name
+              )
+          );
+
           // Update Transactions
           Configuration.transactions.push({
             command: command.name,
@@ -436,17 +434,6 @@ export class Project {
             // Check Configuration File
             if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
               throw new Error("Please initialize a project first!");
-            else if (
-              Core.getConfiguration()?.transactions.reduce<boolean>(
-                (exists, transaction) =>
-                  exists
-                    ? exists
-                    : transaction.command === "create-schema" &&
-                      transaction.params.name === options.name,
-                false
-              )
-            )
-              throw new Error("Schema already exists!");
           },
         },
         {
@@ -537,6 +524,15 @@ export class Project {
           task: () => {
             // Get Configuration
             const Configuration = Core.getConfiguration()!;
+
+            // Remove Duplicate Transaction
+            Configuration.transactions = Configuration.transactions.filter(
+              (transaction) =>
+                !(
+                  transaction.command === "create-schema" &&
+                  transaction.params.name === options.name
+                )
+            );
 
             // Update Transactions
             Configuration.transactions.push({
@@ -738,6 +734,16 @@ export class Project {
         task: () => {
           // Get Configuration
           const Configuration = Core.getConfiguration()!;
+
+          // Remove Duplicate Transaction
+          Configuration.transactions = Configuration.transactions.filter(
+            (transaction) =>
+              !(
+                transaction.command === "create-schema-column" &&
+                transaction.params.schema === options.schema &&
+                transaction.params.name === options.name
+              )
+          );
 
           // Update Transactions
           Configuration.transactions.push({

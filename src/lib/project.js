@@ -109,15 +109,9 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
         {
             title: "Checking configuration...",
             task: () => __awaiter(void 0, void 0, void 0, function* () {
-                var _a;
                 // Check Configuration File
                 if (!fs_1.default.readdirSync(core_1.Core.RootPath).includes(core_1.Core.ConfigFileName))
                     throw new Error("Please initialize a project first!");
-                else if ((_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.transactions.reduce((exists, transaction) => exists
-                    ? exists
-                    : transaction.command === "create-controller" &&
-                        transaction.params.name === options.name, false))
-                    throw new Error("Controller already exists!");
             }),
         },
         {
@@ -192,6 +186,9 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                 }
                 // Get Configuration
                 const Configuration = core_1.Core.getConfiguration();
+                // Remove Duplicate Transaction
+                Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-controller" &&
+                    transaction.params.name === options.name));
                 // Update Transactions
                 Configuration.transactions.push({
                     command: command.name,
@@ -266,15 +263,9 @@ Project.createSchema = (options, command) => __awaiter(void 0, void 0, void 0, f
         {
             title: "Checking configuration...",
             task: () => __awaiter(void 0, void 0, void 0, function* () {
-                var _b;
                 // Check Configuration File
                 if (!fs_1.default.readdirSync(core_1.Core.RootPath).includes(core_1.Core.ConfigFileName))
                     throw new Error("Please initialize a project first!");
-                else if ((_b = core_1.Core.getConfiguration()) === null || _b === void 0 ? void 0 : _b.transactions.reduce((exists, transaction) => exists
-                    ? exists
-                    : transaction.command === "create-schema" &&
-                        transaction.params.name === options.name, false))
-                    throw new Error("Schema already exists!");
             }),
         },
         {
@@ -327,6 +318,9 @@ Project.createSchema = (options, command) => __awaiter(void 0, void 0, void 0, f
             task: () => {
                 // Get Configuration
                 const Configuration = core_1.Core.getConfiguration();
+                // Remove Duplicate Transaction
+                Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-schema" &&
+                    transaction.params.name === options.name));
                 // Update Transactions
                 Configuration.transactions.push({
                     command: command.name,
@@ -465,6 +459,10 @@ Project.createSchemaColumn = (options, command) => __awaiter(void 0, void 0, voi
             task: () => {
                 // Get Configuration
                 const Configuration = core_1.Core.getConfiguration();
+                // Remove Duplicate Transaction
+                Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-schema-column" &&
+                    transaction.params.schema === options.schema &&
+                    transaction.params.name === options.name));
                 // Update Transactions
                 Configuration.transactions.push({
                     command: command.name,

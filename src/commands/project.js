@@ -75,18 +75,18 @@ exports.ProjectCommands = [
         method: core_1.Core.initialize,
     },
     {
-        name: "import",
-        description: "Import and execute Epic Configuration.",
+        name: "install",
+        description: "Install configuration commands.",
         params: [
             {
-                name: "path",
-                type: "input",
-                alias: ["--path", "-p"],
-                description: "Configuration file path.",
-                message: "Please provide a configuration file path:",
+                name: "confirm",
+                type: "confirm",
+                description: "Confirm to execute this command.",
+                message: "Do you really want to execute this command? Data loss possible!",
+                end: (options) => !options.confirm,
             },
         ],
-        method: core_1.Core.import,
+        method: core_1.Core.install,
     },
     {
         name: "create-project",
