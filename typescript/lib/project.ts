@@ -680,7 +680,7 @@ export class Project {
                   ? "Record<string, any>"
                   : options.type.toLowerCase(),
               options: `{${
-                options.length !== undefined
+                options.length !== undefined && options.length !== 50
                   ? `\nlength: ${options.length || null},`
                   : ""
               }${
@@ -689,11 +689,7 @@ export class Project {
                 options.choices
                   ? `\nchoices: ["${options.choices.join('", "')}"],`
                   : ""
-              }${
-                options.nullable !== undefined
-                  ? `\nnullable: ${options.nullable},`
-                  : ""
-              }${
+              }${options.nullable ? `\nnullable: true,` : ""}${
                 options.index?.length
                   ? `\nindex: ["${options.index.join('", "')}"],`
                   : ""

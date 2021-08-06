@@ -431,13 +431,11 @@ Project.createSchemaColumn = (options, command) => __awaiter(void 0, void 0, voi
                             : options.type === "Record"
                                 ? "Record<string, any>"
                                 : options.type.toLowerCase(),
-                    options: `{${options.length !== undefined
+                    options: `{${options.length !== undefined && options.length !== 50
                         ? `\nlength: ${options.length || null},`
                         : ""}${options.collation ? `\ncollation: "${options.collation}",` : ""}${options.choices
                         ? `\nchoices: ["${options.choices.join('", "')}"],`
-                        : ""}${options.nullable !== undefined
-                        ? `\nnullable: ${options.nullable},`
-                        : ""}${((_c = options.index) === null || _c === void 0 ? void 0 : _c.length)
+                        : ""}${options.nullable ? `\nnullable: true,` : ""}${((_c = options.index) === null || _c === void 0 ? void 0 : _c.length)
                         ? `\nindex: ["${options.index.join('", "')}"],`
                         : ""}${options.defaultValue
                         ? `\ndefaultValue: ${options.defaultValue},`

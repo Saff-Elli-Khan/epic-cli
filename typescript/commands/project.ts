@@ -447,6 +447,13 @@ export const ProjectCommands: LooseCommandInterface[] = [
         optional: (options) => !options.advancedProperties,
       },
     ],
+    default: {
+      type: "String",
+      length: 50,
+      nullable: false,
+      defaultValue: "",
+      advancedProperties: false,
+    },
     method: Project.createSchemaColumn,
   },
   {
