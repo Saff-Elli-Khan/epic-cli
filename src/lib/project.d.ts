@@ -54,4 +54,5 @@ export declare class Project {
     static createSchema: (options: CreateSchemaOptions, command: CommandInterface) => Promise<void>;
     static deleteSchema: (options: DeleteSchemaOptions) => Promise<void>;
     static createSchemaColumn: (options: CreateSchemaColumnOptions, command: CommandInterface) => Promise<void>;
+    static deleteSchemaColumn: (options: DeleteSchemaColumnOptions) => Promise<void>;
 }

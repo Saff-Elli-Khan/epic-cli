@@ -445,3 +445,54 @@ Project.createSchemaColumn = (options, command) => __awaiter(void 0, void 0, voi
         },
     ]).run();
 });
+Project.deleteSchemaColumn = (options) => __awaiter(void 0, void 0, void 0, function* () {
+    // Queue the Tasks
+    yield new listr_1.default([
+        {
+            title: "Checking configuration...",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Check Configuration File
+                if (!fs_1.default.readdirSync(core_1.Core.RootPath).length)
+                    throw new Error("Please initialize a project first!");
+            }),
+        },
+        {
+            title: "Loading the schema",
+            task: (ctx) => {
+                // Load Schema Sample
+                ctx.schemaContent = fs_1.default.readFileSync(path_1.default.join(Project.SchemasPath, `./${options.schema}.ts`)).toString();
+            },
+        },
+        {
+            title: "Deleting the column",
+            task: (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+                // Parse Template
+                const Parsed = new epic_parser_1.Parser(ctx.schemaContent).parse();
+                // Delete Schema Column
+                Parsed.pop("ColumnsContainer", options.name + "Column");
+                // Updated Schema
+                ctx.schemaContent = Parsed.render();
+            }),
+        },
+        {
+            title: "Saving the schema",
+            task: ({ schemaContent }) => {
+                // Save Schema
+                fs_1.default.writeFileSync(path_1.default.join(Project.SchemasPath, `./${options.schema}.ts`), schemaContent);
+            },
+        },
+        {
+            title: "Configuring your project",
+            task: () => {
+                // Get Configuration
+                const Configuration = core_1.Core.getConfiguration();
+                // Remove Transaction
+                Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-schema-column" &&
+                    transaction.params.schema === options.schema &&
+                    transaction.params.name === options.name));
+                // Set Transactions
+                core_1.Core.setConfiguration(Configuration);
+            },
+        },
+    ]).run();
+});

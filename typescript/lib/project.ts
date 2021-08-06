@@ -681,4 +681,70 @@ export class Project {
       },
     ]).run();
   };
+
+  static deleteSchemaColumn = async (options: DeleteSchemaColumnOptions) => {
+    // Queue the Tasks
+    await new Listr<{ schemaContent: string }>([
+      {
+        title: "Checking configuration...",
+        task: async () => {
+          // Check Configuration File
+          if (!Fs.readdirSync(Core.RootPath).length)
+            throw new Error("Please initialize a project first!");
+        },
+      },
+      {
+        title: "Loading the schema",
+        task: (ctx) => {
+          // Load Schema Sample
+          ctx.schemaContent = Fs.readFileSync(
+            Path.join(Project.SchemasPath, `./${options.schema}.ts`)
+          ).toString();
+        },
+      },
+      {
+        title: "Deleting the column",
+        task: async (ctx) => {
+          // Parse Template
+          const Parsed = new Parser(ctx.schemaContent).parse();
+
+          // Delete Schema Column
+          Parsed.pop("ColumnsContainer", options.name + "Column");
+
+          // Updated Schema
+          ctx.schemaContent = Parsed.render();
+        },
+      },
+      {
+        title: "Saving the schema",
+        task: ({ schemaContent }) => {
+          // Save Schema
+          Fs.writeFileSync(
+            Path.join(Project.SchemasPath, `./${options.schema}.ts`),
+            schemaContent
+          );
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          // Get Configuration
+          const Configuration = Core.getConfiguration()!;
+
+          // Remove Transaction
+          Configuration.transactions = Configuration.transactions.filter(
+            (transaction) =>
+              !(
+                transaction.command === "create-schema-column" &&
+                transaction.params.schema === options.schema &&
+                transaction.params.name === options.name
+              )
+          );
+
+          // Set Transactions
+          Core.setConfiguration(Configuration);
+        },
+      },
+    ]).run();
+  };
 }
