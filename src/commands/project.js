@@ -129,7 +129,7 @@ exports.ProjectCommands = [
                 name: "sampleDir",
                 description: "Controller samples container directory.",
                 alias: ["--sampleDir", "-sd"],
-                optional: true,
+                skip: true,
             },
             {
                 type: "list",
@@ -218,7 +218,7 @@ exports.ProjectCommands = [
                 name: "sampleDir",
                 description: "Schema samples container directory.",
                 alias: ["--sampleDir", "-sd"],
-                optional: true,
+                skip: true,
             },
             {
                 type: "list",
@@ -305,7 +305,7 @@ exports.ProjectCommands = [
                 name: "choices",
                 description: "Column choices list.",
                 message: "Please provide comma separated choices list:",
-                optional: (options) => options.type !== "Enum",
+                skip: (options) => options.type !== "Enum",
             },
             {
                 type: "list",
@@ -314,7 +314,7 @@ exports.ProjectCommands = [
                 message: "Array of type:",
                 choices: ["String", "Number", "Boolean", "Record", "Relation"],
                 default: () => "String",
-                optional: (options) => options.type !== "Array",
+                skip: (options) => options.type !== "Array",
             },
             {
                 type: "input",
@@ -322,7 +322,7 @@ exports.ProjectCommands = [
                 description: "Type of the record.",
                 message: "Please provide the type of the record:",
                 default: () => "any",
-                optional: (options) => options.type !== "Record" && options.arrayof !== "Record",
+                skip: (options) => options.type !== "Record" && options.arrayof !== "Record",
             },
             {
                 type: "number",
@@ -331,7 +331,7 @@ exports.ProjectCommands = [
                 description: "Length of the column.",
                 message: "Please provide a column length:",
                 default: () => 50,
-                optional: (options) => !["String", "Number"].includes(options.type),
+                skip: (options) => !["String", "Number"].includes(options.type),
             },
             {
                 type: "list",
@@ -348,7 +348,7 @@ exports.ProjectCommands = [
                         .map((file) => file.replace(/\.\w*/g, ""));
                     return List.filter((v) => v !== "index");
                 },
-                optional: (options) => options.type !== "Relation" && options.arrayof !== "Relation",
+                skip: (options) => options.type !== "Relation" && options.arrayof !== "Relation",
             },
             {
                 type: "array",
@@ -356,18 +356,21 @@ exports.ProjectCommands = [
                 description: "Column relation mapping.",
                 message: "Please provide two column relation mapping separated by comma:",
                 validator: (value) => {
+                    console.log(value);
                     if (value instanceof Array) {
                         if (value.length > 2)
                             throw new Error(`Please provide just two columns!`);
                         else if (value.length < 1)
                             throw new Error(`Please provide at least one column!`);
-                        else if (value.length < 2)
+                        else if (value.length < 2) {
+                            console.log("Returning:", [value[0], value[0]]);
                             return [value[0], value[0]];
+                        }
                     }
                     else
                         throw new Error(`Please provide a valid list of column names!`);
                 },
-                optional: (options) => !options.relation,
+                skip: (options) => !options.relation,
             },
             {
                 type: "input",
@@ -391,7 +394,7 @@ exports.ProjectCommands = [
                 alias: ["--nullable"],
                 description: "Is the column nullable or not.",
                 message: "Is this column nullable?",
-                optional: (options) => options.relation,
+                skip: (options) => options.relation,
             },
             {
                 type: "input",
@@ -399,14 +402,14 @@ exports.ProjectCommands = [
                 alias: ["--default"],
                 description: "Default column value.",
                 message: "Please provide a default value (code):",
-                optional: (options) => options.relation,
+                skip: (options) => options.relation,
             },
             {
                 type: "confirm",
                 name: "advancedProperties",
                 description: "Should add advanced properties to the column or not.",
                 message: "Do you want to add advanced properties?",
-                optional: (options) => options.relation,
+                skip: (options) => options.relation,
             },
             {
                 type: "input",
@@ -415,7 +418,7 @@ exports.ProjectCommands = [
                 description: "Collation of the column.",
                 message: "Please provide a column collation:",
                 default: () => "utf8mb4_unicode_ci",
-                optional: (options) => !options.advancedProperties,
+                skip: (options) => !options.advancedProperties,
             },
             {
                 type: "checkbox",
@@ -424,7 +427,7 @@ exports.ProjectCommands = [
                 description: "Index on the column.",
                 message: "Please provide a column index:",
                 choices: ["FULLTEXT", "UNIQUE", "INDEX", "SPATIAL"],
-                optional: (options) => !options.advancedProperties,
+                skip: (options) => !options.advancedProperties,
             },
             {
                 type: "input",
@@ -432,7 +435,7 @@ exports.ProjectCommands = [
                 alias: ["--on-update"],
                 description: "Value on update.",
                 message: "Please provide a value on update (code):",
-                optional: (options) => !options.advancedProperties,
+                skip: (options) => !options.advancedProperties,
             },
         ],
         default: {

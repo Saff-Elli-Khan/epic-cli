@@ -131,7 +131,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         name: "sampleDir",
         description: "Controller samples container directory.",
         alias: ["--sampleDir", "-sd"],
-        optional: true,
+        skip: true,
       },
       {
         type: "list",
@@ -228,7 +228,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         name: "sampleDir",
         description: "Schema samples container directory.",
         alias: ["--sampleDir", "-sd"],
-        optional: true,
+        skip: true,
       },
       {
         type: "list",
@@ -323,7 +323,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         name: "choices",
         description: "Column choices list.",
         message: "Please provide comma separated choices list:",
-        optional: (options) => options.type !== "Enum",
+        skip: (options) => options.type !== "Enum",
       },
       {
         type: "list",
@@ -332,7 +332,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         message: "Array of type:",
         choices: ["String", "Number", "Boolean", "Record", "Relation"],
         default: () => "String",
-        optional: (options) => options.type !== "Array",
+        skip: (options) => options.type !== "Array",
       },
       {
         type: "input",
@@ -340,7 +340,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Type of the record.",
         message: "Please provide the type of the record:",
         default: () => "any",
-        optional: (options) =>
+        skip: (options) =>
           options.type !== "Record" && options.arrayof !== "Record",
       },
       {
@@ -350,7 +350,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Length of the column.",
         message: "Please provide a column length:",
         default: () => 50,
-        optional: (options) => !["String", "Number"].includes(options.type),
+        skip: (options) => !["String", "Number"].includes(options.type),
       },
       {
         type: "list",
@@ -369,7 +369,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
 
           return List.filter((v) => v !== "index");
         },
-        optional: (options) =>
+        skip: (options) =>
           options.type !== "Relation" && options.arrayof !== "Relation",
       },
       {
@@ -379,16 +379,20 @@ export const ProjectCommands: LooseCommandInterface[] = [
         message:
           "Please provide two column relation mapping separated by comma:",
         validator: (value) => {
+          console.log(value);
           if (value instanceof Array) {
             if (value.length > 2)
               throw new Error(`Please provide just two columns!`);
             else if (value.length < 1)
               throw new Error(`Please provide at least one column!`);
-            else if (value.length < 2) return [value[0], value[0]];
+            else if (value.length < 2) {
+              console.log("Returning:", [value[0], value[0]]);
+              return [value[0], value[0]];
+            }
           } else
             throw new Error(`Please provide a valid list of column names!`);
         },
-        optional: (options) => !options.relation,
+        skip: (options) => !options.relation,
       },
       {
         type: "input",
@@ -413,7 +417,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         alias: ["--nullable"],
         description: "Is the column nullable or not.",
         message: "Is this column nullable?",
-        optional: (options) => options.relation,
+        skip: (options) => options.relation,
       },
       {
         type: "input",
@@ -421,14 +425,14 @@ export const ProjectCommands: LooseCommandInterface[] = [
         alias: ["--default"],
         description: "Default column value.",
         message: "Please provide a default value (code):",
-        optional: (options) => options.relation,
+        skip: (options) => options.relation,
       },
       {
         type: "confirm",
         name: "advancedProperties",
         description: "Should add advanced properties to the column or not.",
         message: "Do you want to add advanced properties?",
-        optional: (options) => options.relation,
+        skip: (options) => options.relation,
       },
       {
         type: "input",
@@ -437,7 +441,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Collation of the column.",
         message: "Please provide a column collation:",
         default: () => "utf8mb4_unicode_ci",
-        optional: (options) => !options.advancedProperties,
+        skip: (options) => !options.advancedProperties,
       },
       {
         type: "checkbox",
@@ -446,7 +450,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Index on the column.",
         message: "Please provide a column index:",
         choices: ["FULLTEXT", "UNIQUE", "INDEX", "SPATIAL"],
-        optional: (options) => !options.advancedProperties,
+        skip: (options) => !options.advancedProperties,
       },
       {
         type: "input",
@@ -454,7 +458,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         alias: ["--on-update"],
         description: "Value on update.",
         message: "Please provide a value on update (code):",
-        optional: (options) => !options.advancedProperties,
+        skip: (options) => !options.advancedProperties,
       },
     ],
     default: {
