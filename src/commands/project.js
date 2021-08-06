@@ -356,16 +356,13 @@ exports.ProjectCommands = [
                 description: "Column relation mapping.",
                 message: "Please provide two column relation mapping separated by comma:",
                 validator: (value) => {
-                    console.log(value);
                     if (value instanceof Array) {
                         if (value.length > 2)
                             throw new Error(`Please provide just two columns!`);
                         else if (value.length < 1)
                             throw new Error(`Please provide at least one column!`);
-                        else if (value.length < 2) {
-                            console.log("Returning:", [value[0], value[0]]);
+                        else if (value.length < 2)
                             return [value[0], value[0]];
-                        }
                     }
                     else
                         throw new Error(`Please provide a valid list of column names!`);
