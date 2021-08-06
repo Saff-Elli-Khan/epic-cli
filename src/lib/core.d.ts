@@ -32,9 +32,14 @@ export interface InitializationOptions {
 }
 export declare class Core {
     static RootPath: string;
+    static ConfigFileName: string;
+    static ConfigFilePath: () => string;
     static DefaultConfig: ConfigurationInterface;
     static SupportedConfigVersions: number[];
     static initialize: (options: InitializationOptions) => Promise<void>;
+    static import: (options: {
+        path: string;
+    }) => Promise<void>;
     static getConfiguration: (strict?: boolean) => ConfigurationInterface | null;
     static setConfiguration: (data: ConfigurationInterface) => void;
     static removeConfiguration: () => void;

@@ -185,7 +185,7 @@ export class Project {
         title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
-          if (!Fs.readdirSync(Core.RootPath).length)
+          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
             throw new Error("Please initialize a project first!");
           else if (
             Core.getConfiguration()?.transactions.reduce<boolean>(
@@ -341,7 +341,7 @@ export class Project {
         title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
-          if (!Fs.readdirSync(Core.RootPath).length)
+          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
             throw new Error("Please initialize a project first!");
         },
       },
@@ -432,7 +432,7 @@ export class Project {
         title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
-          if (!Fs.readdirSync(Core.RootPath).length)
+          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
             throw new Error("Please initialize a project first!");
           else if (
             Core.getConfiguration()?.transactions.reduce<boolean>(
@@ -518,7 +518,7 @@ export class Project {
         title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
-          if (!Fs.readdirSync(Core.RootPath).length)
+          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
             throw new Error("Please initialize a project first!");
         },
       },
@@ -561,7 +561,7 @@ export class Project {
         title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
-          if (!Fs.readdirSync(Core.RootPath).length)
+          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
             throw new Error("Please initialize a project first!");
         },
       },
@@ -689,7 +689,7 @@ export class Project {
         title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
-          if (!Fs.readdirSync(Core.RootPath).length)
+          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
             throw new Error("Please initialize a project first!");
         },
       },

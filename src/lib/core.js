@@ -17,10 +17,13 @@ const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const listr_1 = __importDefault(require("listr"));
 const project_1 = require("./project");
+const cli_1 = require("../cli");
 class Core {
 }
 exports.Core = Core;
 Core.RootPath = process.cwd();
+Core.ConfigFileName = "epic.config.json";
+Core.ConfigFilePath = () => path_1.default.join(Core.RootPath, Core.ConfigFileName);
 Core.DefaultConfig = {
     version: 1,
     paths: {
@@ -67,9 +70,55 @@ Core.initialize = (options) => __awaiter(void 0, void 0, void 0, function* () {
         },
     ]).run();
 });
+Core.import = (options) => __awaiter(void 0, void 0, void 0, function* () {
+    // Queue the Tasks
+    yield new listr_1.default([
+        {
+            title: "Checking configuration...",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Check Configuration File
+                if (!fs_1.default.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
+                    throw new Error("Please initialize a project first!");
+            }),
+        },
+        {
+            title: "Importing configuration file",
+            task: (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+                // Load Configuration File
+                ctx.configuration = require(path_1.default.join(Core.RootPath, options.path));
+            }),
+        },
+        {
+            title: "Executing commands",
+            task: (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+                for (const Transaction of ctx.configuration.transactions) {
+                    // Get Command
+                    const Command = cli_1.EpicCli.getCommand(Transaction.command);
+                    // Execute Command
+                    yield Command.method(Transaction.params, Command);
+                }
+            }),
+        },
+        {
+            title: "Configuring your project",
+            task: (ctx) => {
+                if (fs_1.default.existsSync(project_1.Project.PackagePath)) {
+                    // Configure Project
+                    project_1.Project.configure(ctx.configuration);
+                }
+            },
+        },
+    ]).run();
+});
 Core.getConfiguration = (strict = false) => {
     try {
-        return (Core.DefaultConfig = require(path_1.default.join(Core.RootPath, "./epic.config.json")));
+        const Configuration = (Core.DefaultConfig = require(Core.ConfigFilePath()));
+        if (Core.SupportedConfigVersions.includes(Configuration.version))
+            return Configuration;
+        else {
+            cli_1.EpicCli.Logger.error(`Configuration version is not supported by the current CLI version!`).log();
+            throw new Error(`Configuration version not supported!`);
+        }
     }
     catch (e) {
         if (strict)
@@ -79,8 +128,8 @@ Core.getConfiguration = (strict = false) => {
     }
 };
 Core.setConfiguration = (data) => {
-    fs_1.default.writeFileSync(path_1.default.join(Core.RootPath, "./epic.config.json"), JSON.stringify(data, undefined, 2));
+    fs_1.default.writeFileSync(Core.ConfigFilePath(), JSON.stringify(data, undefined, 2));
 };
 Core.removeConfiguration = () => {
-    fs_1.default.unlinkSync(path_1.default.join(Core.RootPath, "./epic.config.json"));
+    fs_1.default.unlinkSync(Core.ConfigFilePath());
 };

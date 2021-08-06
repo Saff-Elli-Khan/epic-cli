@@ -77,6 +77,20 @@ export const ProjectCommands: LooseCommandInterface[] = [
     method: Core.initialize,
   },
   {
+    name: "import",
+    description: "Import and execute Epic Configuration.",
+    params: [
+      {
+        name: "path",
+        type: "input",
+        alias: ["--path", "-p"],
+        description: "Configuration file path.",
+        message: "Please provide a configuration file path:",
+      },
+    ],
+    method: Core.import,
+  },
+  {
     name: "create-project",
     description: "Create a new Epic project quickly.",
     method: Project.create,

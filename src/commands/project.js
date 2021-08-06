@@ -75,6 +75,20 @@ exports.ProjectCommands = [
         method: core_1.Core.initialize,
     },
     {
+        name: "import",
+        description: "Import and execute Epic Configuration.",
+        params: [
+            {
+                name: "path",
+                type: "input",
+                alias: ["--path", "-p"],
+                description: "Configuration file path.",
+                message: "Please provide a configuration file path:",
+            },
+        ],
+        method: core_1.Core.import,
+    },
+    {
         name: "create-project",
         description: "Create a new Epic project quickly.",
         method: project_1.Project.create,
@@ -308,7 +322,7 @@ exports.ProjectCommands = [
                 alias: ["--length", "-l"],
                 description: "Length of the column.",
                 message: "Please provide a column length:",
-                default: (options) => (options.type === "String" ? 50 : 15),
+                default: () => 50,
                 optional: (options) => !["String", "Number"].includes(options.type),
             },
             {

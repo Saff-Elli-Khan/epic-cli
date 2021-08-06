@@ -111,7 +111,7 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
             task: () => __awaiter(void 0, void 0, void 0, function* () {
                 var _a;
                 // Check Configuration File
-                if (!fs_1.default.readdirSync(core_1.Core.RootPath).length)
+                if (!fs_1.default.readdirSync(core_1.Core.RootPath).includes(core_1.Core.ConfigFileName))
                     throw new Error("Please initialize a project first!");
                 else if ((_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.transactions.reduce((exists, transaction) => exists
                     ? exists
@@ -210,7 +210,7 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
             title: "Checking configuration...",
             task: () => __awaiter(void 0, void 0, void 0, function* () {
                 // Check Configuration File
-                if (!fs_1.default.readdirSync(core_1.Core.RootPath).length)
+                if (!fs_1.default.readdirSync(core_1.Core.RootPath).includes(core_1.Core.ConfigFileName))
                     throw new Error("Please initialize a project first!");
             }),
         },
@@ -268,7 +268,7 @@ Project.createSchema = (options, command) => __awaiter(void 0, void 0, void 0, f
             task: () => __awaiter(void 0, void 0, void 0, function* () {
                 var _b;
                 // Check Configuration File
-                if (!fs_1.default.readdirSync(core_1.Core.RootPath).length)
+                if (!fs_1.default.readdirSync(core_1.Core.RootPath).includes(core_1.Core.ConfigFileName))
                     throw new Error("Please initialize a project first!");
                 else if ((_b = core_1.Core.getConfiguration()) === null || _b === void 0 ? void 0 : _b.transactions.reduce((exists, transaction) => exists
                     ? exists
@@ -330,7 +330,7 @@ Project.deleteSchema = (options) => __awaiter(void 0, void 0, void 0, function* 
             title: "Checking configuration...",
             task: () => __awaiter(void 0, void 0, void 0, function* () {
                 // Check Configuration File
-                if (!fs_1.default.readdirSync(core_1.Core.RootPath).length)
+                if (!fs_1.default.readdirSync(core_1.Core.RootPath).includes(core_1.Core.ConfigFileName))
                     throw new Error("Please initialize a project first!");
             }),
         },
@@ -362,7 +362,7 @@ Project.createSchemaColumn = (options, command) => __awaiter(void 0, void 0, voi
             title: "Checking configuration...",
             task: () => __awaiter(void 0, void 0, void 0, function* () {
                 // Check Configuration File
-                if (!fs_1.default.readdirSync(core_1.Core.RootPath).length)
+                if (!fs_1.default.readdirSync(core_1.Core.RootPath).includes(core_1.Core.ConfigFileName))
                     throw new Error("Please initialize a project first!");
             }),
         },
@@ -452,7 +452,7 @@ Project.deleteSchemaColumn = (options) => __awaiter(void 0, void 0, void 0, func
             title: "Checking configuration...",
             task: () => __awaiter(void 0, void 0, void 0, function* () {
                 // Check Configuration File
-                if (!fs_1.default.readdirSync(core_1.Core.RootPath).length)
+                if (!fs_1.default.readdirSync(core_1.Core.RootPath).includes(core_1.Core.ConfigFileName))
                     throw new Error("Please initialize a project first!");
             }),
         },
