@@ -117,8 +117,14 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
         {
             title: "Loading controller sample",
             task: (ctx) => {
-                // Load Controller Sample
-                ctx.controllerContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.SamplesPath, `./controller/${options.template}.ts`)).toString();
+                try {
+                    // Load Controller
+                    ctx.controllerContent = fs_1.default.readFileSync(path_1.default.join(Project.ControllersPath, `./${options.name}.ts`)).toString();
+                }
+                catch (e) {
+                    // Load Controller Sample
+                    ctx.controllerContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.SamplesPath, `./controller/${options.template}.ts`)).toString();
+                }
             },
         },
         {
@@ -271,8 +277,14 @@ Project.createSchema = (options, command) => __awaiter(void 0, void 0, void 0, f
         {
             title: "Loading schema sample & container",
             task: (ctx) => {
-                // Load Schema Sample
-                ctx.schemaContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.SamplesPath, `./schema/${options.template}.ts`)).toString();
+                try {
+                    // Load Schema
+                    ctx.schemaContent = fs_1.default.readFileSync(path_1.default.join(Project.SchemasPath, `./${options.name}.ts`)).toString();
+                }
+                catch (e) {
+                    // Load Schema Sample
+                    ctx.schemaContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.SamplesPath, `./schema/${options.template}.ts`)).toString();
+                }
                 // Load Schemas Container
                 ctx.schemasContainerContent = fs_1.default.readFileSync(path_1.default.join(Project.SchemasPath, `./index.ts`)).toString();
             },

@@ -77,15 +77,6 @@ exports.ProjectCommands = [
     {
         name: "install",
         description: "Install configuration commands.",
-        params: [
-            {
-                name: "confirm",
-                type: "confirm",
-                description: "Confirm to execute this command.",
-                message: "Do you really want to execute this command? Data loss possible!",
-                end: (options) => !options.confirm,
-            },
-        ],
         method: core_1.Core.install,
     },
     {

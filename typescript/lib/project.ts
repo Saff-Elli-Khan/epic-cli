@@ -193,13 +193,20 @@ export class Project {
       {
         title: "Loading controller sample",
         task: (ctx) => {
-          // Load Controller Sample
-          ctx.controllerContent = Fs.readFileSync(
-            Path.join(
-              options.sampleDir || Project.SamplesPath,
-              `./controller/${options.template}.ts`
-            )
-          ).toString();
+          try {
+            // Load Controller
+            ctx.controllerContent = Fs.readFileSync(
+              Path.join(Project.ControllersPath, `./${options.name}.ts`)
+            ).toString();
+          } catch (e) {
+            // Load Controller Sample
+            ctx.controllerContent = Fs.readFileSync(
+              Path.join(
+                options.sampleDir || Project.SamplesPath,
+                `./controller/${options.template}.ts`
+              )
+            ).toString();
+          }
         },
       },
       {
@@ -439,13 +446,20 @@ export class Project {
         {
           title: "Loading schema sample & container",
           task: (ctx) => {
-            // Load Schema Sample
-            ctx.schemaContent = Fs.readFileSync(
-              Path.join(
-                options.sampleDir || Project.SamplesPath,
-                `./schema/${options.template}.ts`
-              )
-            ).toString();
+            try {
+              // Load Schema
+              ctx.schemaContent = Fs.readFileSync(
+                Path.join(Project.SchemasPath, `./${options.name}.ts`)
+              ).toString();
+            } catch (e) {
+              // Load Schema Sample
+              ctx.schemaContent = Fs.readFileSync(
+                Path.join(
+                  options.sampleDir || Project.SamplesPath,
+                  `./schema/${options.template}.ts`
+                )
+              ).toString();
+            }
 
             // Load Schemas Container
             ctx.schemasContainerContent = Fs.readFileSync(
