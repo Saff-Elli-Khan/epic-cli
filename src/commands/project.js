@@ -34,11 +34,7 @@ exports.ProjectCommands = [
                     if (!/^(?:@[a-z0-9-*~][a-z0-9-*._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/.test(value))
                         throw new Error("Please provide a valid lowercase project name!");
                 },
-                default: () => {
-                    var _a, _b;
-                    return ((_b = (_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.application) === null || _b === void 0 ? void 0 : _b.name) ||
-                        path_1.default.basename(path_1.default.resolve());
-                },
+                default: () => { var _a; return ((_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.name) || path_1.default.basename(path_1.default.resolve()); },
             },
             {
                 type: "input",
@@ -46,7 +42,7 @@ exports.ProjectCommands = [
                 description: "Description for the project.",
                 alias: ["--description", "-d"],
                 message: "Please provide a project description:",
-                default: () => { var _a, _b; return ((_b = (_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.application) === null || _b === void 0 ? void 0 : _b.description) || "N/A"; },
+                default: () => { var _a; return ((_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.description) || "N/A"; },
             },
             {
                 type: "input",
@@ -54,7 +50,7 @@ exports.ProjectCommands = [
                 description: "Name of the Brand for the project.",
                 alias: ["--brand-name", "-bn"],
                 message: "Please provide a brand name:",
-                default: () => { var _a, _b, _c; return ((_c = (_b = (_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.application) === null || _b === void 0 ? void 0 : _b.brand) === null || _c === void 0 ? void 0 : _c.name) || "N/A"; },
+                default: () => { var _a, _b; return ((_b = (_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.brand) === null || _b === void 0 ? void 0 : _b.name) || "N/A"; },
             },
             {
                 type: "list",
@@ -63,7 +59,7 @@ exports.ProjectCommands = [
                 alias: ["--brand-country", "-bc"],
                 message: "Please provide your country:",
                 choices: new epic_geo_1.EpicGeo().countryList(),
-                default: () => { var _a, _b, _c; return ((_c = (_b = (_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.application) === null || _b === void 0 ? void 0 : _b.brand) === null || _c === void 0 ? void 0 : _c.country) || "N/A"; },
+                default: () => { var _a, _b; return ((_b = (_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.brand) === null || _b === void 0 ? void 0 : _b.country) || "N/A"; },
             },
             {
                 type: "input",
@@ -71,7 +67,7 @@ exports.ProjectCommands = [
                 description: "Address of the project Brand.",
                 alias: ["--brand-address", "-ba"],
                 message: "Please provide your address:",
-                default: () => { var _a, _b, _c; return ((_c = (_b = (_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.application) === null || _b === void 0 ? void 0 : _b.brand) === null || _c === void 0 ? void 0 : _c.address) || "N/A"; },
+                default: () => { var _a, _b; return ((_b = (_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.brand) === null || _b === void 0 ? void 0 : _b.address) || "N/A"; },
             },
         ],
         default: {

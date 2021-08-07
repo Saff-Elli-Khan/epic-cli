@@ -27,14 +27,12 @@ Core.ConfigFilePath = () => path_1.default.join(Core.RootPath, Core.ConfigFileNa
 Core.DefaultConfig = {
     version: 1,
     type: "Application",
-    application: {
-        name: "demo-project",
-        description: "This is a demo project.",
-        brand: {
-            name: "Demo Company",
-            country: "Pakistan",
-            address: "House #22, Multan",
-        },
+    name: "demo-project",
+    description: "This is a demo project.",
+    brand: {
+        name: "Demo Company",
+        country: "Pakistan",
+        address: "House #22, Multan",
     },
     paths: {
         samples: "./src/samples/",
@@ -54,14 +52,12 @@ Core.initialize = (options) => __awaiter(void 0, void 0, void 0, function* () {
                 const Configuration = Core.getConfiguration();
                 // Update Configuration
                 Configuration.type = options.type;
-                Configuration.application = {
-                    name: options.name,
-                    description: options.description,
-                    brand: {
-                        name: options.brandName,
-                        country: options.brandCountry,
-                        address: options.brandAddress,
-                    },
+                Configuration.name = options.name;
+                Configuration.description = options.description;
+                Configuration.brand = {
+                    name: options.brandName,
+                    country: options.brandCountry,
+                    address: options.brandAddress,
                 };
             },
         },

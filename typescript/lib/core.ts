@@ -9,7 +9,9 @@ export type ProjectType = "Application" | "Plugin";
 export interface ConfigurationInterface {
   version: number;
   type: ProjectType;
-  application: ApplicationInterface;
+  name: string;
+  description: string;
+  brand: BrandInterface;
   paths: PathsInterface;
   transactions: Array<TransactionInterface>;
 }
@@ -18,12 +20,6 @@ export interface PathsInterface {
   samples: string;
   contollers: string;
   schemas: string;
-}
-
-export interface ApplicationInterface {
-  name: string;
-  description: string;
-  brand: BrandInterface;
 }
 
 export interface BrandInterface {
@@ -56,14 +52,12 @@ export class Core {
   static DefaultConfig: ConfigurationInterface = {
     version: 1,
     type: "Application",
-    application: {
-      name: "demo-project",
-      description: "This is a demo project.",
-      brand: {
-        name: "Demo Company",
-        country: "Pakistan",
-        address: "House #22, Multan",
-      },
+    name: "demo-project",
+    description: "This is a demo project.",
+    brand: {
+      name: "Demo Company",
+      country: "Pakistan",
+      address: "House #22, Multan",
     },
     paths: {
       samples: "./src/samples/",
@@ -86,14 +80,12 @@ export class Core {
 
           // Update Configuration
           Configuration.type = options.type;
-          Configuration.application = {
-            name: options.name,
-            description: options.description,
-            brand: {
-              name: options.brandName,
-              country: options.brandCountry,
-              address: options.brandAddress,
-            },
+          Configuration.name = options.name;
+          Configuration.description = options.description;
+          Configuration.brand = {
+            name: options.brandName,
+            country: options.brandCountry,
+            address: options.brandAddress,
           };
         },
       },

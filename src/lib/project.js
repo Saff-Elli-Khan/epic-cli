@@ -32,13 +32,11 @@ Project.ControllersPath = path_1.default.join(core_1.Core.RootPath, core_1.Core.
 Project.SchemasPath = path_1.default.join(core_1.Core.RootPath, core_1.Core.getConfiguration().paths.schemas);
 Project.getPackage = () => require(Project.PackagePath);
 Project.configure = (Configuration) => {
-    var _a, _b;
     // Get Package Information
     const Package = Project.getPackage();
     // Update Package Information
-    Package.name = ((_a = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _a === void 0 ? void 0 : _a.name) || Package.name;
-    Package.description =
-        ((_b = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _b === void 0 ? void 0 : _b.description) || Package.description;
+    Package.name = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.name) || Package.name;
+    Package.description = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.description) || Package.description;
     // Put Package Data
     fs_1.default.writeFileSync(Project.PackagePath, JSON.stringify(Package, undefined, 2));
     // Re-Create Configuration

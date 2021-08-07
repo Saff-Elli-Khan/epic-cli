@@ -35,8 +35,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
             throw new Error("Please provide a valid lowercase project name!");
         },
         default: () =>
-          Core.getConfiguration()?.application?.name ||
-          Path.basename(Path.resolve()),
+          Core.getConfiguration()?.name || Path.basename(Path.resolve()),
       },
       {
         type: "input",
@@ -44,8 +43,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Description for the project.",
         alias: ["--description", "-d"],
         message: "Please provide a project description:",
-        default: () =>
-          Core.getConfiguration()?.application?.description || "N/A",
+        default: () => Core.getConfiguration()?.description || "N/A",
       },
       {
         type: "input",
@@ -53,8 +51,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Name of the Brand for the project.",
         alias: ["--brand-name", "-bn"],
         message: "Please provide a brand name:",
-        default: () =>
-          Core.getConfiguration()?.application?.brand?.name || "N/A",
+        default: () => Core.getConfiguration()?.brand?.name || "N/A",
       },
       {
         type: "list",
@@ -63,8 +60,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         alias: ["--brand-country", "-bc"],
         message: "Please provide your country:",
         choices: new EpicGeo().countryList(),
-        default: () =>
-          Core.getConfiguration()?.application?.brand?.country || "N/A",
+        default: () => Core.getConfiguration()?.brand?.country || "N/A",
       },
       {
         type: "input",
@@ -72,8 +68,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Address of the project Brand.",
         alias: ["--brand-address", "-ba"],
         message: "Please provide your address:",
-        default: () =>
-          Core.getConfiguration()?.application?.brand?.address || "N/A",
+        default: () => Core.getConfiguration()?.brand?.address || "N/A",
       },
     ],
     default: {

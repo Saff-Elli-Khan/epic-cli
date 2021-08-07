@@ -85,9 +85,8 @@ export class Project {
     const Package = Project.getPackage();
 
     // Update Package Information
-    Package.name = Configuration?.application?.name || Package.name;
-    Package.description =
-      Configuration?.application?.description || Package.description;
+    Package.name = Configuration?.name || Package.name;
+    Package.description = Configuration?.description || Package.description;
 
     // Put Package Data
     Fs.writeFileSync(
