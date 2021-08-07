@@ -12,6 +12,15 @@ export const ProjectCommands: LooseCommandInterface[] = [
     alias: ["--init", "--configure"],
     params: [
       {
+        type: "list",
+        name: "type",
+        description: "Type of the project.",
+        alias: ["--type", "-t"],
+        message: "Please provide a project type:",
+        choices: ["Application", "Plugin"],
+        default: "Application",
+      },
+      {
         type: "input",
         name: "name",
         description: "Name of the project.",
@@ -77,14 +86,14 @@ export const ProjectCommands: LooseCommandInterface[] = [
     method: Core.initialize,
   },
   {
+    name: "create",
+    description: "Create a new Epic project.",
+    method: Project.create,
+  },
+  {
     name: "install",
     description: "Install configuration commands.",
     method: Core.install,
-  },
-  {
-    name: "create-project",
-    description: "Create a new Epic project quickly.",
-    method: Project.create,
   },
   {
     name: "create-controller",
@@ -107,7 +116,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Description for the controller.",
         alias: ["--description", "-d"],
         message: "Please provide a controller description:",
-        default: () => "N/A",
+        default: "N/A",
       },
       {
         type: "input",
@@ -212,7 +221,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Description for the schema.",
         alias: ["--description", "-d"],
         message: "Please provide a schema description:",
-        default: () => "N/A",
+        default: "N/A",
       },
       {
         type: "input",
@@ -307,7 +316,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
           "Array",
           "Relation",
         ],
-        default: () => "String",
+        default: "String",
       },
       {
         type: "array",
@@ -322,7 +331,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Column is an array of type.",
         message: "Array of type:",
         choices: ["String", "Number", "Boolean", "Record", "Relation"],
-        default: () => "String",
+        default: "String",
         skip: (options) => options.type !== "Array",
       },
       {
@@ -330,7 +339,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         name: "recordType",
         description: "Type of the record.",
         message: "Please provide the type of the record:",
-        default: () => "any",
+        default: "any",
         skip: (options) =>
           options.type !== "Record" && options.arrayof !== "Record",
       },
@@ -340,7 +349,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         alias: ["--length", "-l"],
         description: "Length of the column.",
         message: "Please provide a column length:",
-        default: () => 50,
+        default: 50,
         skip: (options) => !["String", "Number"].includes(options.type),
       },
       {
@@ -427,7 +436,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         alias: ["--collation", "-c"],
         description: "Collation of the column.",
         message: "Please provide a column collation:",
-        default: () => "utf8mb4_unicode_ci",
+        default: "utf8mb4_unicode_ci",
         skip: (options) => !options.advancedProperties,
       },
       {

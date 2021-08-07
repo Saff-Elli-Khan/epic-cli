@@ -4,10 +4,13 @@ import Listr from "listr";
 import { Project } from "./project";
 import { EpicCli } from "../cli";
 
+export type ProjectType = "Application" | "Plugin";
+
 export interface ConfigurationInterface {
   version: number;
+  type: ProjectType;
+  application: ApplicationInterface;
   paths: PathsInterface;
-  application?: ApplicationInterface;
   transactions: Array<TransactionInterface>;
 }
 
@@ -35,6 +38,7 @@ export interface TransactionInterface {
 }
 
 export interface InitializationOptions {
+  type: ProjectType;
   name: string;
   description: string;
   brandName: string;
@@ -51,6 +55,16 @@ export class Core {
 
   static DefaultConfig: ConfigurationInterface = {
     version: 1,
+    type: "Application",
+    application: {
+      name: "demo-project",
+      description: "This is a demo project.",
+      brand: {
+        name: "Demo Company",
+        country: "Pakistan",
+        address: "House #22, Multan",
+      },
+    },
     paths: {
       samples: "./src/samples/",
       contollers: "./src/controllers/",
@@ -67,8 +81,12 @@ export class Core {
       {
         title: "Creating/Updating configuration...",
         task: () => {
+          // Get Configuration
+          const Configuration = Core.getConfiguration()!;
+
           // Update Configuration
-          Core.getConfiguration()!.application = {
+          Configuration.type = options.type;
+          Configuration.application = {
             name: options.name,
             description: options.description,
             brand: {

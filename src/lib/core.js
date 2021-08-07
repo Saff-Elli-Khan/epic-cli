@@ -26,6 +26,16 @@ Core.ConfigFileName = "epic.config.json";
 Core.ConfigFilePath = () => path_1.default.join(Core.RootPath, Core.ConfigFileName);
 Core.DefaultConfig = {
     version: 1,
+    type: "Application",
+    application: {
+        name: "demo-project",
+        description: "This is a demo project.",
+        brand: {
+            name: "Demo Company",
+            country: "Pakistan",
+            address: "House #22, Multan",
+        },
+    },
     paths: {
         samples: "./src/samples/",
         contollers: "./src/controllers/",
@@ -40,8 +50,11 @@ Core.initialize = (options) => __awaiter(void 0, void 0, void 0, function* () {
         {
             title: "Creating/Updating configuration...",
             task: () => {
+                // Get Configuration
+                const Configuration = Core.getConfiguration();
                 // Update Configuration
-                Core.getConfiguration().application = {
+                Configuration.type = options.type;
+                Configuration.application = {
                     name: options.name,
                     description: options.description,
                     brand: {

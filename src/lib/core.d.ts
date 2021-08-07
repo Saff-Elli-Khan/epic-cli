@@ -1,7 +1,9 @@
+export declare type ProjectType = "Application" | "Plugin";
 export interface ConfigurationInterface {
     version: number;
+    type: ProjectType;
+    application: ApplicationInterface;
     paths: PathsInterface;
-    application?: ApplicationInterface;
     transactions: Array<TransactionInterface>;
 }
 export interface PathsInterface {
@@ -24,6 +26,7 @@ export interface TransactionInterface {
     params: Record<string, any>;
 }
 export interface InitializationOptions {
+    type: ProjectType;
     name: string;
     description: string;
     brandName: string;
