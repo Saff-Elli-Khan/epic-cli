@@ -77,6 +77,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
       },
     ],
     default: {
+      type: "Application",
       name: Path.basename(Path.resolve()),
       description: "N/A",
       brandName: "N/A",

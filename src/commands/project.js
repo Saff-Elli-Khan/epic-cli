@@ -75,6 +75,7 @@ exports.ProjectCommands = [
             },
         ],
         default: {
+            type: "Application",
             name: path_1.default.basename(path_1.default.resolve()),
             description: "N/A",
             brandName: "N/A",
