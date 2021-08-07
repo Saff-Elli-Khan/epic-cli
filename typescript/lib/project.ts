@@ -81,18 +81,13 @@ export class Project {
   static getPackage = () => require(Project.PackagePath);
 
   static configure = (Configuration: ConfigurationInterface) => {
-    // Update Package Information
+    // Get Package Information
     const Package = Project.getPackage();
+
+    // Update Package Information
     Package.name = Configuration?.application?.name || Package.name;
     Package.description =
       Configuration?.application?.description || Package.description;
-    Package.brand = {
-      name: Configuration?.application?.brand?.name || Package.brand.name,
-      country:
-        Configuration?.application?.brand?.country || Package.brand.country,
-      address:
-        Configuration?.application?.brand?.address || Package.brand.address,
-    };
 
     // Put Package Data
     Fs.writeFileSync(

@@ -32,17 +32,13 @@ Project.ControllersPath = path_1.default.join(core_1.Core.RootPath, core_1.Core.
 Project.SchemasPath = path_1.default.join(core_1.Core.RootPath, core_1.Core.getConfiguration().paths.schemas);
 Project.getPackage = () => require(Project.PackagePath);
 Project.configure = (Configuration) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
-    // Update Package Information
+    var _a, _b;
+    // Get Package Information
     const Package = Project.getPackage();
+    // Update Package Information
     Package.name = ((_a = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _a === void 0 ? void 0 : _a.name) || Package.name;
     Package.description =
         ((_b = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _b === void 0 ? void 0 : _b.description) || Package.description;
-    Package.brand = {
-        name: ((_d = (_c = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _c === void 0 ? void 0 : _c.brand) === null || _d === void 0 ? void 0 : _d.name) || Package.brand.name,
-        country: ((_f = (_e = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _e === void 0 ? void 0 : _e.brand) === null || _f === void 0 ? void 0 : _f.country) || Package.brand.country,
-        address: ((_h = (_g = Configuration === null || Configuration === void 0 ? void 0 : Configuration.application) === null || _g === void 0 ? void 0 : _g.brand) === null || _h === void 0 ? void 0 : _h.address) || Package.brand.address,
-    };
     // Put Package Data
     fs_1.default.writeFileSync(Project.PackagePath, JSON.stringify(Package, undefined, 2));
     // Re-Create Configuration
