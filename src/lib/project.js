@@ -480,6 +480,8 @@ Project.createSchemaColumn = (options, command) => __awaiter(void 0, void 0, voi
                 Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-schema-column" &&
                     transaction.params.schema === options.schema &&
                     transaction.params.name === options.name));
+                // Update History
+                Configuration.history.schema = options.schema;
                 // Update Transactions
                 Configuration.transactions.push({
                     command: command.name,
@@ -532,6 +534,8 @@ Project.deleteSchemaColumn = (options) => __awaiter(void 0, void 0, void 0, func
             task: () => {
                 // Get Configuration
                 const Configuration = core_1.Core.getConfiguration();
+                // Update History
+                Configuration.history.schema = options.schema;
                 // Remove Transaction
                 Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-schema-column" &&
                     transaction.params.schema === options.schema &&

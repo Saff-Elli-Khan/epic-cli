@@ -768,6 +768,9 @@ export class Project {
               )
           );
 
+          // Update History
+          Configuration.history.schema = options.schema;
+
           // Update Transactions
           Configuration.transactions.push({
             command: command.name,
@@ -829,6 +832,9 @@ export class Project {
         task: () => {
           // Get Configuration
           const Configuration = Core.getConfiguration()!;
+
+          // Update History
+          Configuration.history.schema = options.schema;
 
           // Remove Transaction
           Configuration.transactions = Configuration.transactions.filter(

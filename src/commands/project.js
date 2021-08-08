@@ -279,7 +279,7 @@ exports.ProjectCommands = [
                         .map((file) => file.replace(/\.\w*/g, ""));
                     return List.filter((v) => v !== "index");
                 },
-                default: () => { var _a; return (_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.history.schema; },
+                default: () => { var _a, _b; return (_b = (_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.history) === null || _b === void 0 ? void 0 : _b.schema; },
             },
             {
                 type: "list",
@@ -472,6 +472,7 @@ exports.ProjectCommands = [
                         .map((file) => file.replace(/\.\w*/g, ""));
                     return List.filter((v) => v !== "index");
                 },
+                default: () => { var _a, _b; return (_b = (_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.history) === null || _b === void 0 ? void 0 : _b.schema; },
             },
         ],
         method: project_1.Project.deleteSchemaColumn,

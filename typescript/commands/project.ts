@@ -296,7 +296,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
 
           return List.filter((v) => v !== "index");
         },
-        default: () => Core.getConfiguration()?.history.schema,
+        default: () => Core.getConfiguration()?.history?.schema,
       },
       {
         type: "list",
@@ -495,6 +495,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
 
           return List.filter((v) => v !== "index");
         },
+        default: () => Core.getConfiguration()?.history?.schema,
       },
     ],
     method: Project.deleteSchemaColumn,
