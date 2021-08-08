@@ -279,6 +279,7 @@ exports.ProjectCommands = [
                         .map((file) => file.replace(/\.\w*/g, ""));
                     return List.filter((v) => v !== "index");
                 },
+                default: () => { var _a; return (_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.history.schema; },
             },
             {
                 type: "list",
