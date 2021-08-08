@@ -3,10 +3,10 @@ import Listr from "listr";
 import Path from "path";
 import Fs from "fs";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
-import { generateRandomKey } from "./utils";
-import { ConfigurationInterface, Core, TransactionInterface } from "./core";
-import { EpicCli } from "../cli";
 import { Parser } from "@saffellikhan/epic-parser";
+import { ConfigurationInterface, Core, TransactionInterface } from "./core";
+import { generateRandomKey } from "./utils";
+import { EpicCli } from "../cli";
 
 export interface CreateControllerOptions {
   name: string;
@@ -698,7 +698,10 @@ export class Project {
                   ? `\nlength: ${options.length || null},`
                   : ""
               }${
-                options.collation ? `\ncollation: "${options.collation}",` : ""
+                options.collation !== undefined &&
+                options.collation !== "utf8mb4_unicode_ci"
+                  ? `\ncollation: "${options.collation}",`
+                  : ""
               }${
                 options.choices
                   ? `\nchoices: ["${options.choices.join('", "')}"],`

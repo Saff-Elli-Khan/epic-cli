@@ -17,10 +17,10 @@ const execa_1 = __importDefault(require("execa"));
 const listr_1 = __importDefault(require("listr"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
-const utils_1 = require("./utils");
-const core_1 = require("./core");
-const cli_1 = require("../cli");
 const epic_parser_1 = require("@saffellikhan/epic-parser");
+const core_1 = require("./core");
+const utils_1 = require("./utils");
+const cli_1 = require("../cli");
 class Project {
 }
 exports.Project = Project;
@@ -436,7 +436,10 @@ Project.createSchemaColumn = (options, command) => __awaiter(void 0, void 0, voi
                                 : options.type.toLowerCase(),
                     options: `{${options.length !== undefined && options.length !== 50
                         ? `\nlength: ${options.length || null},`
-                        : ""}${options.collation ? `\ncollation: "${options.collation}",` : ""}${options.choices
+                        : ""}${options.collation !== undefined &&
+                        options.collation !== "utf8mb4_unicode_ci"
+                        ? `\ncollation: "${options.collation}",`
+                        : ""}${options.choices
                         ? `\nchoices: ["${options.choices.join('", "')}"],`
                         : ""}${options.nullable ? `\nnullable: true,` : ""}${((_c = options.index) === null || _c === void 0 ? void 0 : _c.length)
                         ? `\nindex: ["${options.index.join('", "')}"],`
