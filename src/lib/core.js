@@ -29,6 +29,10 @@ Core.DefaultConfig = {
     type: "Application",
     name: "demo-project",
     description: "This is a demo project.",
+    history: {
+        controller: null,
+        schema: null,
+    },
     brand: {
         name: "Demo Company",
         country: "Pakistan",

@@ -312,6 +312,9 @@ export class Project {
           // Get Configuration
           const Configuration = Core.getConfiguration()!;
 
+          // Update History
+          Configuration.history.controller = options.name;
+
           // Remove Duplicate Transaction
           Configuration.transactions = Configuration.transactions.filter(
             (transaction) =>
@@ -405,6 +408,9 @@ export class Project {
               ).log();
             }
           }
+
+          // Update History
+          Configuration.history.controller = options.name;
 
           // Remove Transaction
           Configuration.transactions = Configuration.transactions.filter(
@@ -542,6 +548,9 @@ export class Project {
                 )
             );
 
+            // Update History
+            Configuration.history.schema = options.name;
+
             // Update Transactions
             Configuration.transactions.push({
               command: command.name,
@@ -612,6 +621,9 @@ export class Project {
                 transaction.params.name === options.name
               )
           );
+
+          // Update History
+          Configuration.history.schema = options.name;
 
           // Remove Column Transactions
           Configuration.transactions = Configuration.transactions.filter(

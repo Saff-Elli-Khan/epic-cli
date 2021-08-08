@@ -11,9 +11,15 @@ export interface ConfigurationInterface {
   type: ProjectType;
   name: string;
   description: string;
+  history: HistoryInterface;
   brand: BrandInterface;
   paths: PathsInterface;
   transactions: Array<TransactionInterface>;
+}
+
+export interface HistoryInterface {
+  controller: string | null;
+  schema: string | null;
 }
 
 export interface PathsInterface {
@@ -54,6 +60,10 @@ export class Core {
     type: "Application",
     name: "demo-project",
     description: "This is a demo project.",
+    history: {
+      controller: null,
+      schema: null,
+    },
     brand: {
       name: "Demo Company",
       country: "Pakistan",

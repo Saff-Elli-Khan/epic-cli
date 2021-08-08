@@ -4,9 +4,14 @@ export interface ConfigurationInterface {
     type: ProjectType;
     name: string;
     description: string;
+    history: HistoryInterface;
     brand: BrandInterface;
     paths: PathsInterface;
     transactions: Array<TransactionInterface>;
+}
+export interface HistoryInterface {
+    controller: string | null;
+    schema: string | null;
 }
 export interface PathsInterface {
     samples: string;

@@ -186,6 +186,8 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                 }
                 // Get Configuration
                 const Configuration = core_1.Core.getConfiguration();
+                // Update History
+                Configuration.history.controller = options.name;
                 // Remove Duplicate Transaction
                 Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-controller" &&
                     transaction.params.name === options.name));
@@ -248,6 +250,8 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
                         cli_1.EpicCli.Logger.warn(`We are unable to parse controllers/index properly! Please remove the child controller from "${Transaction.params.parent}" manually.`).log();
                     }
                 }
+                // Update History
+                Configuration.history.controller = options.name;
                 // Remove Transaction
                 Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-controller" &&
                     transaction.params.name === options.name));
@@ -327,6 +331,8 @@ Project.createSchema = (options, command) => __awaiter(void 0, void 0, void 0, f
                 // Remove Duplicate Transaction
                 Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-schema" &&
                     transaction.params.name === options.name));
+                // Update History
+                Configuration.history.schema = options.name;
                 // Update Transactions
                 Configuration.transactions.push({
                     command: command.name,
@@ -379,6 +385,8 @@ Project.deleteSchema = (options) => __awaiter(void 0, void 0, void 0, function* 
                 // Remove Schema Transaction
                 Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-schema" &&
                     transaction.params.name === options.name));
+                // Update History
+                Configuration.history.schema = options.name;
                 // Remove Column Transactions
                 Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-schema-column" &&
                     transaction.params.schema === options.name));
