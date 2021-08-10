@@ -140,10 +140,9 @@ exports.ProjectCommands = [
                     // Resolve Directory
                     fs_1.default.mkdirSync(ControllerDir, { recursive: true });
                     // Samples List
-                    const List = fs_1.default.readdirSync(ControllerDir)
+                    return fs_1.default.readdirSync(ControllerDir)
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, ""));
-                    return [...(List.length ? List : ["default"])];
                 },
             },
             {
@@ -155,10 +154,9 @@ exports.ProjectCommands = [
                     // Resolve Directory
                     fs_1.default.mkdirSync(project_1.Project.ControllersPath, { recursive: true });
                     // Controllers List
-                    const List = fs_1.default.readdirSync(project_1.Project.ControllersPath)
+                    return fs_1.default.readdirSync(project_1.Project.ControllersPath)
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, ""));
-                    return [...(List.length ? List : ["index"])];
                 },
             },
         ],
@@ -181,7 +179,7 @@ exports.ProjectCommands = [
                     const List = fs_1.default.readdirSync(project_1.Project.ControllersPath)
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, ""));
-                    return [...(List.length ? List : ["index"])];
+                    return List.filter((v) => v !== "index");
                 },
             },
         ],
@@ -228,10 +226,9 @@ exports.ProjectCommands = [
                     // Resolve Directory
                     fs_1.default.mkdirSync(SchemaDir, { recursive: true });
                     // Samples List
-                    const List = fs_1.default.readdirSync(SchemaDir)
+                    return fs_1.default.readdirSync(SchemaDir)
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, ""));
-                    return [...(List.length ? List : ["default"])];
                 },
             },
         ],

@@ -144,11 +144,9 @@ export const ProjectCommands: LooseCommandInterface[] = [
           Fs.mkdirSync(ControllerDir, { recursive: true });
 
           // Samples List
-          const List = Fs.readdirSync(ControllerDir)
+          return Fs.readdirSync(ControllerDir)
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
-
-          return [...(List.length ? List : ["default"])];
         },
       },
       {
@@ -161,11 +159,9 @@ export const ProjectCommands: LooseCommandInterface[] = [
           Fs.mkdirSync(Project.ControllersPath, { recursive: true });
 
           // Controllers List
-          const List = Fs.readdirSync(Project.ControllersPath)
+          return Fs.readdirSync(Project.ControllersPath)
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
-
-          return [...(List.length ? List : ["index"])];
         },
       },
     ],
@@ -190,7 +186,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
 
-          return [...(List.length ? List : ["index"])];
+          return List.filter((v) => v !== "index");
         },
       },
     ],
@@ -240,11 +236,9 @@ export const ProjectCommands: LooseCommandInterface[] = [
           Fs.mkdirSync(SchemaDir, { recursive: true });
 
           // Samples List
-          const List = Fs.readdirSync(SchemaDir)
+          return Fs.readdirSync(SchemaDir)
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
-
-          return [...(List.length ? List : ["default"])];
         },
       },
     ],

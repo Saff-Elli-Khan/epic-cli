@@ -233,7 +233,7 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
                         // Remove Child Controller Import
                         Parsed.pop("ImportsContainer", options.name + "Import");
                         // Remove Child Controller
-                        Parsed.pop("ControllerChildsContainer", options.name + "ControllerChild");
+                        Parsed.pop("ControllerChildsContainer", options.name + "ControllerChilds");
                         // Save Parent Controller Content
                         fs_1.default.writeFileSync(ParentControllerPath, Parsed.render());
                     }

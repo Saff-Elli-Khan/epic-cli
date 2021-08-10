@@ -384,7 +384,7 @@ export class Project {
               // Remove Child Controller
               Parsed.pop(
                 "ControllerChildsContainer",
-                options.name + "ControllerChild"
+                options.name + "ControllerChilds"
               );
 
               // Save Parent Controller Content
