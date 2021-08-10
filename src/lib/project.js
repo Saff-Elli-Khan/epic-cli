@@ -166,17 +166,8 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
                         location: `./${options.name}`,
                     });
                     // Push Child Controller
-                    Parsed.push("ControllerChildsContainer", "ControllerChildsListTemplate", options.parent + "ControllerChilds", (content) => {
-                        // Parse Controllers List
-                        const ControllersList = (content || "[]")
-                            .replace(/\[([^]*)\]\s*,\s*/g, "$1")
-                            .split(/\s*,\s*/g)
-                            .filter((v) => v);
-                        // Push New Controller
-                        ControllersList.push(options.name + "Controller");
-                        return {
-                            childs: ControllersList,
-                        };
+                    Parsed.push("ControllerChildsContainer", "ControllerChildsListTemplate", options.name + "ControllerChilds", {
+                        child: options.name + "Controller",
                     });
                     // Save Parent Controller Content
                     fs_1.default.writeFileSync(ParentControllerPath, Parsed.render());
@@ -238,11 +229,11 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
                         // Parent Controller Path
                         const ParentControllerPath = path_1.default.join(Project.ControllersPath, `./${Transaction.params.parent}.ts`);
                         // Get Parent Controller Content & Parse Template
-                        const Parsed = new epic_parser_1.Parser(fs_1.default.readFileSync(ParentControllerPath)
-                            .toString()
-                            .replace(new RegExp("\\s*(" + options.name + "Controller)\\s*,?\\s*", "g"), "")).parse();
+                        const Parsed = new epic_parser_1.Parser(fs_1.default.readFileSync(ParentControllerPath).toString()).parse();
                         // Remove Child Controller Import
                         Parsed.pop("ImportsContainer", options.name + "Import");
+                        // Remove Child Controller
+                        Parsed.pop("ControllerChildsContainer", options.name + "ControllerChild");
                         // Save Parent Controller Content
                         fs_1.default.writeFileSync(ParentControllerPath, Parsed.render());
                     }

@@ -284,20 +284,9 @@ export class Project {
             Parsed.push(
               "ControllerChildsContainer",
               "ControllerChildsListTemplate",
-              options.parent + "ControllerChilds",
-              (content) => {
-                // Parse Controllers List
-                const ControllersList = ((content || "[]") as string)
-                  .replace(/\[([^]*)\]\s*,\s*/g, "$1")
-                  .split(/\s*,\s*/g)
-                  .filter((v) => v);
-
-                // Push New Controller
-                ControllersList.push(options.name + "Controller");
-
-                return {
-                  childs: ControllersList,
-                };
+              options.name + "ControllerChilds",
+              {
+                child: options.name + "Controller",
               }
             );
 
@@ -386,19 +375,17 @@ export class Project {
 
               // Get Parent Controller Content & Parse Template
               const Parsed = new Parser(
-                Fs.readFileSync(ParentControllerPath)
-                  .toString()
-                  .replace(
-                    new RegExp(
-                      "\\s*(" + options.name + "Controller)\\s*,?\\s*",
-                      "g"
-                    ),
-                    ""
-                  )
+                Fs.readFileSync(ParentControllerPath).toString()
               ).parse();
 
               // Remove Child Controller Import
               Parsed.pop("ImportsContainer", options.name + "Import");
+
+              // Remove Child Controller
+              Parsed.pop(
+                "ControllerChildsContainer",
+                options.name + "ControllerChild"
+              );
 
               // Save Parent Controller Content
               Fs.writeFileSync(ParentControllerPath, Parsed.render());
