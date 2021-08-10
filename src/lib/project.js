@@ -39,6 +39,10 @@ Project.configure = (Configuration) => {
     Package.description = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.description) || Package.description;
     Package.private = Configuration.type === "Application";
     if (Configuration.type === "Plugin") {
+        // Remove Git Information
+        Package.homepage = undefined;
+        Package.repository = undefined;
+        Package.bugs = undefined;
         // Dependencies to Development
         Package.devDependencies = Object.assign(Object.assign({}, Package.dependencies), Package.devDependencies);
         // Empty Dependencies
@@ -72,17 +76,22 @@ Project.create = () => __awaiter(void 0, void 0, void 0, function* () {
         },
         {
             title: "Cloning repository to current directory",
-            task: () => execa_1.default("git", [
-                "clone",
-                "https://github.com/Saff-Elli-Khan/epic-application",
-                ".",
-            ]),
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Clone Repository
+                yield execa_1.default("git", [
+                    "clone",
+                    "https://github.com/Saff-Elli-Khan/epic-application",
+                    ".",
+                ]);
+                // Remove .git folder
+                yield execa_1.default("npx", ["rimraf", "./.git"]);
+                // Initialize New Repository
+                yield execa_1.default("git", ["init"]);
+            }),
         },
         {
             title: "Configuring your project",
-            task: ({ configuration }) => __awaiter(void 0, void 0, void 0, function* () {
-                // Remove .git folder
-                yield execa_1.default("npx", ["rimraf", "./.git"]);
+            task: ({ configuration }) => {
                 if (fs_1.default.existsSync(Project.PackagePath)) {
                     // Configure Project
                     Project.configure(configuration);
@@ -91,7 +100,7 @@ Project.create = () => __awaiter(void 0, void 0, void 0, function* () {
                 }
                 else
                     throw new Error(`We did not found a 'package.json' in the project!`);
-            }),
+            },
         },
         {
             title: "Installing package dependencies with Yarn",

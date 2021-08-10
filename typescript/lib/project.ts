@@ -90,6 +90,11 @@ export class Project {
     Package.private = Configuration.type === "Application";
 
     if (Configuration.type === "Plugin") {
+      // Remove Git Information
+      Package.homepage = undefined;
+      Package.repository = undefined;
+      Package.bugs = undefined;
+
       // Dependencies to Development
       Package.devDependencies = {
         ...Package.dependencies,
@@ -137,19 +142,24 @@ export class Project {
       },
       {
         title: "Cloning repository to current directory",
-        task: () =>
-          Execa("git", [
+        task: async () => {
+          // Clone Repository
+          await Execa("git", [
             "clone",
             "https://github.com/Saff-Elli-Khan/epic-application",
             ".",
-          ]),
-      },
-      {
-        title: "Configuring your project",
-        task: async ({ configuration }) => {
+          ]);
+
           // Remove .git folder
           await Execa("npx", ["rimraf", "./.git"]);
 
+          // Initialize New Repository
+          await Execa("git", ["init"]);
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: ({ configuration }) => {
           if (Fs.existsSync(Project.PackagePath)) {
             // Configure Project
             Project.configure(configuration);
