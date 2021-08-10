@@ -146,7 +146,10 @@ export class Project {
       },
       {
         title: "Configuring your project",
-        task: ({ configuration }) => {
+        task: async ({ configuration }) => {
+          // Remove .git folder
+          await Execa("npx", ["rimraf", "./.git"]);
+
           if (Fs.existsSync(Project.PackagePath)) {
             // Configure Project
             Project.configure(configuration);

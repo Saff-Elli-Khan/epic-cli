@@ -80,7 +80,9 @@ Project.create = () => __awaiter(void 0, void 0, void 0, function* () {
         },
         {
             title: "Configuring your project",
-            task: ({ configuration }) => {
+            task: ({ configuration }) => __awaiter(void 0, void 0, void 0, function* () {
+                // Remove .git folder
+                yield execa_1.default("npx", ["rimraf", "./.git"]);
                 if (fs_1.default.existsSync(Project.PackagePath)) {
                     // Configure Project
                     Project.configure(configuration);
@@ -89,7 +91,7 @@ Project.create = () => __awaiter(void 0, void 0, void 0, function* () {
                 }
                 else
                     throw new Error(`We did not found a 'package.json' in the project!`);
-            },
+            }),
         },
         {
             title: "Installing package dependencies with Yarn",
