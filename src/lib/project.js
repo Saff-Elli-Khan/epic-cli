@@ -37,6 +37,15 @@ Project.configure = (Configuration) => {
     // Update Package Information
     Package.name = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.name) || Package.name;
     Package.description = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.description) || Package.description;
+    Package.private = Configuration.type === "Application";
+    if (Configuration.type === "Plugin") {
+        // Dependencies to Development
+        Package.devDependencies = Object.assign(Object.assign({}, Package.dependencies), Package.devDependencies);
+        // Empty Dependencies
+        Package.dependencies = {};
+        // Update Tags
+        Package.keywords = ["epic", "plugin"];
+    }
     // Put Package Data
     fs_1.default.writeFileSync(Project.PackagePath, JSON.stringify(Package, undefined, 2));
     // Re-Create Configuration

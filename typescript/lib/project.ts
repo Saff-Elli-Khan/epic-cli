@@ -87,6 +87,21 @@ export class Project {
     // Update Package Information
     Package.name = Configuration?.name || Package.name;
     Package.description = Configuration?.description || Package.description;
+    Package.private = Configuration.type === "Application";
+
+    if (Configuration.type === "Plugin") {
+      // Dependencies to Development
+      Package.devDependencies = {
+        ...Package.dependencies,
+        ...Package.devDependencies,
+      };
+
+      // Empty Dependencies
+      Package.dependencies = {};
+
+      // Update Tags
+      Package.keywords = ["epic", "plugin"];
+    }
 
     // Put Package Data
     Fs.writeFileSync(
