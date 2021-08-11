@@ -32,6 +32,7 @@ Core.DefaultConfig = {
     history: {
         controller: null,
         schema: null,
+        middleware: null,
     },
     brand: {
         name: "Demo Company",
@@ -42,6 +43,7 @@ Core.DefaultConfig = {
         samples: "./src/samples/",
         contollers: "./src/controllers/",
         schemas: "./src/schemas/",
+        middlewares: "./src/middlewares/",
     },
     transactions: [],
 };

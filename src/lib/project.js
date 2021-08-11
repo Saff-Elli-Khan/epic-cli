@@ -30,6 +30,7 @@ Project.AppPath = path_1.default.join(core_1.Core.RootPath, "./src/");
 Project.SamplesPath = path_1.default.join(core_1.Core.RootPath, core_1.Core.getConfiguration().paths.samples);
 Project.ControllersPath = path_1.default.join(core_1.Core.RootPath, core_1.Core.getConfiguration().paths.contollers);
 Project.SchemasPath = path_1.default.join(core_1.Core.RootPath, core_1.Core.getConfiguration().paths.schemas);
+Project.MiddlewaresPath = path_1.default.join(core_1.Core.RootPath, core_1.Core.getConfiguration().paths.middlewares);
 Project.getPackage = () => require(Project.PackagePath);
 Project.configure = (Configuration) => {
     // Get Package Information
@@ -133,11 +134,13 @@ Project.createController = (options, command) => __awaiter(void 0, void 0, void 
             task: (ctx) => {
                 try {
                     // Load Controller
-                    ctx.controllerContent = fs_1.default.readFileSync(path_1.default.join(Project.ControllersPath, `./${options.name}.ts`)).toString();
+                    ctx.controllerContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.ControllersPath, `./${options.name}.ts`)).toString();
                 }
                 catch (e) {
                     // Load Controller Sample
-                    ctx.controllerContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.SamplesPath, `./controller/${options.template}.ts`)).toString();
+                    ctx.controllerContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.SamplesPath, options.sampleDir
+                        ? `./${options.template}.ts`
+                        : `./controller/${options.template}.ts`)).toString();
                 }
             },
         },
@@ -288,11 +291,13 @@ Project.createSchema = (options, command) => __awaiter(void 0, void 0, void 0, f
             task: (ctx) => {
                 try {
                     // Load Schema
-                    ctx.schemaContent = fs_1.default.readFileSync(path_1.default.join(Project.SchemasPath, `./${options.name}.ts`)).toString();
+                    ctx.schemaContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.SchemasPath, `./${options.name}.ts`)).toString();
                 }
                 catch (e) {
                     // Load Schema Sample
-                    ctx.schemaContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.SamplesPath, `./schema/${options.template}.ts`)).toString();
+                    ctx.schemaContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.SamplesPath, options.sampleDir
+                        ? `./${options.template}.ts`
+                        : `./controller/${options.template}.ts`)).toString();
                 }
                 // Load Schemas Container
                 ctx.schemasContainerContent = fs_1.default.readFileSync(path_1.default.join(Project.SchemasPath, `./index.ts`)).toString();
@@ -309,18 +314,18 @@ Project.createSchema = (options, command) => __awaiter(void 0, void 0, void 0, f
                     .replace(/Sample/g, options.name) // Add Name
                 ).parse();
                 // Parse Schema Container Template
-                const ParsedSchemaContainer = new epic_parser_1.Parser(ctx.schemasContainerContent).parse();
+                const ParsedSchemasContainer = new epic_parser_1.Parser(ctx.schemasContainerContent).parse();
                 // Import Schema
-                ParsedSchemaContainer.push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
+                ParsedSchemasContainer.push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
                     modules: options.name,
                     location: `./${options.name}`,
                 });
                 // Add Schema to Container
-                ParsedSchemaContainer.push("SchemasContainer", "SchemaTemplate", options.name + "Schema", { schema: options.name });
+                ParsedSchemasContainer.push("SchemasContainer", "SchemaTemplate", options.name + "Schema", { schema: options.name });
                 // Update Schema Sample
                 ctx.schemaContent = ParsedSchema.render();
                 // Update Container
-                ctx.schemasContainerContent = ParsedSchemaContainer.render();
+                ctx.schemasContainerContent = ParsedSchemasContainer.render();
             },
         },
         {
@@ -557,3 +562,93 @@ Project.deleteSchemaColumn = (options) => __awaiter(void 0, void 0, void 0, func
         },
     ]).run();
 });
+Project.createMiddleware = (options, command) => __awaiter(void 0, void 0, void 0, function* () {
+    // Queue the Tasks
+    yield new listr_1.default([
+        {
+            title: "Checking configuration...",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Check Configuration File
+                if (!fs_1.default.readdirSync(core_1.Core.RootPath).includes(core_1.Core.ConfigFileName))
+                    throw new Error("Please initialize a project first!");
+            }),
+        },
+        {
+            title: "Loading middleware sample & container",
+            task: (ctx) => {
+                try {
+                    // Load Middleware
+                    ctx.middlewareContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.MiddlewaresPath, `./${options.name}.ts`)).toString();
+                }
+                catch (e) {
+                    // Load Middleware Sample
+                    ctx.middlewareContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.SamplesPath, options.sampleDir
+                        ? `./${options.template}.ts`
+                        : `./controller/${options.template}.ts`)).toString();
+                }
+                // Load Middlewares Container
+                if (options.type === "Global")
+                    ctx.middlewaresContainerContent = fs_1.default.readFileSync(path_1.default.join(Project.MiddlewaresPath, `./index.ts`)).toString();
+            },
+        },
+        {
+            title: "Preparing the middleware & container",
+            task: (ctx) => {
+                // Create Relative Path To App
+                const AppPath = path_1.default.relative(Project.MiddlewaresPath, Project.AppPath).replace(/\\/g, "/");
+                // Parse Middleware Template
+                const ParsedMiddleware = new epic_parser_1.Parser(ctx.middlewareContent
+                    .replace(/@AppPath/g, AppPath) // Add App Path
+                    .replace(/Sample/g, options.name) // Add Name
+                ).parse();
+                if (options.type === "Global") {
+                    // Parse Middleware Container Template
+                    const ParsedMiddlewaresContainer = new epic_parser_1.Parser(ctx.middlewaresContainerContent).parse();
+                    // Import Middleware
+                    ParsedMiddlewaresContainer.push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
+                        modules: options.name,
+                        location: `./${options.name}`,
+                    });
+                    // Add Middleware to Container
+                    ParsedMiddlewaresContainer.push("MiddlewaresContainer", "MiddlewareTemplate", options.name + "Middleware", { middleware: options.name });
+                    // Update Container
+                    ctx.middlewaresContainerContent = ParsedMiddlewaresContainer.render();
+                }
+                // Update Middleware Sample
+                ctx.middlewareContent = ParsedMiddleware.render();
+            },
+        },
+        {
+            title: "Creating New Middleware",
+            task: ({ middlewareContent, middlewaresContainerContent }) => {
+                // Resolve Directory
+                fs_1.default.mkdirSync(Project.MiddlewaresPath, { recursive: true });
+                // Create Middleware
+                fs_1.default.writeFileSync(path_1.default.join(Project.MiddlewaresPath, `./${options.name}.ts`), middlewareContent);
+                // Update Middlewares Container
+                if (options.type === "Global")
+                    fs_1.default.writeFileSync(path_1.default.join(Project.MiddlewaresPath, `./index.ts`), middlewaresContainerContent);
+            },
+        },
+        {
+            title: "Configuring your project",
+            task: () => {
+                // Get Configuration
+                const Configuration = core_1.Core.getConfiguration();
+                // Remove Duplicate Transaction
+                Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-middleware" &&
+                    transaction.params.name === options.name));
+                // Update History
+                Configuration.history.middleware = options.name;
+                // Update Transactions
+                Configuration.transactions.push({
+                    command: command.name,
+                    params: options,
+                });
+                // Set Transactions
+                core_1.Core.setConfiguration(Configuration);
+            },
+        },
+    ]).run();
+});
+Project.deleteMiddleware = (options) => __awaiter(void 0, void 0, void 0, function* () { });

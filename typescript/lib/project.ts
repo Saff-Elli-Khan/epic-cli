@@ -32,6 +32,18 @@ export interface DeleteSchemaOptions {
   name: string;
 }
 
+export interface CreateMiddlewareOptions {
+  type: "Global" | "Local";
+  name: string;
+  description: string;
+  template: string;
+  sampleDir?: string;
+}
+
+export interface DeleteMiddlewareOptions {
+  name: string;
+}
+
 export interface CreateSchemaColumnOptions {
   schema: string;
   type:
@@ -65,6 +77,7 @@ export class Project {
   static PackagePath = Path.join(Core.RootPath, "./package.json");
   static EnvironmentsPath = Path.join(Core.RootPath, "./env/");
   static AppPath = Path.join(Core.RootPath, "./src/");
+
   static SamplesPath = Path.join(
     Core.RootPath,
     Core.getConfiguration()!.paths.samples
@@ -76,6 +89,10 @@ export class Project {
   static SchemasPath = Path.join(
     Core.RootPath,
     Core.getConfiguration()!.paths.schemas
+  );
+  static MiddlewaresPath = Path.join(
+    Core.RootPath,
+    Core.getConfiguration()!.paths.middlewares
   );
 
   static getPackage = () => require(Project.PackagePath);
@@ -218,14 +235,19 @@ export class Project {
           try {
             // Load Controller
             ctx.controllerContent = Fs.readFileSync(
-              Path.join(Project.ControllersPath, `./${options.name}.ts`)
+              Path.join(
+                options.sampleDir || Project.ControllersPath,
+                `./${options.name}.ts`
+              )
             ).toString();
           } catch (e) {
             // Load Controller Sample
             ctx.controllerContent = Fs.readFileSync(
               Path.join(
                 options.sampleDir || Project.SamplesPath,
-                `./controller/${options.template}.ts`
+                options.sampleDir
+                  ? `./${options.template}.ts`
+                  : `./controller/${options.template}.ts`
               )
             ).toString();
           }
@@ -464,14 +486,19 @@ export class Project {
             try {
               // Load Schema
               ctx.schemaContent = Fs.readFileSync(
-                Path.join(Project.SchemasPath, `./${options.name}.ts`)
+                Path.join(
+                  options.sampleDir || Project.SchemasPath,
+                  `./${options.name}.ts`
+                )
               ).toString();
             } catch (e) {
               // Load Schema Sample
               ctx.schemaContent = Fs.readFileSync(
                 Path.join(
                   options.sampleDir || Project.SamplesPath,
-                  `./schema/${options.template}.ts`
+                  options.sampleDir
+                    ? `./${options.template}.ts`
+                    : `./controller/${options.template}.ts`
                 )
               ).toString();
             }
@@ -499,12 +526,12 @@ export class Project {
             ).parse();
 
             // Parse Schema Container Template
-            const ParsedSchemaContainer = new Parser(
+            const ParsedSchemasContainer = new Parser(
               ctx.schemasContainerContent
             ).parse();
 
             // Import Schema
-            ParsedSchemaContainer.push(
+            ParsedSchemasContainer.push(
               "ImportsContainer",
               "ImportsTemplate",
               options.name + "Import",
@@ -515,7 +542,7 @@ export class Project {
             );
 
             // Add Schema to Container
-            ParsedSchemaContainer.push(
+            ParsedSchemasContainer.push(
               "SchemasContainer",
               "SchemaTemplate",
               options.name + "Schema",
@@ -526,7 +553,7 @@ export class Project {
             ctx.schemaContent = ParsedSchema.render();
 
             // Update Container
-            ctx.schemasContainerContent = ParsedSchemaContainer.render();
+            ctx.schemasContainerContent = ParsedSchemasContainer.render();
           },
         },
         {
@@ -867,4 +894,153 @@ export class Project {
       },
     ]).run();
   };
+
+  static createMiddleware = async (
+    options: CreateMiddlewareOptions,
+    command: CommandInterface
+  ) => {
+    // Queue the Tasks
+    await new Listr<{
+      middlewareContent: string;
+      middlewaresContainerContent?: string;
+    }>([
+      {
+        title: "Checking configuration...",
+        task: async () => {
+          // Check Configuration File
+          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
+            throw new Error("Please initialize a project first!");
+        },
+      },
+      {
+        title: "Loading middleware sample & container",
+        task: (ctx) => {
+          try {
+            // Load Middleware
+            ctx.middlewareContent = Fs.readFileSync(
+              Path.join(
+                options.sampleDir || Project.MiddlewaresPath,
+                `./${options.name}.ts`
+              )
+            ).toString();
+          } catch (e) {
+            // Load Middleware Sample
+            ctx.middlewareContent = Fs.readFileSync(
+              Path.join(
+                options.sampleDir || Project.SamplesPath,
+                options.sampleDir
+                  ? `./${options.template}.ts`
+                  : `./controller/${options.template}.ts`
+              )
+            ).toString();
+          }
+
+          // Load Middlewares Container
+          if (options.type === "Global")
+            ctx.middlewaresContainerContent = Fs.readFileSync(
+              Path.join(Project.MiddlewaresPath, `./index.ts`)
+            ).toString();
+        },
+      },
+      {
+        title: "Preparing the middleware & container",
+        task: (ctx) => {
+          // Create Relative Path To App
+          const AppPath = Path.relative(
+            Project.MiddlewaresPath,
+            Project.AppPath
+          ).replace(/\\/g, "/");
+
+          // Parse Middleware Template
+          const ParsedMiddleware = new Parser(
+            ctx.middlewareContent
+              .replace(/@AppPath/g, AppPath) // Add App Path
+              .replace(/Sample/g, options.name) // Add Name
+          ).parse();
+
+          if (options.type === "Global") {
+            // Parse Middleware Container Template
+            const ParsedMiddlewaresContainer = new Parser(
+              ctx.middlewaresContainerContent!
+            ).parse();
+
+            // Import Middleware
+            ParsedMiddlewaresContainer.push(
+              "ImportsContainer",
+              "ImportsTemplate",
+              options.name + "Import",
+              {
+                modules: options.name,
+                location: `./${options.name}`,
+              }
+            );
+
+            // Add Middleware to Container
+            ParsedMiddlewaresContainer.push(
+              "MiddlewaresContainer",
+              "MiddlewareTemplate",
+              options.name + "Middleware",
+              { middleware: options.name }
+            );
+
+            // Update Container
+            ctx.middlewaresContainerContent = ParsedMiddlewaresContainer.render();
+          }
+
+          // Update Middleware Sample
+          ctx.middlewareContent = ParsedMiddleware.render();
+        },
+      },
+      {
+        title: "Creating New Middleware",
+        task: ({ middlewareContent, middlewaresContainerContent }) => {
+          // Resolve Directory
+          Fs.mkdirSync(Project.MiddlewaresPath, { recursive: true });
+
+          // Create Middleware
+          Fs.writeFileSync(
+            Path.join(Project.MiddlewaresPath, `./${options.name}.ts`),
+            middlewareContent
+          );
+
+          // Update Middlewares Container
+          if (options.type === "Global")
+            Fs.writeFileSync(
+              Path.join(Project.MiddlewaresPath, `./index.ts`),
+              middlewaresContainerContent!
+            );
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          // Get Configuration
+          const Configuration = Core.getConfiguration()!;
+
+          // Remove Duplicate Transaction
+          Configuration.transactions = Configuration.transactions.filter(
+            (transaction) =>
+              !(
+                transaction.command === "create-middleware" &&
+                transaction.params.name === options.name
+              )
+          );
+
+          // Update History
+          Configuration.history.middleware = options.name;
+
+          // Update Transactions
+          Configuration.transactions.push({
+            command: command.name,
+            params: options,
+          });
+
+          // Set Transactions
+          Core.setConfiguration(Configuration);
+        },
+      },
+    ]).run();
+  };
+
+  static deleteMiddleware = async (options: DeleteMiddlewareOptions) => {};
 }

@@ -20,6 +20,16 @@ export interface CreateSchemaOptions {
 export interface DeleteSchemaOptions {
     name: string;
 }
+export interface CreateMiddlewareOptions {
+    type: "Global" | "Local";
+    name: string;
+    description: string;
+    template: string;
+    sampleDir?: string;
+}
+export interface DeleteMiddlewareOptions {
+    name: string;
+}
 export interface CreateSchemaColumnOptions {
     schema: string;
     type: "String" | "Number" | "Boolean" | "Enum" | "Record" | "Array" | "Relation";
@@ -47,6 +57,7 @@ export declare class Project {
     static SamplesPath: string;
     static ControllersPath: string;
     static SchemasPath: string;
+    static MiddlewaresPath: string;
     static getPackage: () => any;
     static configure: (Configuration: ConfigurationInterface) => void;
     static create: () => Promise<boolean>;
@@ -56,4 +67,6 @@ export declare class Project {
     static deleteSchema: (options: DeleteSchemaOptions) => Promise<void>;
     static createSchemaColumn: (options: CreateSchemaColumnOptions, command: CommandInterface) => Promise<void>;
     static deleteSchemaColumn: (options: DeleteSchemaColumnOptions) => Promise<void>;
+    static createMiddleware: (options: CreateMiddlewareOptions, command: CommandInterface) => Promise<void>;
+    static deleteMiddleware: (options: DeleteMiddlewareOptions) => Promise<void>;
 }

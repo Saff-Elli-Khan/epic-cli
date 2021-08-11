@@ -12,11 +12,13 @@ export interface ConfigurationInterface {
 export interface HistoryInterface {
     controller: string | null;
     schema: string | null;
+    middleware: string | null;
 }
 export interface PathsInterface {
     samples: string;
     contollers: string;
     schemas: string;
+    middlewares: string;
 }
 export interface BrandInterface {
     name: string;

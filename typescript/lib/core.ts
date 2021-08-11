@@ -20,12 +20,14 @@ export interface ConfigurationInterface {
 export interface HistoryInterface {
   controller: string | null;
   schema: string | null;
+  middleware: string | null;
 }
 
 export interface PathsInterface {
   samples: string;
   contollers: string;
   schemas: string;
+  middlewares: string;
 }
 
 export interface BrandInterface {
@@ -63,6 +65,7 @@ export class Core {
     history: {
       controller: null,
       schema: null,
+      middleware: null,
     },
     brand: {
       name: "Demo Company",
@@ -73,6 +76,7 @@ export class Core {
       samples: "./src/samples/",
       contollers: "./src/controllers/",
       schemas: "./src/schemas/",
+      middlewares: "./src/middlewares/",
     },
     transactions: [],
   };
