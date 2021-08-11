@@ -930,7 +930,7 @@ export class Project {
                 options.sampleDir || Project.SamplesPath,
                 options.sampleDir
                   ? `./${options.template}.ts`
-                  : `./controller/${options.template}.ts`
+                  : `./middleware/${options.template}.ts`
               )
             ).toString();
           }
@@ -970,7 +970,7 @@ export class Project {
               "ImportsTemplate",
               options.name + "Import",
               {
-                modules: options.name,
+                modules: options.name + "Middleware",
                 location: `./${options.name}`,
               }
             );
@@ -1042,5 +1042,72 @@ export class Project {
     ]).run();
   };
 
-  static deleteMiddleware = async (options: DeleteMiddlewareOptions) => {};
+  static deleteMiddleware = async (options: DeleteMiddlewareOptions) => {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Checking configuration...",
+        task: async () => {
+          // Check Configuration File
+          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
+            throw new Error("Please initialize a project first!");
+        },
+      },
+      {
+        title: "Deleting the middleware",
+        task: async () => {
+          // Delete Middleware
+          Fs.unlinkSync(
+            Path.join(Project.MiddlewaresPath, `./${options.name}.ts`)
+          );
+        },
+      },
+      {
+        title: "Updating middleware container",
+        task: async () => {
+          // Load Middlewares Container
+          const MiddlewaresContainer = Fs.readFileSync(
+            Path.join(Project.MiddlewaresPath, `./index.ts`)
+          ).toString();
+
+          // Parse Template
+          const Parsed = new Parser(MiddlewaresContainer).parse();
+
+          // Import Middleware
+          Parsed.pop("ImportsContainer", options.name + "Import");
+
+          // Add Middleware to Container
+          Parsed.pop("MiddlewaresContainer", options.name + "Middleware");
+
+          // Update Middlewares Container
+          Fs.writeFileSync(
+            Path.join(Project.MiddlewaresPath, `./index.ts`),
+            Parsed.render()
+          );
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          // Get Configuration
+          const Configuration = Core.getConfiguration()!;
+
+          // Remove Middleware Transaction
+          Configuration.transactions = Configuration.transactions.filter(
+            (transaction) =>
+              !(
+                transaction.command === "create-middleware" &&
+                transaction.params.name === options.name
+              )
+          );
+
+          // Update History
+          Configuration.history.middleware = options.name;
+
+          // Set Transactions
+          Core.setConfiguration(Configuration);
+        },
+      },
+    ]).run();
+  };
 }

@@ -584,7 +584,7 @@ Project.createMiddleware = (options, command) => __awaiter(void 0, void 0, void 
                     // Load Middleware Sample
                     ctx.middlewareContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.SamplesPath, options.sampleDir
                         ? `./${options.template}.ts`
-                        : `./controller/${options.template}.ts`)).toString();
+                        : `./middleware/${options.template}.ts`)).toString();
                 }
                 // Load Middlewares Container
                 if (options.type === "Global")
@@ -606,7 +606,7 @@ Project.createMiddleware = (options, command) => __awaiter(void 0, void 0, void 
                     const ParsedMiddlewaresContainer = new epic_parser_1.Parser(ctx.middlewaresContainerContent).parse();
                     // Import Middleware
                     ParsedMiddlewaresContainer.push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
-                        modules: options.name,
+                        modules: options.name + "Middleware",
                         location: `./${options.name}`,
                     });
                     // Add Middleware to Container
@@ -651,4 +651,52 @@ Project.createMiddleware = (options, command) => __awaiter(void 0, void 0, void 
         },
     ]).run();
 });
-Project.deleteMiddleware = (options) => __awaiter(void 0, void 0, void 0, function* () { });
+Project.deleteMiddleware = (options) => __awaiter(void 0, void 0, void 0, function* () {
+    // Queue the Tasks
+    yield new listr_1.default([
+        {
+            title: "Checking configuration...",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Check Configuration File
+                if (!fs_1.default.readdirSync(core_1.Core.RootPath).includes(core_1.Core.ConfigFileName))
+                    throw new Error("Please initialize a project first!");
+            }),
+        },
+        {
+            title: "Deleting the middleware",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Delete Middleware
+                fs_1.default.unlinkSync(path_1.default.join(Project.MiddlewaresPath, `./${options.name}.ts`));
+            }),
+        },
+        {
+            title: "Updating middleware container",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Load Middlewares Container
+                const MiddlewaresContainer = fs_1.default.readFileSync(path_1.default.join(Project.MiddlewaresPath, `./index.ts`)).toString();
+                // Parse Template
+                const Parsed = new epic_parser_1.Parser(MiddlewaresContainer).parse();
+                // Import Middleware
+                Parsed.pop("ImportsContainer", options.name + "Import");
+                // Add Middleware to Container
+                Parsed.pop("MiddlewaresContainer", options.name + "Middleware");
+                // Update Middlewares Container
+                fs_1.default.writeFileSync(path_1.default.join(Project.MiddlewaresPath, `./index.ts`), Parsed.render());
+            }),
+        },
+        {
+            title: "Configuring your project",
+            task: () => {
+                // Get Configuration
+                const Configuration = core_1.Core.getConfiguration();
+                // Remove Middleware Transaction
+                Configuration.transactions = Configuration.transactions.filter((transaction) => !(transaction.command === "create-middleware" &&
+                    transaction.params.name === options.name));
+                // Update History
+                Configuration.history.middleware = options.name;
+                // Set Transactions
+                core_1.Core.setConfiguration(Configuration);
+            },
+        },
+    ]).run();
+});
