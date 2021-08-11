@@ -545,15 +545,15 @@ exports.ProjectCommands = [
                 message: "Please provide a middleware name:",
                 choices: () => {
                     // Resolve Directory
-                    fs_1.default.mkdirSync(project_1.Project.SchemasPath, { recursive: true });
-                    // Schemas List
-                    const List = fs_1.default.readdirSync(project_1.Project.SchemasPath)
+                    fs_1.default.mkdirSync(project_1.Project.MiddlewaresPath, { recursive: true });
+                    // Middlewares List
+                    const List = fs_1.default.readdirSync(project_1.Project.MiddlewaresPath)
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, ""));
                     return List.filter((v) => v !== "index");
                 },
             },
         ],
-        method: project_1.Project.deleteSchema,
+        method: project_1.Project.deleteMiddleware,
     },
 ];

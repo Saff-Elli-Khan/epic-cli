@@ -568,10 +568,10 @@ export const ProjectCommands: LooseCommandInterface[] = [
         message: "Please provide a middleware name:",
         choices: () => {
           // Resolve Directory
-          Fs.mkdirSync(Project.SchemasPath, { recursive: true });
+          Fs.mkdirSync(Project.MiddlewaresPath, { recursive: true });
 
-          // Schemas List
-          const List = Fs.readdirSync(Project.SchemasPath)
+          // Middlewares List
+          const List = Fs.readdirSync(Project.MiddlewaresPath)
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
 
@@ -579,6 +579,6 @@ export const ProjectCommands: LooseCommandInterface[] = [
         },
       },
     ],
-    method: Project.deleteSchema,
+    method: Project.deleteMiddleware,
   },
 ];
