@@ -18,6 +18,7 @@ const fs_1 = __importDefault(require("fs"));
 const listr_1 = __importDefault(require("listr"));
 const project_1 = require("./project");
 const cli_1 = require("../cli");
+const epic_config_manager_1 = require("epic-config-manager");
 class Core {
 }
 exports.Core = Core;
@@ -114,7 +115,9 @@ Core.install = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 Core.getConfiguration = (strict = false) => {
     try {
-        const Configuration = (Core.DefaultConfig = require(Core.ConfigFilePath()));
+        // Get Configuration from the file
+        const Configuration = (Core.DefaultConfig = epic_config_manager_1.ConfigManagerUtils.deepMerge(Core.DefaultConfig, require(Core.ConfigFilePath())));
+        // Check Configuration Version
         if (Core.SupportedConfigVersions.includes(Configuration.version))
             return Configuration;
         else {

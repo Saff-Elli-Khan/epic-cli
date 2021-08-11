@@ -3,6 +3,7 @@ import Fs from "fs";
 import Listr from "listr";
 import { Project } from "./project";
 import { EpicCli } from "../cli";
+import { ConfigManagerUtils } from "epic-config-manager";
 
 export type ProjectType = "Application" | "Plugin";
 
@@ -154,7 +155,13 @@ export class Core {
 
   static getConfiguration = (strict = false): ConfigurationInterface | null => {
     try {
-      const Configuration = (Core.DefaultConfig = require(Core.ConfigFilePath())) as ConfigurationInterface;
+      // Get Configuration from the file
+      const Configuration = (Core.DefaultConfig = ConfigManagerUtils.deepMerge(
+        Core.DefaultConfig,
+        require(Core.ConfigFilePath()) as ConfigurationInterface
+      ));
+
+      // Check Configuration Version
       if (Core.SupportedConfigVersions.includes(Configuration.version))
         return Configuration;
       else {
