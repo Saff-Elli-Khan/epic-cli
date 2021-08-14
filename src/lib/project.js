@@ -297,7 +297,7 @@ Project.createSchema = (options, command) => __awaiter(void 0, void 0, void 0, f
                     // Load Schema Sample
                     ctx.schemaContent = fs_1.default.readFileSync(path_1.default.join(options.sampleDir || Project.SamplesPath, options.sampleDir
                         ? `./${options.template}.ts`
-                        : `./controller/${options.template}.ts`)).toString();
+                        : `./schema/${options.template}.ts`)).toString();
                 }
                 // Load Schemas Container
                 ctx.schemasContainerContent = fs_1.default.readFileSync(path_1.default.join(Project.SchemasPath, `./index.ts`)).toString();
@@ -610,7 +610,7 @@ Project.createMiddleware = (options, command) => __awaiter(void 0, void 0, void 
                         location: `./${options.name}`,
                     });
                     // Add Middleware to Container
-                    ParsedMiddlewaresContainer.push("MiddlewaresContainer", "MiddlewareTemplate", options.name + "Middleware", { middleware: options.name });
+                    ParsedMiddlewaresContainer.push("MiddlewaresContainer", "MiddlewareTemplate", options.name + "Middleware", { middleware: options.name + "Middleware" });
                     // Update Container
                     ctx.middlewaresContainerContent = ParsedMiddlewaresContainer.render();
                 }

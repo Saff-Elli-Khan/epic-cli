@@ -498,7 +498,7 @@ export class Project {
                   options.sampleDir || Project.SamplesPath,
                   options.sampleDir
                     ? `./${options.template}.ts`
-                    : `./controller/${options.template}.ts`
+                    : `./schema/${options.template}.ts`
                 )
               ).toString();
             }
@@ -980,7 +980,7 @@ export class Project {
               "MiddlewaresContainer",
               "MiddlewareTemplate",
               options.name + "Middleware",
-              { middleware: options.name }
+              { middleware: options.name + "Middleware" }
             );
 
             // Update Container

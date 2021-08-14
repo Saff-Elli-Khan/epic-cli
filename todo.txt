@@ -1,0 +1,2 @@
+Syncronize Plugin typings to main project.
+Able to Install/Uninstall Plugins to main project.
