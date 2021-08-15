@@ -380,6 +380,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
           } else
             throw new Error(`Please provide a valid list of column names!`);
         },
+        default: (options) => options.relation + "Id",
         skip: (options) => !options.relation,
       },
       {
