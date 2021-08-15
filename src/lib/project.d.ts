@@ -32,9 +32,9 @@ export interface DeleteMiddlewareOptions {
 }
 export interface CreateSchemaColumnOptions {
     schema: string;
-    type: "String" | "Number" | "Boolean" | "Enum" | "Record" | "Array" | "Relation";
+    type: "String" | "Number" | "Boolean" | "Enum" | "Record" | "Array" | "Relation" | "Any";
     choices?: string[];
-    arrayof?: "String" | "Number" | "Boolean" | "Record" | "Relation";
+    arrayof?: "String" | "Number" | "Boolean" | "Record" | "Relation" | "Any";
     recordType?: string;
     length?: number;
     relation?: string;

@@ -251,7 +251,7 @@ exports.ProjectCommands = [
                     const List = fs_1.default.readdirSync(project_1.Project.SchemasPath)
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, ""));
-                    return List.filter((v) => v !== "index");
+                    return List.filter((v) => !["index", "base"].includes(v));
                 },
             },
         ],
@@ -274,7 +274,7 @@ exports.ProjectCommands = [
                     const List = fs_1.default.readdirSync(project_1.Project.SchemasPath)
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, ""));
-                    return List.filter((v) => v !== "index");
+                    return List.filter((v) => !["index", "base"].includes(v));
                 },
                 default: () => { var _a, _b; return (_b = (_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.history) === null || _b === void 0 ? void 0 : _b.schema; },
             },
@@ -292,6 +292,7 @@ exports.ProjectCommands = [
                     "Record",
                     "Array",
                     "Relation",
+                    "Any",
                 ],
                 default: "String",
             },
@@ -307,7 +308,7 @@ exports.ProjectCommands = [
                 name: "arrayof",
                 description: "Column is an array of type.",
                 message: "Array of type:",
-                choices: ["String", "Number", "Boolean", "Record", "Relation"],
+                choices: ["String", "Number", "Boolean", "Record", "Relation", "Any"],
                 default: "String",
                 skip: (options) => options.type !== "Array",
             },
@@ -341,7 +342,7 @@ exports.ProjectCommands = [
                     const List = fs_1.default.readdirSync(project_1.Project.SchemasPath)
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, ""));
-                    return List.filter((v) => v !== "index");
+                    return List.filter((v) => !["index", "base"].includes(v));
                 },
                 skip: (options) => options.type !== "Relation" && options.arrayof !== "Relation",
             },
@@ -467,7 +468,7 @@ exports.ProjectCommands = [
                     const List = fs_1.default.readdirSync(project_1.Project.SchemasPath)
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, ""));
-                    return List.filter((v) => v !== "index");
+                    return List.filter((v) => !["index", "base"].includes(v));
                 },
                 default: () => { var _a, _b; return (_b = (_a = core_1.Core.getConfiguration()) === null || _a === void 0 ? void 0 : _a.history) === null || _b === void 0 ? void 0 : _b.schema; },
             },

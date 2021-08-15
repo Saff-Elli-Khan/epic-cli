@@ -53,9 +53,10 @@ export interface CreateSchemaColumnOptions {
     | "Enum"
     | "Record"
     | "Array"
-    | "Relation";
+    | "Relation"
+    | "Any";
   choices?: string[];
-  arrayof?: "String" | "Number" | "Boolean" | "Record" | "Relation";
+  arrayof?: "String" | "Number" | "Boolean" | "Record" | "Relation" | "Any";
   recordType?: string;
   length?: number;
   relation?: string;

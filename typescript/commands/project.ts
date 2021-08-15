@@ -263,7 +263,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
 
-          return List.filter((v) => v !== "index");
+          return List.filter((v) => !["index", "base"].includes(v));
         },
       },
     ],
@@ -288,7 +288,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
 
-          return List.filter((v) => v !== "index");
+          return List.filter((v) => !["index", "base"].includes(v));
         },
         default: () => Core.getConfiguration()?.history?.schema,
       },
@@ -306,6 +306,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
           "Record",
           "Array",
           "Relation",
+          "Any",
         ],
         default: "String",
       },
@@ -321,7 +322,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         name: "arrayof",
         description: "Column is an array of type.",
         message: "Array of type:",
-        choices: ["String", "Number", "Boolean", "Record", "Relation"],
+        choices: ["String", "Number", "Boolean", "Record", "Relation", "Any"],
         default: "String",
         skip: (options) => options.type !== "Array",
       },
@@ -358,7 +359,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
 
-          return List.filter((v) => v !== "index");
+          return List.filter((v) => !["index", "base"].includes(v));
         },
         skip: (options) =>
           options.type !== "Relation" && options.arrayof !== "Relation",
@@ -487,7 +488,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
 
-          return List.filter((v) => v !== "index");
+          return List.filter((v) => !["index", "base"].includes(v));
         },
         default: () => Core.getConfiguration()?.history?.schema,
       },
