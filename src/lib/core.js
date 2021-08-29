@@ -117,7 +117,7 @@ Core.install = () => __awaiter(void 0, void 0, void 0, function* () {
 Core.getConfiguration = (strict = false) => {
     try {
         // Get Configuration from the file
-        const Configuration = (Core.DefaultConfig = epic_config_manager_1.ConfigManagerUtils.deepMerge(require(Core.ConfigFilePath()), Core.DefaultConfig));
+        const Configuration = (Core.DefaultConfig = epic_config_manager_1.ConfigManagerUtils.deepMerge(Core.DefaultConfig, require(Core.ConfigFilePath())));
         // Check Configuration Version
         if (Core.SupportedConfigVersions.includes(Configuration.version))
             return Configuration;

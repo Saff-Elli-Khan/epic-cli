@@ -160,8 +160,8 @@ export class Core {
     try {
       // Get Configuration from the file
       const Configuration = (Core.DefaultConfig = ConfigManagerUtils.deepMerge(
-        require(Core.ConfigFilePath()) as ConfigurationInterface,
-        Core.DefaultConfig
+        Core.DefaultConfig,
+        require(Core.ConfigFilePath()) as ConfigurationInterface
       ));
 
       // Check Configuration Version
