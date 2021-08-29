@@ -71,7 +71,6 @@ Project.create = () => __awaiter(void 0, void 0, void 0, function* () {
                     yield execa_1.default("epic", ["init", "--yes"]);
                 // Get Configuration
                 ctx.configuration = core_1.Core.getConfiguration();
-                console.log("Got", ctx.configuration);
                 // Remove Configuration
                 core_1.Core.removeConfiguration();
             }),
@@ -94,11 +93,9 @@ Project.create = () => __awaiter(void 0, void 0, void 0, function* () {
         {
             title: "Configuring your project",
             task: ({ configuration }) => {
-                console.log("Settings", configuration);
                 if (fs_1.default.existsSync(Project.PackagePath)) {
                     // Configure Project
                     Project.configure(configuration);
-                    console.log("Current", core_1.Core.getConfiguration());
                     // Create Environment Files
                     ["development", "production"].forEach((env) => fs_1.default.writeFileSync(path_1.default.join(Project.EnvironmentsPath, `./.${env}.env`), `ENCRYPTION_KEY=${utils_1.generateRandomKey(32)}`));
                 }

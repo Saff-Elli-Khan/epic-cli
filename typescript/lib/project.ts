@@ -154,8 +154,6 @@ export class Project {
           // Get Configuration
           ctx.configuration = Core.getConfiguration();
 
-          console.log("Got", ctx.configuration);
-
           // Remove Configuration
           Core.removeConfiguration();
         },
@@ -180,12 +178,9 @@ export class Project {
       {
         title: "Configuring your project",
         task: ({ configuration }) => {
-          console.log("Settings", configuration);
           if (Fs.existsSync(Project.PackagePath)) {
             // Configure Project
             Project.configure(configuration);
-
-            console.log("Current", Core.getConfiguration());
 
             // Create Environment Files
             ["development", "production"].forEach((env) =>
