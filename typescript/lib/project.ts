@@ -105,9 +105,9 @@ export class Project {
     // Update Package Information
     Package.name = Configuration?.name || Package.name;
     Package.description = Configuration?.description || Package.description;
-    Package.private = Configuration.type === "Application";
+    Package.private = Configuration?.type === "Application";
 
-    if (Configuration.type === "Plugin") {
+    if (Configuration?.type === "Plugin") {
       // Remove Git Information
       Package.homepage = undefined;
       Package.repository = undefined;
@@ -154,6 +154,8 @@ export class Project {
           // Get Configuration
           ctx.configuration = Core.getConfiguration();
 
+          console.log("Got", ctx.configuration);
+
           // Remove Configuration
           Core.removeConfiguration();
         },
@@ -178,9 +180,12 @@ export class Project {
       {
         title: "Configuring your project",
         task: ({ configuration }) => {
+          console.log("Settings", configuration);
           if (Fs.existsSync(Project.PackagePath)) {
             // Configure Project
             Project.configure(configuration);
+
+            console.log("Current", Core.getConfiguration());
 
             // Create Environment Files
             ["development", "production"].forEach((env) =>
