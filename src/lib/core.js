@@ -28,6 +28,7 @@ Core.ConfigFilePath = () => path_1.default.join(Core.RootPath, Core.ConfigFileNa
 Core.DefaultConfig = {
     version: 1,
     type: "Application",
+    framework: "Express",
     name: "demo-project",
     description: "This is a demo project.",
     history: {

@@ -6,10 +6,12 @@ import { EpicCli } from "../cli";
 import { ConfigManagerUtils } from "epic-config-manager";
 
 export type ProjectType = "Application" | "Plugin";
+export type FrameworkType = "Express";
 
 export interface ConfigurationInterface {
   version: number;
   type: ProjectType;
+  framework: FrameworkType;
   name: string;
   description: string;
   history: HistoryInterface;
@@ -61,6 +63,7 @@ export class Core {
   static DefaultConfig: ConfigurationInterface = {
     version: 1,
     type: "Application",
+    framework: "Express",
     name: "demo-project",
     description: "This is a demo project.",
     history: {

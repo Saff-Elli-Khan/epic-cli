@@ -1,7 +1,9 @@
 export declare type ProjectType = "Application" | "Plugin";
+export declare type FrameworkType = "Express";
 export interface ConfigurationInterface {
     version: number;
     type: ProjectType;
+    framework: FrameworkType;
     name: string;
     description: string;
     history: HistoryInterface;
