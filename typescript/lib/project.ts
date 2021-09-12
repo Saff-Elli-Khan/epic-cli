@@ -4,9 +4,15 @@ import Path from "path";
 import Fs from "fs";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 import { Parser } from "@saffellikhan/epic-parser";
-import { ConfigurationInterface, Core, TransactionInterface } from "./core";
+import {
+  ConfigurationInterface,
+  TransactionInterface,
+  ConfigManager,
+  Core,
+} from "./core";
 import { generateRandomKey } from "./utils";
 import { EpicCli } from "../cli";
+import { StrictLevel } from "epic-config-manager";
 
 export interface CreateControllerOptions {
   name: string;
@@ -75,71 +81,22 @@ export interface DeleteSchemaColumnOptions {
 }
 
 export class Project {
-  static PackagePath = Path.join(Core.RootPath, "./package.json");
-  static EnvironmentsPath = Path.join(Core.RootPath, "./env/");
-  static AppPath = Path.join(Core.RootPath, "./src/");
-
   static SamplesPath = Path.join(
-    Core.RootPath,
-    Core.getConfiguration()!.paths.samples
+    process.cwd(),
+    ConfigManager.getConfig().paths.samples
   );
   static ControllersPath = Path.join(
-    Core.RootPath,
-    Core.getConfiguration()!.paths.contollers
+    process.cwd(),
+    ConfigManager.getConfig().paths.contollers
   );
   static SchemasPath = Path.join(
-    Core.RootPath,
-    Core.getConfiguration()!.paths.schemas
+    process.cwd(),
+    ConfigManager.getConfig().paths.schemas
   );
   static MiddlewaresPath = Path.join(
-    Core.RootPath,
-    Core.getConfiguration()!.paths.middlewares
+    process.cwd(),
+    ConfigManager.getConfig().paths.middlewares
   );
-
-  static getPackage = () => require(Project.PackagePath);
-
-  static configure = (Configuration: ConfigurationInterface) => {
-    // Get Package Information
-    const Package = Project.getPackage();
-
-    // Update Package Information
-    Package.name = Configuration?.name || Package.name;
-    Package.description = Configuration?.description || Package.description;
-    Package.private = Configuration?.type === "Application";
-
-    if (Configuration?.type === "Plugin") {
-      // Remove Git Information
-      Package.homepage = undefined;
-      Package.repository = undefined;
-      Package.bugs = undefined;
-
-      // Dependencies to Development
-      Package.devDependencies = {
-        ...Package.dependencies,
-        ...Package.devDependencies,
-      };
-
-      // Empty Dependencies
-      Package.dependencies = {};
-
-      // Update Tags
-      Package.keywords = ["epic", "plugin"];
-    }
-
-    // Put Package Data
-    Fs.writeFileSync(
-      Project.PackagePath,
-      JSON.stringify(Package, undefined, 2)
-    );
-
-    // Re-Create Configuration
-    Core.setConfiguration(Configuration);
-
-    // Create Environment Directory
-    Fs.mkdirSync(Project.EnvironmentsPath, {
-      recursive: true,
-    });
-  };
 
   static create = async () => {
     // Queue the Tasks
@@ -148,44 +105,52 @@ export class Project {
         title: "Checking configuration...",
         task: async (ctx) => {
           // Check Configuration File
-          if (!Core.getConfiguration(true))
+          if (!ConfigManager.getConfig(StrictLevel.NORMAL))
             await Execa("epic", ["init", "--yes"]);
 
           // Get Configuration
-          ctx.configuration = Core.getConfiguration();
+          ctx.configuration = ConfigManager.getConfig();
 
           // Remove Configuration
-          Core.removeConfiguration();
+          ConfigManager.delConfig();
         },
       },
       {
         title: "Cloning repository to current directory",
-        task: async () => {
-          // Clone Repository
-          await Execa("git", [
-            "clone",
-            "https://github.com/Saff-Elli-Khan/epic-application",
-            ".",
-          ]);
+        task: async ({ configuration }) => {
+          try {
+            // Clone Repository
+            await Execa("git", [
+              "clone",
+              "https://github.com/Saff-Elli-Khan/epic-application",
+              ".",
+            ]);
 
-          // Remove .git folder
-          await Execa("npx", ["rimraf", "./.git"]);
+            // Remove .git folder
+            await Execa("npx", ["rimraf", "./.git"]);
 
-          // Initialize New Repository
-          await Execa("git", ["init"]);
+            // Initialize New Repository
+            await Execa("git", ["init"]);
+          } catch (error) {
+            // Configure Project
+            Core.configure(configuration);
+
+            // Throw Git Error
+            throw error;
+          }
         },
       },
       {
         title: "Configuring your project",
         task: ({ configuration }) => {
-          if (Fs.existsSync(Project.PackagePath)) {
+          if (Fs.existsSync(Core.PackagePath)) {
             // Configure Project
-            Project.configure(configuration);
+            Core.configure(configuration);
 
             // Create Environment Files
             ["development", "production"].forEach((env) =>
               Fs.writeFileSync(
-                Path.join(Project.EnvironmentsPath, `./.${env}.env`),
+                Path.join(Core.EnvironmentsPath, `./.${env}.env`),
                 `ENCRYPTION_KEY=${generateRandomKey(32)}`
               )
             );
@@ -212,8 +177,6 @@ export class Project {
         task: () => Execa("npm", ["install"]),
       },
     ]).run();
-
-    return true;
   };
 
   static createController = async (
@@ -226,7 +189,7 @@ export class Project {
         title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
-          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
+          if (!ConfigManager.hasConfig())
             throw new Error("Please initialize a project first!");
         },
       },
@@ -266,7 +229,7 @@ export class Project {
           // Create Relative Path To App
           const AppPath = Path.relative(
             Project.ControllersPath,
-            Project.AppPath
+            Core.AppPath
           ).replace(/\\/g, "/");
 
           // Parse Template
@@ -350,7 +313,7 @@ export class Project {
           }
 
           // Get Configuration
-          const Configuration = Core.getConfiguration()!;
+          const Configuration = ConfigManager.getConfig();
 
           // Update History
           Configuration.history.controller = options.name;
@@ -371,7 +334,7 @@ export class Project {
           });
 
           // Set Transactions
-          Core.setConfiguration(Configuration);
+          ConfigManager.setConfig(Configuration);
         },
       },
     ]).run();
@@ -384,7 +347,7 @@ export class Project {
         title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
-          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
+          if (!ConfigManager.hasConfig())
             throw new Error("Please initialize a project first!");
         },
       },
@@ -401,7 +364,7 @@ export class Project {
         title: "Configuring your project",
         task: () => {
           // Get Configuration
-          const Configuration = Core.getConfiguration()!;
+          const Configuration = ConfigManager.getConfig();
 
           // Find Create Controller Transaction related to this Controller
           const Transaction = Configuration.transactions.reduce<TransactionInterface | null>(
@@ -460,7 +423,7 @@ export class Project {
           );
 
           // Set Transactions
-          Core.setConfiguration(Configuration);
+          ConfigManager.setConfig(Configuration);
         },
       },
     ]).run();
@@ -477,7 +440,7 @@ export class Project {
           title: "Checking configuration...",
           task: async () => {
             // Check Configuration File
-            if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
+            if (!ConfigManager.hasConfig())
               throw new Error("Please initialize a project first!");
           },
         },
@@ -516,7 +479,7 @@ export class Project {
             // Create Relative Path To App
             const AppPath = Path.relative(
               Project.SchemasPath,
-              Project.AppPath
+              Core.AppPath
             ).replace(/\\/g, "/");
 
             // Parse Schema Template
@@ -580,7 +543,7 @@ export class Project {
           title: "Configuring your project",
           task: () => {
             // Get Configuration
-            const Configuration = Core.getConfiguration()!;
+            const Configuration = ConfigManager.getConfig();
 
             // Remove Duplicate Transaction
             Configuration.transactions = Configuration.transactions.filter(
@@ -601,7 +564,7 @@ export class Project {
             });
 
             // Set Transactions
-            Core.setConfiguration(Configuration);
+            ConfigManager.setConfig(Configuration);
           },
         },
       ]
@@ -615,7 +578,7 @@ export class Project {
         title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
-          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
+          if (!ConfigManager.hasConfig())
             throw new Error("Please initialize a project first!");
         },
       },
@@ -654,7 +617,7 @@ export class Project {
         title: "Configuring your project",
         task: () => {
           // Get Configuration
-          const Configuration = Core.getConfiguration()!;
+          const Configuration = ConfigManager.getConfig();
 
           // Remove Schema Transaction
           Configuration.transactions = Configuration.transactions.filter(
@@ -678,7 +641,7 @@ export class Project {
           );
 
           // Set Transactions
-          Core.setConfiguration(Configuration);
+          ConfigManager.setConfig(Configuration);
         },
       },
     ]).run();
@@ -694,7 +657,7 @@ export class Project {
         title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
-          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
+          if (!ConfigManager.hasConfig())
             throw new Error("Please initialize a project first!");
         },
       },
@@ -799,7 +762,7 @@ export class Project {
         title: "Configuring your project",
         task: () => {
           // Get Configuration
-          const Configuration = Core.getConfiguration()!;
+          const Configuration = ConfigManager.getConfig();
 
           // Remove Duplicate Transaction
           Configuration.transactions = Configuration.transactions.filter(
@@ -821,7 +784,7 @@ export class Project {
           });
 
           // Set Transactions
-          Core.setConfiguration(Configuration);
+          ConfigManager.setConfig(Configuration);
         },
       },
     ]).run();
@@ -834,7 +797,7 @@ export class Project {
         title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
-          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
+          if (!ConfigManager.hasConfig())
             throw new Error("Please initialize a project first!");
         },
       },
@@ -874,7 +837,7 @@ export class Project {
         title: "Configuring your project",
         task: () => {
           // Get Configuration
-          const Configuration = Core.getConfiguration()!;
+          const Configuration = ConfigManager.getConfig();
 
           // Update History
           Configuration.history.schema = options.schema;
@@ -890,7 +853,7 @@ export class Project {
           );
 
           // Set Transactions
-          Core.setConfiguration(Configuration);
+          ConfigManager.setConfig(Configuration);
         },
       },
     ]).run();
@@ -909,7 +872,7 @@ export class Project {
         title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
-          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
+          if (!ConfigManager.hasConfig())
             throw new Error("Please initialize a project first!");
         },
       },
@@ -949,7 +912,7 @@ export class Project {
           // Create Relative Path To App
           const AppPath = Path.relative(
             Project.MiddlewaresPath,
-            Project.AppPath
+            Core.AppPath
           ).replace(/\\/g, "/");
 
           // Parse Middleware Template
@@ -1016,7 +979,7 @@ export class Project {
         title: "Configuring your project",
         task: () => {
           // Get Configuration
-          const Configuration = Core.getConfiguration()!;
+          const Configuration = ConfigManager.getConfig();
 
           // Remove Duplicate Transaction
           Configuration.transactions = Configuration.transactions.filter(
@@ -1037,7 +1000,7 @@ export class Project {
           });
 
           // Set Transactions
-          Core.setConfiguration(Configuration);
+          ConfigManager.setConfig(Configuration);
         },
       },
     ]).run();
@@ -1050,7 +1013,7 @@ export class Project {
         title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
-          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
+          if (!ConfigManager.hasConfig())
             throw new Error("Please initialize a project first!");
         },
       },
@@ -1091,7 +1054,7 @@ export class Project {
         title: "Configuring your project",
         task: () => {
           // Get Configuration
-          const Configuration = Core.getConfiguration()!;
+          const Configuration = ConfigManager.getConfig();
 
           // Remove Middleware Transaction
           Configuration.transactions = Configuration.transactions.filter(
@@ -1106,7 +1069,7 @@ export class Project {
           Configuration.history.middleware = options.name;
 
           // Set Transactions
-          Core.setConfiguration(Configuration);
+          ConfigManager.setConfig(Configuration);
         },
       },
     ]).run();

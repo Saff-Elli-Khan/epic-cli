@@ -1,11 +1,11 @@
 import Path from "path";
 import Fs from "fs";
 import Listr from "listr";
-import { Project } from "./project";
 import { EpicCli } from "../cli";
-import { ConfigManagerUtils } from "epic-config-manager";
+import { EpicConfigManager } from "epic-config-manager";
 
 export type ProjectType = "Application" | "Plugin";
+
 export type FrameworkType = "Express";
 
 export interface ConfigurationInterface {
@@ -53,73 +53,110 @@ export interface InitializationOptions {
   brandAddress: string;
 }
 
+export const ConfigManager = new EpicConfigManager<ConfigurationInterface>({
+  version: 1,
+  type: "Application",
+  framework: "Express",
+  name: "demo-project",
+  description: "This is a demo project.",
+  history: {
+    controller: null,
+    schema: null,
+    middleware: null,
+  },
+  brand: {
+    name: "Demo Company",
+    country: "Pakistan",
+    address: "House #22, Multan",
+  },
+  paths: {
+    samples: "./src/samples/",
+    contollers: "./src/controllers/",
+    schemas: "./src/schemas/",
+    middlewares: "./src/middlewares/",
+  },
+  transactions: [],
+});
+
 export class Core {
-  static RootPath = process.cwd();
+  static PackagePath = Path.join(
+    ConfigManager.Options.rootPath,
+    "./package.json"
+  );
 
-  static ConfigFileName = "epic.config.json";
+  static EnvironmentsPath = Path.join(ConfigManager.Options.rootPath, "./env/");
 
-  static ConfigFilePath = () => Path.join(Core.RootPath, Core.ConfigFileName);
+  static AppPath = Path.join(ConfigManager.Options.rootPath, "./src/");
 
-  static DefaultConfig: ConfigurationInterface = {
-    version: 1,
-    type: "Application",
-    framework: "Express",
-    name: "demo-project",
-    description: "This is a demo project.",
-    history: {
-      controller: null,
-      schema: null,
-      middleware: null,
-    },
-    brand: {
-      name: "Demo Company",
-      country: "Pakistan",
-      address: "House #22, Multan",
-    },
-    paths: {
-      samples: "./src/samples/",
-      contollers: "./src/controllers/",
-      schemas: "./src/schemas/",
-      middlewares: "./src/middlewares/",
-    },
-    transactions: [],
-  };
+  static getPackage() {
+    return require(this.PackagePath);
+  }
 
-  static SupportedConfigVersions = [1];
+  static configure(Configuration: ConfigurationInterface) {
+    // Get Package Information
+    const Package = this.getPackage();
+
+    // Update Package Information
+    Package.name = Configuration?.name || Package.name;
+    Package.description = Configuration?.description || Package.description;
+    Package.private = Configuration?.type === "Application";
+
+    if (Configuration?.type === "Plugin") {
+      // Remove Git Information
+      Package.homepage = undefined;
+      Package.repository = undefined;
+      Package.bugs = undefined;
+
+      // Dependencies to Development
+      Package.devDependencies = {
+        ...Package.dependencies,
+        ...Package.devDependencies,
+      };
+
+      // Empty Dependencies
+      Package.dependencies = {};
+
+      // Update Tags
+      Package.keywords = ["epic", "plugin"];
+    }
+
+    // Put Package Data
+    Fs.writeFileSync(this.PackagePath, JSON.stringify(Package, undefined, 2));
+
+    // Re-Create Configuration
+    ConfigManager.setConfig(Configuration);
+
+    // Create Environment Directory
+    Fs.mkdirSync(this.EnvironmentsPath, {
+      recursive: true,
+    });
+  }
 
   static initialize = async (options: InitializationOptions) => {
     // Queue the Tasks
     await new Listr([
       {
-        title: "Creating/Updating configuration...",
-        task: () => {
-          // Get Configuration
-          const Configuration = Core.getConfiguration()!;
-
-          // Update Configuration
-          Configuration.type = options.type;
-          Configuration.name = options.name;
-          Configuration.description = options.description;
-          Configuration.brand = {
-            name: options.brandName,
-            country: options.brandCountry,
-            address: options.brandAddress,
-          };
-        },
-      },
-      {
-        title: "Saving Configuration",
+        title: "Creating or Updating configuration...",
         task: () => {
           // Set New Configuration
-          Core.setConfiguration(Core.DefaultConfig);
+          ConfigManager.setConfig({
+            type: options.type,
+            name: options.name,
+            description: options.description,
+            brand: {
+              name: options.brandName,
+              country: options.brandCountry,
+              address: options.brandAddress,
+            },
+          });
         },
       },
       {
         title: "Configuring your project",
         task: () => {
-          if (Fs.existsSync(Project.PackagePath)) {
+          if (Fs.existsSync(this.PackagePath)) {
             // Configure Project
-            Project.configure(Core.getConfiguration()!);
+            this.configure(ConfigManager.getConfig());
           }
         },
       },
@@ -133,7 +170,7 @@ export class Core {
         title: "Checking configuration...",
         task: async () => {
           // Check Configuration File
-          if (!Fs.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
+          if (!ConfigManager.hasConfig())
             throw new Error("Please initialize a project first!");
         },
       },
@@ -141,7 +178,7 @@ export class Core {
         title: "Executing commands",
         task: async () => {
           // Get Configuration
-          const Configuration = Core.getConfiguration()!;
+          const Configuration = ConfigManager.getConfig();
 
           // Execute Each Transaction
           for (const Transaction of Configuration.transactions) {
@@ -154,37 +191,5 @@ export class Core {
         },
       },
     ]).run();
-  };
-
-  static getConfiguration = (strict = false): ConfigurationInterface | null => {
-    try {
-      // Get Configuration from the file
-      const Configuration = (Core.DefaultConfig = ConfigManagerUtils.deepMerge(
-        Core.DefaultConfig,
-        require(Core.ConfigFilePath()) as ConfigurationInterface
-      ));
-
-      // Check Configuration Version
-      if (Core.SupportedConfigVersions.includes(Configuration.version))
-        return Configuration;
-      else {
-        EpicCli.Logger.error(
-          `Configuration version is not supported by the current CLI version!`
-        ).log();
-
-        throw new Error(`Configuration version not supported!`);
-      }
-    } catch (e) {
-      if (strict) return null;
-      else return Core.DefaultConfig;
-    }
-  };
-
-  static setConfiguration = (data: ConfigurationInterface) => {
-    Fs.writeFileSync(Core.ConfigFilePath(), JSON.stringify(data, undefined, 2));
-  };
-
-  static removeConfiguration = () => {
-    Fs.unlinkSync(Core.ConfigFilePath());
   };
 }
