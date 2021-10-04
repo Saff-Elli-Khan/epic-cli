@@ -279,9 +279,16 @@ export class Project {
           try {
             // Get Parent Controller Content & Parse Template
             new TemplateParser({
-              inDir: this.ControllersPath(),
-              inFile: `./${options.parent}.ts`,
-              outFile: `./${options.parent}.ts`,
+              inDir:
+                options.parent === "None"
+                  ? this.ControllersPath()
+                  : this.AppPath(),
+              inFile: `./${
+                options.parent === "None" ? "App.controller" : options.parent
+              }.ts`,
+              outFile: `./${
+                options.parent === "None" ? "App.controller" : options.parent
+              }.ts`,
             })
               .parse()
               .push(

@@ -100,7 +100,9 @@ exports.ProjectCommands = [
                 alias: ["--name", "-n"],
                 message: "Please provide a controller name:",
                 validator: (value) => {
-                    if (!/^[A-Z]\w+$/.test(value))
+                    if (value === "None")
+                        throw new Error(`Controller name 'None' is not allowed!`);
+                    else if (!/^[A-Z]\w+$/.test(value))
                         throw new Error(`Please provide a valid controller name!`);
                 },
             },
@@ -155,9 +157,12 @@ exports.ProjectCommands = [
                         recursive: true,
                     });
                     // Controllers List
-                    return fs_1.default.readdirSync(core_1.ConfigManager.getConfig("main").paths.contollers)
-                        .filter((file) => /\.ts$/g.test(file))
-                        .map((file) => file.replace(/\.\w*/g, ""));
+                    return [
+                        "None",
+                        ...fs_1.default.readdirSync(core_1.ConfigManager.getConfig("main").paths.contollers)
+                            .filter((file) => /\.ts$/g.test(file))
+                            .map((file) => file.replace(/\.\w*/g, "")),
+                    ];
                 },
             },
         ],

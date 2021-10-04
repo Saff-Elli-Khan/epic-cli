@@ -98,7 +98,9 @@ export const ProjectCommands: LooseCommandInterface[] = [
         alias: ["--name", "-n"],
         message: "Please provide a controller name:",
         validator: (value) => {
-          if (!/^[A-Z]\w+$/.test(value))
+          if (value === "None")
+            throw new Error(`Controller name 'None' is not allowed!`);
+          else if (!/^[A-Z]\w+$/.test(value))
             throw new Error(`Please provide a valid controller name!`);
         },
       },
@@ -160,11 +162,14 @@ export const ProjectCommands: LooseCommandInterface[] = [
           });
 
           // Controllers List
-          return Fs.readdirSync(
-            ConfigManager.getConfig("main").paths!.contollers!
-          )
-            .filter((file) => /\.ts$/g.test(file))
-            .map((file) => file.replace(/\.\w*/g, ""));
+          return [
+            "None",
+            ...Fs.readdirSync(
+              ConfigManager.getConfig("main").paths!.contollers!
+            )
+              .filter((file) => /\.ts$/g.test(file))
+              .map((file) => file.replace(/\.\w*/g, "")),
+          ];
         },
       },
     ],
