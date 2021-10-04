@@ -189,7 +189,7 @@ class Project {
                         // Parse Template
                         new epic_parser_1.TemplateParser({
                             inDir: options.templateDir ||
-                                path_1.default.join(Project.SamplesPath(), "./controllers/"),
+                                path_1.default.join(Project.SamplesPath(), "./controller/"),
                             inFile: `./${options.template}.ts`,
                             outDir: Project.ControllersPath(),
                             outFile: `./${options.name}.ts`,
@@ -230,7 +230,7 @@ class Project {
                                 .render();
                         }
                         catch (e) {
-                            console.warn("We are unable to parse controllers/index properly! Please add the child controller manually.");
+                            console.warn("We are unable to parse App.controller properly! Please add the child controller manually.");
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("main", (_) => {

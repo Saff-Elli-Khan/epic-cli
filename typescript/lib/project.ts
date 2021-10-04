@@ -249,7 +249,7 @@ export class Project {
           new TemplateParser({
             inDir:
               options.templateDir ||
-              Path.join(Project.SamplesPath(), "./controllers/"),
+              Path.join(Project.SamplesPath(), "./controller/"),
             inFile: `./${options.template}.ts`,
             outDir: Project.ControllersPath(),
             outFile: `./${options.name}.ts`,
@@ -321,7 +321,7 @@ export class Project {
               .render();
           } catch (e) {
             console.warn(
-              "We are unable to parse controllers/index properly! Please add the child controller manually."
+              "We are unable to parse App.controller properly! Please add the child controller manually."
             );
           }
 
