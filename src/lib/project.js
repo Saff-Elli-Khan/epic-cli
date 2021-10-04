@@ -233,8 +233,8 @@ class Project {
                             })
                                 .render();
                         }
-                        catch (e) {
-                            console.warn("We are unable to parse App.controllers properly! Please add the child controller manually.");
+                        catch (error) {
+                            console.warn("We are unable to parse App.controllers properly! Please add the child controller manually.", error);
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("main", (_) => {
@@ -300,14 +300,15 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
                             outFile: `./${Transaction.params.parent === "None"
                                 ? "App.controllers"
                                 : Transaction.params.parent}.ts`,
+                            logs: true,
                         })
                             .parse()
                             .pop("ImportsContainer", options.name + "Import")
                             .pop("ControllerChildsContainer", options.name + "ControllerChilds")
                             .render();
                     }
-                    catch (e) {
-                        console.warn(`We are unable to parse controllers/index properly! Please remove the child controller from "${Transaction.params.parent}" manually.`);
+                    catch (error) {
+                        console.warn(`We are unable to parse controllers/index properly! Please remove the child controller from "${Transaction.params.parent}" manually.`, error);
                     }
                 }
                 // Update Configuration & Transactions

@@ -330,9 +330,10 @@ export class Project {
                 }
               )
               .render();
-          } catch (e) {
+          } catch (error) {
             console.warn(
-              "We are unable to parse App.controllers properly! Please add the child controller manually."
+              "We are unable to parse App.controllers properly! Please add the child controller manually.",
+              error
             );
           }
 
@@ -420,6 +421,7 @@ export class Project {
                     ? "App.controllers"
                     : Transaction.params.parent
                 }.ts`,
+                logs: true,
               })
                 .parse()
                 .pop("ImportsContainer", options.name + "Import")
@@ -428,9 +430,10 @@ export class Project {
                   options.name + "ControllerChilds"
                 )
                 .render();
-            } catch (e) {
+            } catch (error) {
               console.warn(
-                `We are unable to parse controllers/index properly! Please remove the child controller from "${Transaction.params.parent}" manually.`
+                `We are unable to parse controllers/index properly! Please remove the child controller from "${Transaction.params.parent}" manually.`,
+                error
               );
             }
           }
