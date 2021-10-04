@@ -317,7 +317,12 @@ export class Project {
                 options.name + "Import",
                 {
                   modules: [options.name + "Controller"],
-                  location: `./${options.name}`,
+                  location: `./${Path.relative(
+                    options.parent === "None"
+                      ? Project.AppPath()
+                      : Project.ControllersPath(),
+                    Path.join(Project.ControllersPath(), options.name)
+                  ).replace(/\\/g, "/")}`,
                 }
               )
               .push(
@@ -341,24 +346,26 @@ export class Project {
             _.lastAccess!.controller = options.name;
 
             return _;
-          }).setConfig("transactions", (_) => {
-            // Remove Duplicate Transaction
-            _.transactions = _.transactions.filter(
-              (transaction) =>
-                !(
-                  transaction.command === "create-controller" &&
-                  transaction.params.name === options.name
-                )
-            );
+          })
+            .setConfig("transactions", (_) => {
+              // Add New Transaction
+              _.transactions.push({
+                command: command.name,
+                params: options,
+              });
 
-            // Add New Transaction
-            _.transactions.push({
-              command: command.name,
-              params: options,
+              return _;
+            })
+            .setConfig("resources", (_) => {
+              // Add New Resource
+              _.resources.push({
+                type: "controller",
+                name: options.name,
+                parent: options.parent,
+              });
+
+              return _;
             });
-
-            return _;
-          });
         },
       },
     ]).run();
@@ -441,17 +448,29 @@ export class Project {
             _.lastAccess!.controller = options.name;
 
             return _;
-          }).setConfig("transactions", (_) => {
-            _.transactions = _.transactions.filter(
-              (transaction) =>
-                !(
-                  transaction.command === "create-controller" &&
-                  transaction.params.name === options.name
-                )
-            );
+          })
+            .setConfig("transactions", (_) => {
+              _.transactions = _.transactions.filter(
+                (transaction) =>
+                  !(
+                    transaction.command === "create-controller" &&
+                    transaction.params.name === options.name
+                  )
+              );
 
-            return _;
-          });
+              return _;
+            })
+            .setConfig("resources", (_) => {
+              _.resources = _.resources.filter(
+                (resource) =>
+                  !(
+                    resource.type === "controller" &&
+                    resource.name === options.name
+                  )
+              );
+
+              return _;
+            });
         },
       },
     ]).run();

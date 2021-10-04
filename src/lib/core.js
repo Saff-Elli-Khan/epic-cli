@@ -19,6 +19,7 @@ exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
     configFileNames: {
         main: "epic.config.json",
         transactions: "epic.transactions.json",
+        resources: "epic.resources.json",
     },
 })
     .init({
@@ -38,6 +39,10 @@ exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
         version: 1,
         transactions: [],
     },
+    resources: {
+        version: 1,
+        resources: [],
+    },
 })
     .override("main", (data) => {
     var _a, _b, _c, _d;
@@ -55,6 +60,12 @@ exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
     // Check Transactions Version
     if (data.version !== 1)
         throw new Error(`Invalid transactions version! Currently installed CLI expects epic.transactions version 1.`);
+    return data;
+})
+    .override("resources", (data) => {
+    // Check Transactions Version
+    if (data.version !== 1)
+        throw new Error(`Invalid resources version! Currently installed CLI expects epic.resources version 1.`);
     return data;
 });
 class Core {

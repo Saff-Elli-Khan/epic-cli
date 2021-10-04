@@ -5,6 +5,8 @@ export type FrameworkType = "Express";
 
 export type ProjectType = "Application" | "Plugin";
 
+export type ResourceType = "controller" | "schema" | "middleware";
+
 export interface ConfigurationInterface {
   version: number;
   framework: FrameworkType;
@@ -16,11 +18,9 @@ export interface ConfigurationInterface {
   lastAccess?: AccessInterface;
 }
 
-export interface AccessInterface {
-  controller?: string;
-  schema?: string;
-  middleware?: string;
-}
+export type AccessInterface = {
+  [key in ResourceType]?: string;
+};
 
 export interface PathsInterface {
   templates?: string;
@@ -45,15 +45,28 @@ export interface TransactionInterface {
   params: Record<string, any>;
 }
 
+export interface ResourcesInterface {
+  version: number;
+  resources: Array<ResourceInterface>;
+}
+
+export interface ResourceInterface {
+  type: ResourceType;
+  name: string;
+  parent?: string;
+}
+
 export const ConfigManager = new EpicConfigManager({
   configFileNames: {
     main: "epic.config.json",
     transactions: "epic.transactions.json",
+    resources: "epic.resources.json",
   },
 })
   .init<{
     main: ConfigurationInterface;
     transactions: TransactionsInterface;
+    resources: ResourcesInterface;
   }>({
     main: {
       version: 1,
@@ -70,6 +83,10 @@ export const ConfigManager = new EpicConfigManager({
     transactions: {
       version: 1,
       transactions: [],
+    },
+    resources: {
+      version: 1,
+      resources: [],
     },
   })
   .override("main", (data) => {
@@ -97,6 +114,15 @@ export const ConfigManager = new EpicConfigManager({
     if (data.version !== 1)
       throw new Error(
         `Invalid transactions version! Currently installed CLI expects epic.transactions version 1.`
+      );
+
+    return data;
+  })
+  .override("resources", (data) => {
+    // Check Transactions Version
+    if (data.version !== 1)
+      throw new Error(
+        `Invalid resources version! Currently installed CLI expects epic.resources version 1.`
       );
 
     return data;

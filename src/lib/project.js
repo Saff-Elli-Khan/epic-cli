@@ -225,7 +225,9 @@ class Project {
                                 .parse()
                                 .push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
                                 modules: [options.name + "Controller"],
-                                location: `./${options.name}`,
+                                location: `./${path_1.default.relative(options.parent === "None"
+                                    ? Project.AppPath()
+                                    : Project.ControllersPath(), path_1.default.join(Project.ControllersPath(), options.name)).replace(/\\/g, "/")}`,
                             })
                                 .push("ControllerChildsContainer", "ControllerChildTemplate", options.name + "ControllerChilds", {
                                 child: options.name + "Controller",
@@ -239,14 +241,21 @@ class Project {
                         core_1.ConfigManager.setConfig("main", (_) => {
                             _.lastAccess.controller = options.name;
                             return _;
-                        }).setConfig("transactions", (_) => {
-                            // Remove Duplicate Transaction
-                            _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-controller" &&
-                                transaction.params.name === options.name));
+                        })
+                            .setConfig("transactions", (_) => {
                             // Add New Transaction
                             _.transactions.push({
                                 command: command.name,
                                 params: options,
+                            });
+                            return _;
+                        })
+                            .setConfig("resources", (_) => {
+                            // Add New Resource
+                            _.resources.push({
+                                type: "controller",
+                                name: options.name,
+                                parent: options.parent,
                             });
                             return _;
                         });
@@ -313,9 +322,15 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
                 core_1.ConfigManager.setConfig("main", (_) => {
                     _.lastAccess.controller = options.name;
                     return _;
-                }).setConfig("transactions", (_) => {
+                })
+                    .setConfig("transactions", (_) => {
                     _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-controller" &&
                         transaction.params.name === options.name));
+                    return _;
+                })
+                    .setConfig("resources", (_) => {
+                    _.resources = _.resources.filter((resource) => !(resource.type === "controller" &&
+                        resource.name === options.name));
                     return _;
                 });
             },
