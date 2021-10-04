@@ -20,13 +20,13 @@ export interface DeleteControllerOptions {
     name: string;
 }
 export declare class Project {
-    static PackagePath: () => string;
-    static EnvironmentsPath: () => string;
-    static AppPath: () => string;
-    static SamplesPath: () => string;
-    static ControllersPath: () => string;
-    static SchemasPath: () => string;
-    static MiddlewaresPath: () => string;
+    static PackagePath(): string;
+    static EnvironmentsPath(): string;
+    static AppPath(): string;
+    static SamplesPath(): string;
+    static ControllersPath(): string;
+    static SchemasPath(): string;
+    static MiddlewaresPath(): string;
     static getPackage(): any;
     static configure(Configuration: ConfigurationInterface): void;
     static initialize(options: InitializationOptions): Promise<void>;

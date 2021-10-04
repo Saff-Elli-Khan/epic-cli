@@ -22,6 +22,27 @@ const utils_1 = require("./utils");
 const epic_parser_1 = require("@saffellikhan/epic-parser");
 const cli_1 = require("../cli");
 class Project {
+    static PackagePath() {
+        return path_1.default.join(core_1.ConfigManager.Options.rootPath, "./package.json");
+    }
+    static EnvironmentsPath() {
+        return path_1.default.join(core_1.ConfigManager.Options.rootPath, "./env/");
+    }
+    static AppPath() {
+        return path_1.default.join(core_1.ConfigManager.Options.rootPath, "./src/");
+    }
+    static SamplesPath() {
+        return path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.templates);
+    }
+    static ControllersPath() {
+        return path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.contollers);
+    }
+    static SchemasPath() {
+        return path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.schemas);
+    }
+    static MiddlewaresPath() {
+        return path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.middlewares);
+    }
     static getPackage() {
         return require(this.PackagePath());
     }
@@ -235,10 +256,3 @@ class Project {
     }
 }
 exports.Project = Project;
-Project.PackagePath = () => path_1.default.join(core_1.ConfigManager.Options.rootPath, "./package.json");
-Project.EnvironmentsPath = () => path_1.default.join(core_1.ConfigManager.Options.rootPath, "./env/");
-Project.AppPath = () => path_1.default.join(core_1.ConfigManager.Options.rootPath, "./src/");
-Project.SamplesPath = () => path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.templates);
-Project.ControllersPath = () => path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.contollers);
-Project.SchemasPath = () => path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.schemas);
-Project.MiddlewaresPath = () => path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.middlewares);

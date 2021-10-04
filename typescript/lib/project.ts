@@ -31,37 +31,45 @@ export interface DeleteControllerOptions {
 }
 
 export class Project {
-  static PackagePath = () =>
-    Path.join(ConfigManager.Options.rootPath, "./package.json");
+  static PackagePath() {
+    return Path.join(ConfigManager.Options.rootPath, "./package.json");
+  }
 
-  static EnvironmentsPath = () =>
-    Path.join(ConfigManager.Options.rootPath, "./env/");
+  static EnvironmentsPath() {
+    return Path.join(ConfigManager.Options.rootPath, "./env/");
+  }
 
-  static AppPath = () => Path.join(ConfigManager.Options.rootPath, "./src/");
+  static AppPath() {
+    return Path.join(ConfigManager.Options.rootPath, "./src/");
+  }
 
-  static SamplesPath = () =>
-    Path.join(
+  static SamplesPath() {
+    return Path.join(
       ConfigManager.Options.rootPath,
       ConfigManager.getConfig("main").paths!.templates!
     );
+  }
 
-  static ControllersPath = () =>
-    Path.join(
+  static ControllersPath() {
+    return Path.join(
       ConfigManager.Options.rootPath,
       ConfigManager.getConfig("main").paths!.contollers!
     );
+  }
 
-  static SchemasPath = () =>
-    Path.join(
+  static SchemasPath() {
+    return Path.join(
       ConfigManager.Options.rootPath,
       ConfigManager.getConfig("main").paths!.schemas!
     );
+  }
 
-  static MiddlewaresPath = () =>
-    Path.join(
+  static MiddlewaresPath() {
+    return Path.join(
       ConfigManager.Options.rootPath,
       ConfigManager.getConfig("main").paths!.middlewares!
     );
+  }
 
   static getPackage() {
     return require(this.PackagePath());
