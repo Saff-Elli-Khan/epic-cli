@@ -12,130 +12,72 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Core = void 0;
-const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
-const listr_1 = __importDefault(require("listr"));
-const project_1 = require("./project");
+exports.Core = exports.ConfigManager = void 0;
 const cli_1 = require("../cli");
-const epic_config_manager_1 = require("epic-config-manager");
+const epic_config_manager_1 = require("@saffellikhan/epic-config-manager");
+const listr_1 = __importDefault(require("listr"));
+exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
+    configFileNames: {
+        main: "epic.config.json",
+        transactions: "epic.transactions.json",
+    },
+})
+    .init({
+    main: {
+        version: 1,
+        framework: "Express",
+        type: "Application",
+        name: "my-project",
+        description: "This is my project.",
+        brand: {
+            name: "My Company",
+            country: "Pakistan",
+            address: "House #22, Multan",
+        },
+    },
+    transactions: {
+        version: 1,
+        transactions: [],
+    },
+})
+    .override("main", (data) => {
+    var _a, _b, _c, _d;
+    return (Object.assign(Object.assign({}, data), { paths: {
+            templates: ((_a = data.paths) === null || _a === void 0 ? void 0 : _a.templates) || "./templates/",
+            contollers: ((_b = data.paths) === null || _b === void 0 ? void 0 : _b.contollers) || "./src/controllers/",
+            middlewares: ((_c = data.paths) === null || _c === void 0 ? void 0 : _c.middlewares) || "./src/middlewares/",
+            schemas: ((_d = data.paths) === null || _d === void 0 ? void 0 : _d.schemas) || "./src/schemas/",
+        }, lastAccess: Object.assign({}, data.lastAccess) }));
+});
 class Core {
+    static install() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Queue the Tasks
+            yield new listr_1.default([
+                {
+                    title: "Checking configuration...",
+                    task: () => __awaiter(this, void 0, void 0, function* () {
+                        // Check Configuration File
+                        if (!exports.ConfigManager.hasConfig("transactions"))
+                            throw new Error("No Transactions found on the project!");
+                    }),
+                },
+                {
+                    title: "Executing commands",
+                    task: () => __awaiter(this, void 0, void 0, function* () {
+                        // Get Configuration
+                        const Transactions = exports.ConfigManager.getConfig("transactions");
+                        // Execute Each Transaction
+                        for (const Transaction of Transactions.transactions) {
+                            // Get Command
+                            const Command = cli_1.EpicCli.getCommand(Transaction.command);
+                            // Execute Command
+                            yield Command.method(Transaction.params, Command);
+                        }
+                    }),
+                },
+            ]).run();
+        });
+    }
 }
 exports.Core = Core;
-Core.RootPath = process.cwd();
-Core.ConfigFileName = "epic.config.json";
-Core.ConfigFilePath = () => path_1.default.join(Core.RootPath, Core.ConfigFileName);
-Core.DefaultConfig = {
-    version: 1,
-    type: "Application",
-    framework: "Express",
-    name: "demo-project",
-    description: "This is a demo project.",
-    history: {
-        controller: null,
-        schema: null,
-        middleware: null,
-    },
-    brand: {
-        name: "Demo Company",
-        country: "Pakistan",
-        address: "House #22, Multan",
-    },
-    paths: {
-        samples: "./src/samples/",
-        contollers: "./src/controllers/",
-        schemas: "./src/schemas/",
-        middlewares: "./src/middlewares/",
-    },
-    transactions: [],
-};
-Core.SupportedConfigVersions = [1];
-Core.initialize = (options) => __awaiter(void 0, void 0, void 0, function* () {
-    // Queue the Tasks
-    yield new listr_1.default([
-        {
-            title: "Creating/Updating configuration...",
-            task: () => {
-                // Get Configuration
-                const Configuration = Core.getConfiguration();
-                // Update Configuration
-                Configuration.type = options.type;
-                Configuration.name = options.name;
-                Configuration.description = options.description;
-                Configuration.brand = {
-                    name: options.brandName,
-                    country: options.brandCountry,
-                    address: options.brandAddress,
-                };
-            },
-        },
-        {
-            title: "Saving Configuration",
-            task: () => {
-                // Set New Configuration
-                Core.setConfiguration(Core.DefaultConfig);
-            },
-        },
-        {
-            title: "Configuring your project",
-            task: () => {
-                if (fs_1.default.existsSync(project_1.Project.PackagePath)) {
-                    // Configure Project
-                    project_1.Project.configure(Core.getConfiguration());
-                }
-            },
-        },
-    ]).run();
-});
-Core.install = () => __awaiter(void 0, void 0, void 0, function* () {
-    // Queue the Tasks
-    yield new listr_1.default([
-        {
-            title: "Checking configuration...",
-            task: () => __awaiter(void 0, void 0, void 0, function* () {
-                // Check Configuration File
-                if (!fs_1.default.readdirSync(Core.RootPath).includes(Core.ConfigFileName))
-                    throw new Error("Please initialize a project first!");
-            }),
-        },
-        {
-            title: "Executing commands",
-            task: () => __awaiter(void 0, void 0, void 0, function* () {
-                // Get Configuration
-                const Configuration = Core.getConfiguration();
-                // Execute Each Transaction
-                for (const Transaction of Configuration.transactions) {
-                    // Get Command
-                    const Command = cli_1.EpicCli.getCommand(Transaction.command);
-                    // Execute Command
-                    yield Command.method(Transaction.params, Command);
-                }
-            }),
-        },
-    ]).run();
-});
-Core.getConfiguration = (strict = false) => {
-    try {
-        // Get Configuration from the file
-        const Configuration = (Core.DefaultConfig = epic_config_manager_1.ConfigManagerUtils.deepMerge(Core.DefaultConfig, require(Core.ConfigFilePath())));
-        // Check Configuration Version
-        if (Core.SupportedConfigVersions.includes(Configuration.version))
-            return Configuration;
-        else {
-            cli_1.EpicCli.Logger.error(`Configuration version is not supported by the current CLI version!`).log();
-            throw new Error(`Configuration version not supported!`);
-        }
-    }
-    catch (e) {
-        if (strict)
-            return null;
-        else
-            return Core.DefaultConfig;
-    }
-};
-Core.setConfiguration = (data) => {
-    fs_1.default.writeFileSync(Core.ConfigFilePath(), JSON.stringify(data, undefined, 2));
-};
-Core.removeConfiguration = () => {
-    fs_1.default.unlinkSync(Core.ConfigFilePath());
-};

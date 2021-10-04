@@ -1,6 +1,6 @@
 import { LooseCommandInterface } from "@saffellikhan/epic-cli-builder";
 import { Project } from "../lib/project";
-import { Core } from "../lib/core";
+import { ConfigManager } from "../lib/core";
 import { EpicGeo } from "epic-geo";
 import Path from "path";
 import Fs from "fs";
@@ -35,7 +35,8 @@ export const ProjectCommands: LooseCommandInterface[] = [
             throw new Error("Please provide a valid lowercase project name!");
         },
         default: () =>
-          Core.getConfiguration()?.name || Path.basename(Path.resolve()),
+          ConfigManager.getConfig("main")?.name ||
+          Path.basename(Path.resolve()),
       },
       {
         type: "input",
@@ -43,7 +44,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Description for the project.",
         alias: ["--description", "-d"],
         message: "Please provide a project description:",
-        default: () => Core.getConfiguration()?.description || "N/A",
+        default: () => ConfigManager.getConfig("main")?.description || "N/A",
       },
       {
         type: "input",
@@ -51,7 +52,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Name of the Brand for the project.",
         alias: ["--brand-name", "-bn"],
         message: "Please provide a brand name:",
-        default: () => Core.getConfiguration()?.brand?.name || "N/A",
+        default: () => ConfigManager.getConfig("main")?.brand?.name || "N/A",
       },
       {
         type: "list",
@@ -60,7 +61,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         alias: ["--brand-country", "-bc"],
         message: "Please provide your country:",
         choices: new EpicGeo().countryList(),
-        default: () => Core.getConfiguration()?.brand?.country || "N/A",
+        default: () => ConfigManager.getConfig("main")?.brand?.country || "N/A",
       },
       {
         type: "input",
@@ -68,7 +69,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Address of the project Brand.",
         alias: ["--brand-address", "-ba"],
         message: "Please provide your address:",
-        default: () => Core.getConfiguration()?.brand?.address || "N/A",
+        default: () => ConfigManager.getConfig("main")?.brand?.address || "N/A",
       },
     ],
     default: {
@@ -79,17 +80,12 @@ export const ProjectCommands: LooseCommandInterface[] = [
       brandCountry: "N/A",
       brandAddress: "N/A",
     },
-    method: Core.initialize,
+    method: Project.initialize,
   },
   {
     name: "create",
     description: "Create a new Epic project.",
     method: Project.create,
-  },
-  {
-    name: "install",
-    description: "Install configuration commands.",
-    method: Core.install,
   },
   {
     name: "create-controller",
@@ -124,26 +120,29 @@ export const ProjectCommands: LooseCommandInterface[] = [
       },
       {
         type: "input",
-        name: "sampleDir",
-        description: "Controller samples container directory.",
-        alias: ["--sampleDir", "-sd"],
+        name: "templateDir",
+        description: "Controller templates container directory.",
+        alias: ["--templateDir", "-sd"],
         skip: true,
       },
       {
         type: "list",
         name: "template",
         description: "Template of the Controller",
-        message: "Please provide a controller template:",
+        message: "Please select a controller template:",
         choices: (options) => {
           // Controller Path
           const ControllerDir =
-            options.sampleDir ||
-            Path.join(Project.SamplesPath, "./controller/");
+            options.templateDir ||
+            Path.join(
+              ConfigManager.getConfig("main").paths!.templates!,
+              "./controller/"
+            );
 
           // Resolve Directory
           Fs.mkdirSync(ControllerDir, { recursive: true });
 
-          // Samples List
+          // Templates List
           return Fs.readdirSync(ControllerDir)
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
@@ -156,10 +155,14 @@ export const ProjectCommands: LooseCommandInterface[] = [
         message: "Please provide the name of parent controller:",
         choices: () => {
           // Resolve Directory
-          Fs.mkdirSync(Project.ControllersPath, { recursive: true });
+          Fs.mkdirSync(ConfigManager.getConfig("main").paths!.contollers!, {
+            recursive: true,
+          });
 
           // Controllers List
-          return Fs.readdirSync(Project.ControllersPath)
+          return Fs.readdirSync(
+            ConfigManager.getConfig("main").paths!.contollers!
+          )
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
         },
@@ -167,420 +170,443 @@ export const ProjectCommands: LooseCommandInterface[] = [
     ],
     method: Project.createController,
   },
-  {
-    name: "delete-controller",
-    description: "Remove controller from project.",
-    params: [
-      {
-        type: "list",
-        name: "name",
-        alias: ["--name", "-n"],
-        description: "Name of the controller.",
-        message: "Please provide a controller name:",
-        choices: () => {
-          // Resolve Directory
-          Fs.mkdirSync(Project.ControllersPath, { recursive: true });
+  // {
+  //   name: "delete-controller",
+  //   description: "Remove controller from project.",
+  //   params: [
+  //     {
+  //       type: "list",
+  //       name: "name",
+  //       alias: ["--name", "-n"],
+  //       description: "Name of the controller.",
+  //       message: "Please provide a controller name:",
+  //       choices: () => {
+  //         const ControllersPath = ConfigManager.getConfig("main").paths!
+  //           .contollers!;
 
-          // Controllers List
-          const List = Fs.readdirSync(Project.ControllersPath)
-            .filter((file) => /\.ts$/g.test(file))
-            .map((file) => file.replace(/\.\w*/g, ""));
+  //         // Resolve Directory
+  //         Fs.mkdirSync(ControllersPath, {
+  //           recursive: true,
+  //         });
 
-          return List.filter((v) => v !== "index");
-        },
-      },
-    ],
-    method: Project.deleteController,
-  },
-  {
-    name: "create-schema",
-    description: "Create a database schema",
-    params: [
-      {
-        type: "input",
-        name: "name",
-        description: "Name of the schema.",
-        alias: ["--name", "-n"],
-        message: "Please provide a schema name:",
-        validator: (value) => {
-          if (!/^[A-Z]\w+$/.test(value))
-            throw new Error(`Please provide a valid schema name!`);
-        },
-      },
-      {
-        type: "input",
-        name: "description",
-        description: "Description for the schema.",
-        alias: ["--description", "-d"],
-        message: "Please provide a schema description:",
-        default: "N/A",
-      },
-      {
-        type: "input",
-        name: "sampleDir",
-        description: "Schema samples container directory.",
-        alias: ["--sampleDir", "-sd"],
-        skip: true,
-      },
-      {
-        type: "list",
-        name: "template",
-        description: "Template of the Schema",
-        message: "Please provide a schema template:",
-        choices: (options) => {
-          // Schema Path
-          const SchemaDir =
-            options.sampleDir || Path.join(Project.SamplesPath, "./schema/");
+  //         // Controllers List
+  //         const List = Fs.readdirSync(ControllersPath)
+  //           .filter((file) => /\.ts$/g.test(file))
+  //           .map((file) => file.replace(/\.\w*/g, ""));
 
-          // Resolve Directory
-          Fs.mkdirSync(SchemaDir, { recursive: true });
+  //         return List.filter((v) => v !== "index");
+  //       },
+  //     },
+  //   ],
+  //   method: Project.deleteController,
+  // },
+  // {
+  //   name: "create-schema",
+  //   description: "Create a database schema",
+  //   params: [
+  //     {
+  //       type: "input",
+  //       name: "name",
+  //       description: "Name of the schema.",
+  //       alias: ["--name", "-n"],
+  //       message: "Please provide a schema name:",
+  //       validator: (value) => {
+  //         if (!/^[A-Z]\w+$/.test(value))
+  //           throw new Error(`Please provide a valid schema name!`);
+  //       },
+  //     },
+  //     {
+  //       type: "input",
+  //       name: "description",
+  //       description: "Description for the schema.",
+  //       alias: ["--description", "-d"],
+  //       message: "Please provide a schema description:",
+  //       default: "N/A",
+  //     },
+  //     {
+  //       type: "input",
+  //       name: "templateDir",
+  //       description: "Schema templates container directory.",
+  //       alias: ["--templateDir", "-sd"],
+  //       skip: true,
+  //     },
+  //     {
+  //       type: "list",
+  //       name: "template",
+  //       description: "Template of the Schema",
+  //       message: "Please provide a schema template:",
+  //       choices: (options) => {
+  //         // Schema Path
+  //         const SchemaDir =
+  //           options.templateDir ||
+  //           Path.join(
+  //             ConfigManager.getConfig("main").paths!.templates!,
+  //             "./schema/"
+  //           );
 
-          // Samples List
-          return Fs.readdirSync(SchemaDir)
-            .filter((file) => /\.ts$/g.test(file))
-            .map((file) => file.replace(/\.\w*/g, ""));
-        },
-      },
-    ],
-    method: Project.createSchema,
-  },
-  {
-    name: "delete-schema",
-    description: "Remove schema from project.",
-    params: [
-      {
-        type: "list",
-        name: "name",
-        alias: ["--name", "-n"],
-        description: "Name of the schema.",
-        message: "Please provide a schema name:",
-        choices: () => {
-          // Resolve Directory
-          Fs.mkdirSync(Project.SchemasPath, { recursive: true });
+  //         // Resolve Directory
+  //         Fs.mkdirSync(SchemaDir, { recursive: true });
 
-          // Schemas List
-          const List = Fs.readdirSync(Project.SchemasPath)
-            .filter((file) => /\.ts$/g.test(file))
-            .map((file) => file.replace(/\.\w*/g, ""));
+  //         // Templates List
+  //         return Fs.readdirSync(SchemaDir)
+  //           .filter((file) => /\.ts$/g.test(file))
+  //           .map((file) => file.replace(/\.\w*/g, ""));
+  //       },
+  //     },
+  //   ],
+  //   method: Project.createSchema,
+  // },
+  // {
+  //   name: "delete-schema",
+  //   description: "Remove schema from project.",
+  //   params: [
+  //     {
+  //       type: "list",
+  //       name: "name",
+  //       alias: ["--name", "-n"],
+  //       description: "Name of the schema.",
+  //       message: "Please provide a schema name:",
+  //       choices: () => {
+  //         const SchemasPath = ConfigManager.getConfig("main").paths!.schemas!;
 
-          return List.filter((v) => !["index", "base"].includes(v));
-        },
-      },
-    ],
-    method: Project.deleteSchema,
-  },
-  {
-    name: "create-schema-column",
-    description: "Create new schema column.",
-    params: [
-      {
-        type: "list",
-        name: "schema",
-        alias: ["--schema", "-s"],
-        description: "Name of the schema.",
-        message: "Please provide a schema:",
-        choices: () => {
-          // Resolve Directory
-          Fs.mkdirSync(Project.SchemasPath, { recursive: true });
+  //         // Resolve Directory
+  //         Fs.mkdirSync(SchemasPath, { recursive: true });
 
-          // Schemas List
-          const List = Fs.readdirSync(Project.SchemasPath)
-            .filter((file) => /\.ts$/g.test(file))
-            .map((file) => file.replace(/\.\w*/g, ""));
+  //         // Schemas List
+  //         const List = Fs.readdirSync(SchemasPath)
+  //           .filter((file) => /\.ts$/g.test(file))
+  //           .map((file) => file.replace(/\.\w*/g, ""));
 
-          return List.filter((v) => !["index", "base"].includes(v));
-        },
-        default: () => Core.getConfiguration()?.history?.schema,
-      },
-      {
-        type: "list",
-        name: "type",
-        alias: ["--type", "-t"],
-        description: "Type of the column.",
-        message: "Please provide a column type:",
-        choices: [
-          "String",
-          "Number",
-          "Boolean",
-          "Enum",
-          "Record",
-          "Array",
-          "Relation",
-          "Any",
-        ],
-        default: "String",
-      },
-      {
-        type: "array",
-        name: "choices",
-        description: "Column choices list.",
-        message: "Please provide comma separated choices list:",
-        skip: (options) => options.type !== "Enum",
-      },
-      {
-        type: "list",
-        name: "arrayof",
-        description: "Column is an array of type.",
-        message: "Array of type:",
-        choices: ["String", "Number", "Boolean", "Record", "Relation", "Any"],
-        default: "String",
-        skip: (options) => options.type !== "Array",
-      },
-      {
-        type: "input",
-        name: "recordType",
-        description: "Type of the record.",
-        message: "Please provide the type of the record:",
-        default: "any",
-        skip: (options) =>
-          options.type !== "Record" && options.arrayof !== "Record",
-      },
-      {
-        type: "number",
-        name: "length",
-        alias: ["--length", "-l"],
-        description: "Length of the column.",
-        message: "Please provide a column length:",
-        default: 50,
-        skip: (options) => !["String", "Number"].includes(options.type),
-      },
-      {
-        type: "list",
-        name: "relation",
-        alias: ["--relation", "-r"],
-        description: "Name of the Relation schema.",
-        message: "Please provide a relation schema:",
-        choices: () => {
-          // Resolve Directory
-          Fs.mkdirSync(Project.SchemasPath, { recursive: true });
+  //         return List.filter((v) => !["index", "base"].includes(v));
+  //       },
+  //     },
+  //   ],
+  //   method: Project.deleteSchema,
+  // },
+  // {
+  //   name: "create-schema-column",
+  //   description: "Create new schema column.",
+  //   params: [
+  //     {
+  //       type: "list",
+  //       name: "schema",
+  //       alias: ["--schema", "-s"],
+  //       description: "Name of the schema.",
+  //       message: "Please provide a schema:",
+  //       choices: () => {
+  //         const SchemasPath = ConfigManager.getConfig("main").paths!.schemas!;
 
-          // Schemas List
-          const List = Fs.readdirSync(Project.SchemasPath)
-            .filter((file) => /\.ts$/g.test(file))
-            .map((file) => file.replace(/\.\w*/g, ""));
+  //         // Resolve Directory
+  //         Fs.mkdirSync(SchemasPath, { recursive: true });
 
-          return List.filter((v) => !["index", "base"].includes(v));
-        },
-        skip: (options) =>
-          options.type !== "Relation" && options.arrayof !== "Relation",
-      },
-      {
-        type: "array",
-        name: "mapping",
-        description: "Column relation mapping.",
-        message:
-          "Please provide two column relation mapping separated by comma:",
-        validator: (value) => {
-          if (value instanceof Array) {
-            if (value.length > 2)
-              throw new Error(`Please provide just two columns!`);
-            else if (value.length < 1)
-              throw new Error(`Please provide at least one column!`);
-            else if (value.length < 2) return [value[0], value[0]];
-          } else
-            throw new Error(`Please provide a valid list of column names!`);
-        },
-        default: (options) => options.relation + "Id",
-        skip: (options) => !options.relation,
-      },
-      {
-        type: "input",
-        name: "name",
-        alias: ["--name", "-n"],
-        description: "Name of the column.",
-        message: "Please provide a column name:",
-        validator: (value) => {
-          if (!/^[A-Z]\w+$/.test(value))
-            throw new Error(`Please provide a valid column name!`);
-        },
-        default: (options) =>
-          options.relation
-            ? options.type === "Array"
-              ? options.relation + "s"
-              : options.relation
-            : undefined,
-      },
-      {
-        type: "confirm",
-        name: "nullable",
-        alias: ["--nullable"],
-        description: "Is the column nullable or not.",
-        message: "Is this column nullable?",
-        skip: (options) => options.relation,
-      },
-      {
-        type: "input",
-        name: "defaultValue",
-        alias: ["--default"],
-        description: "Default column value.",
-        message: "Please provide a default value (code):",
-        skip: (options) => options.relation,
-      },
-      {
-        type: "confirm",
-        name: "advancedProperties",
-        description: "Should add advanced properties to the column or not.",
-        message: "Do you want to add advanced properties?",
-        skip: (options) => options.relation,
-      },
-      {
-        type: "input",
-        name: "collation",
-        alias: ["--collation", "-c"],
-        description: "Collation of the column.",
-        message: "Please provide a column collation:",
-        default: "utf8mb4_unicode_ci",
-        skip: (options) => !options.advancedProperties,
-      },
-      {
-        type: "checkbox",
-        name: "index",
-        alias: ["--index", "-i"],
-        description: "Index on the column.",
-        message: "Please provide a column index:",
-        choices: ["FULLTEXT", "UNIQUE", "INDEX", "SPATIAL"],
-        skip: (options) => !options.advancedProperties,
-      },
-      {
-        type: "input",
-        name: "onUpdate",
-        alias: ["--on-update"],
-        description: "Value on update.",
-        message: "Please provide a value on update (code):",
-        skip: (options) => !options.advancedProperties,
-      },
-    ],
-    default: {
-      type: "String",
-      length: 50,
-      nullable: false,
-      defaultValue: "",
-      advancedProperties: false,
-    },
-    method: Project.createSchemaColumn,
-  },
-  {
-    name: "delete-schema-column",
-    description: "Delete a schema column.",
-    params: [
-      {
-        type: "input",
-        name: "name",
-        alias: ["--name", "-n"],
-        description: "Name of the column.",
-        message: "Please provide a column name:",
-        validator: (value) => {
-          if (!/^[A-Z]\w+$/.test(value))
-            throw new Error(`Please provide a valid column name!`);
-        },
-      },
-      {
-        type: "list",
-        name: "schema",
-        alias: ["--schema", "-s"],
-        description: "Name of the schema.",
-        message: "Please provide a schema:",
-        choices: () => {
-          // Resolve Directory
-          Fs.mkdirSync(Project.SchemasPath, { recursive: true });
+  //         // Schemas List
+  //         const List = Fs.readdirSync(SchemasPath)
+  //           .filter((file) => /\.ts$/g.test(file))
+  //           .map((file) => file.replace(/\.\w*/g, ""));
 
-          // Schemas List
-          const List = Fs.readdirSync(Project.SchemasPath)
-            .filter((file) => /\.ts$/g.test(file))
-            .map((file) => file.replace(/\.\w*/g, ""));
+  //         return List.filter((v) => !["index", "base"].includes(v));
+  //       },
+  //       default: () => ConfigManager.getConfig("main")?.lastAccess?.schema,
+  //     },
+  //     {
+  //       type: "list",
+  //       name: "type",
+  //       alias: ["--type", "-t"],
+  //       description: "Type of the column.",
+  //       message: "Please provide a column type:",
+  //       choices: [
+  //         "String",
+  //         "Number",
+  //         "Boolean",
+  //         "Enum",
+  //         "Record",
+  //         "Array",
+  //         "Relation",
+  //         "Any",
+  //       ],
+  //       default: "String",
+  //     },
+  //     {
+  //       type: "array",
+  //       name: "choices",
+  //       description: "Column choices list.",
+  //       message: "Please provide comma separated choices list:",
+  //       skip: (options) => options.type !== "Enum",
+  //     },
+  //     {
+  //       type: "list",
+  //       name: "arrayof",
+  //       description: "Column is an array of type.",
+  //       message: "Array of type:",
+  //       choices: ["String", "Number", "Boolean", "Record", "Relation", "Any"],
+  //       default: "String",
+  //       skip: (options) => options.type !== "Array",
+  //     },
+  //     {
+  //       type: "input",
+  //       name: "recordType",
+  //       description: "Type of the record.",
+  //       message: "Please provide the type of the record:",
+  //       default: "any",
+  //       skip: (options) =>
+  //         options.type !== "Record" && options.arrayof !== "Record",
+  //     },
+  //     {
+  //       type: "number",
+  //       name: "length",
+  //       alias: ["--length", "-l"],
+  //       description: "Length of the column.",
+  //       message: "Please provide a column length:",
+  //       default: 50,
+  //       skip: (options) => !["String", "Number"].includes(options.type),
+  //     },
+  //     {
+  //       type: "list",
+  //       name: "relation",
+  //       alias: ["--relation", "-r"],
+  //       description: "Name of the Relation schema.",
+  //       message: "Please provide a relation schema:",
+  //       choices: () => {
+  //         const SchemasPath = ConfigManager.getConfig("main").paths!.schemas!;
 
-          return List.filter((v) => !["index", "base"].includes(v));
-        },
-        default: () => Core.getConfiguration()?.history?.schema,
-      },
-    ],
-    method: Project.deleteSchemaColumn,
-  },
-  {
-    name: "create-middleware",
-    description: "Create a new middleware.",
-    params: [
-      {
-        type: "list",
-        name: "type",
-        description: "Type of the middleware.",
-        alias: ["--type", "-t"],
-        message: "Please provide a middleware type:",
-        choices: ["Global", "Local"],
-        default: "Global",
-      },
-      {
-        type: "input",
-        name: "name",
-        description: "Name of the middleware.",
-        alias: ["--name", "-n"],
-        message: "Please provide a middleware name:",
-        validator: (value) => {
-          if (!/^[A-Z]\w+$/.test(value))
-            throw new Error(`Please provide a valid middleware name!`);
-        },
-      },
-      {
-        type: "input",
-        name: "description",
-        description: "Description for the middleware.",
-        alias: ["--description", "-d"],
-        message: "Please provide a middleware description:",
-        default: "N/A",
-      },
-      {
-        type: "input",
-        name: "sampleDir",
-        description: "Middleware samples container directory.",
-        alias: ["--sampleDir", "-sd"],
-        skip: true,
-      },
-      {
-        type: "list",
-        name: "template",
-        description: "Template of the Middleware",
-        message: "Please provide a middleware template:",
-        choices: (options) => {
-          // Middleware Path
-          const MiddlewareDir =
-            options.sampleDir ||
-            Path.join(Project.SamplesPath, "./middleware/");
+  //         // Resolve Directory
+  //         Fs.mkdirSync(SchemasPath, { recursive: true });
 
-          // Resolve Directory
-          Fs.mkdirSync(MiddlewareDir, { recursive: true });
+  //         // Schemas List
+  //         const List = Fs.readdirSync(SchemasPath)
+  //           .filter((file) => /\.ts$/g.test(file))
+  //           .map((file) => file.replace(/\.\w*/g, ""));
 
-          // Samples List
-          return Fs.readdirSync(MiddlewareDir)
-            .filter((file) => /\.ts$/g.test(file))
-            .map((file) => file.replace(/\.\w*/g, ""));
-        },
-      },
-    ],
-    method: Project.createMiddleware,
-  },
-  {
-    name: "delete-middleware",
-    description: "Remove middleware from project.",
-    params: [
-      {
-        type: "list",
-        name: "name",
-        alias: ["--name", "-n"],
-        description: "Name of the middleware.",
-        message: "Please provide a middleware name:",
-        choices: () => {
-          // Resolve Directory
-          Fs.mkdirSync(Project.MiddlewaresPath, { recursive: true });
+  //         return List.filter((v) => !["index", "base"].includes(v));
+  //       },
+  //       skip: (options) =>
+  //         options.type !== "Relation" && options.arrayof !== "Relation",
+  //     },
+  //     {
+  //       type: "array",
+  //       name: "mapping",
+  //       description: "Column relation mapping.",
+  //       message:
+  //         "Please provide two column relation mapping separated by comma:",
+  //       validator: (value) => {
+  //         if (value instanceof Array) {
+  //           if (value.length > 2)
+  //             throw new Error(`Please provide just two columns!`);
+  //           else if (value.length < 1)
+  //             throw new Error(`Please provide at least one column!`);
+  //           else if (value.length < 2) return [value[0], value[0]];
+  //         } else
+  //           throw new Error(`Please provide a valid list of column names!`);
+  //       },
+  //       default: (options) => options.relation + "Id",
+  //       skip: (options) => !options.relation,
+  //     },
+  //     {
+  //       type: "input",
+  //       name: "name",
+  //       alias: ["--name", "-n"],
+  //       description: "Name of the column.",
+  //       message: "Please provide a column name:",
+  //       validator: (value) => {
+  //         if (!/^[A-Z]\w+$/.test(value))
+  //           throw new Error(`Please provide a valid column name!`);
+  //       },
+  //       default: (options) =>
+  //         options.relation
+  //           ? options.type === "Array"
+  //             ? options.relation + "s"
+  //             : options.relation
+  //           : undefined,
+  //     },
+  //     {
+  //       type: "confirm",
+  //       name: "nullable",
+  //       alias: ["--nullable"],
+  //       description: "Is the column nullable or not.",
+  //       message: "Is this column nullable?",
+  //       skip: (options) => options.relation,
+  //     },
+  //     {
+  //       type: "input",
+  //       name: "defaultValue",
+  //       alias: ["--default"],
+  //       description: "Default column value.",
+  //       message: "Please provide a default value (code):",
+  //       skip: (options) => options.relation,
+  //     },
+  //     {
+  //       type: "confirm",
+  //       name: "advancedProperties",
+  //       description: "Should add advanced properties to the column or not.",
+  //       message: "Do you want to add advanced properties?",
+  //       skip: (options) => options.relation,
+  //     },
+  //     {
+  //       type: "input",
+  //       name: "collation",
+  //       alias: ["--collation", "-c"],
+  //       description: "Collation of the column.",
+  //       message: "Please provide a column collation:",
+  //       default: "utf8mb4_unicode_ci",
+  //       skip: (options) => !options.advancedProperties,
+  //     },
+  //     {
+  //       type: "checkbox",
+  //       name: "index",
+  //       alias: ["--index", "-i"],
+  //       description: "Index on the column.",
+  //       message: "Please provide a column index:",
+  //       choices: ["FULLTEXT", "UNIQUE", "INDEX", "SPATIAL"],
+  //       skip: (options) => !options.advancedProperties,
+  //     },
+  //     {
+  //       type: "input",
+  //       name: "onUpdate",
+  //       alias: ["--on-update"],
+  //       description: "Value on update.",
+  //       message: "Please provide a value on update (code):",
+  //       skip: (options) => !options.advancedProperties,
+  //     },
+  //   ],
+  //   default: {
+  //     type: "String",
+  //     length: 50,
+  //     nullable: false,
+  //     defaultValue: "",
+  //     advancedProperties: false,
+  //   },
+  //   method: Project.createSchemaColumn,
+  // },
+  // {
+  //   name: "delete-schema-column",
+  //   description: "Delete a schema column.",
+  //   params: [
+  //     {
+  //       type: "input",
+  //       name: "name",
+  //       alias: ["--name", "-n"],
+  //       description: "Name of the column.",
+  //       message: "Please provide a column name:",
+  //       validator: (value) => {
+  //         if (!/^[A-Z]\w+$/.test(value))
+  //           throw new Error(`Please provide a valid column name!`);
+  //       },
+  //     },
+  //     {
+  //       type: "list",
+  //       name: "schema",
+  //       alias: ["--schema", "-s"],
+  //       description: "Name of the schema.",
+  //       message: "Please provide a schema:",
+  //       choices: () => {
+  //         const SchemasPath = ConfigManager.getConfig("main").paths!.schemas!;
 
-          // Middlewares List
-          const List = Fs.readdirSync(Project.MiddlewaresPath)
-            .filter((file) => /\.ts$/g.test(file))
-            .map((file) => file.replace(/\.\w*/g, ""));
+  //         // Resolve Directory
+  //         Fs.mkdirSync(SchemasPath, { recursive: true });
 
-          return List.filter((v) => v !== "index");
-        },
-      },
-    ],
-    method: Project.deleteMiddleware,
-  },
+  //         // Schemas List
+  //         const List = Fs.readdirSync(SchemasPath)
+  //           .filter((file) => /\.ts$/g.test(file))
+  //           .map((file) => file.replace(/\.\w*/g, ""));
+
+  //         return List.filter((v) => !["index", "base"].includes(v));
+  //       },
+  //       default: () => ConfigManager.getConfig("main")?.lastAccess?.schema,
+  //     },
+  //   ],
+  //   method: Project.deleteSchemaColumn,
+  // },
+  // {
+  //   name: "create-middleware",
+  //   description: "Create a new middleware.",
+  //   params: [
+  //     {
+  //       type: "list",
+  //       name: "type",
+  //       description: "Type of the middleware.",
+  //       alias: ["--type", "-t"],
+  //       message: "Please provide a middleware type:",
+  //       choices: ["Global", "Local"],
+  //       default: "Global",
+  //     },
+  //     {
+  //       type: "input",
+  //       name: "name",
+  //       description: "Name of the middleware.",
+  //       alias: ["--name", "-n"],
+  //       message: "Please provide a middleware name:",
+  //       validator: (value) => {
+  //         if (!/^[A-Z]\w+$/.test(value))
+  //           throw new Error(`Please provide a valid middleware name!`);
+  //       },
+  //     },
+  //     {
+  //       type: "input",
+  //       name: "description",
+  //       description: "Description for the middleware.",
+  //       alias: ["--description", "-d"],
+  //       message: "Please provide a middleware description:",
+  //       default: "N/A",
+  //     },
+  //     {
+  //       type: "input",
+  //       name: "templateDir",
+  //       description: "Middleware templates container directory.",
+  //       alias: ["--templateDir", "-sd"],
+  //       skip: true,
+  //     },
+  //     {
+  //       type: "list",
+  //       name: "template",
+  //       description: "Template of the Middleware",
+  //       message: "Please provide a middleware template:",
+  //       choices: (options) => {
+  //         // Middleware Path
+  //         const MiddlewareDir =
+  //           options.templateDir ||
+  //           Path.join(
+  //             ConfigManager.getConfig("main").paths!.templates!,
+  //             "./middleware/"
+  //           );
+
+  //         // Resolve Directory
+  //         Fs.mkdirSync(MiddlewareDir, { recursive: true });
+
+  //         // Templates List
+  //         return Fs.readdirSync(MiddlewareDir)
+  //           .filter((file) => /\.ts$/g.test(file))
+  //           .map((file) => file.replace(/\.\w*/g, ""));
+  //       },
+  //     },
+  //   ],
+  //   method: Project.createMiddleware,
+  // },
+  // {
+  //   name: "delete-middleware",
+  //   description: "Remove middleware from project.",
+  //   params: [
+  //     {
+  //       type: "list",
+  //       name: "name",
+  //       alias: ["--name", "-n"],
+  //       description: "Name of the middleware.",
+  //       message: "Please provide a middleware name:",
+  //       choices: () => {
+  //         const MiddlewaresPath = ConfigManager.getConfig("main").paths!
+  //           .middlewares!;
+
+  //         // Resolve Directory
+  //         Fs.mkdirSync(MiddlewaresPath, { recursive: true });
+
+  //         // Middlewares List
+  //         const List = Fs.readdirSync(MiddlewaresPath)
+  //           .filter((file) => /\.ts$/g.test(file))
+  //           .map((file) => file.replace(/\.\w*/g, ""));
+
+  //         return List.filter((v) => v !== "index");
+  //       },
+  //     },
+  //   ],
+  //   method: Project.deleteMiddleware,
+  // },
 ];

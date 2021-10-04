@@ -1,53 +1,44 @@
-export declare type ProjectType = "Application" | "Plugin";
+import { EpicConfigManager } from "@saffellikhan/epic-config-manager";
 export declare type FrameworkType = "Express";
+export declare type ProjectType = "Application" | "Plugin";
 export interface ConfigurationInterface {
     version: number;
-    type: ProjectType;
     framework: FrameworkType;
+    type: ProjectType;
     name: string;
     description: string;
-    history: HistoryInterface;
     brand: BrandInterface;
-    paths: PathsInterface;
-    transactions: Array<TransactionInterface>;
+    paths?: PathsInterface;
+    lastAccess?: AccessInterface;
 }
-export interface HistoryInterface {
-    controller: string | null;
-    schema: string | null;
-    middleware: string | null;
+export interface AccessInterface {
+    controller?: string;
+    schema?: string;
+    middleware?: string;
 }
 export interface PathsInterface {
-    samples: string;
-    contollers: string;
-    schemas: string;
-    middlewares: string;
+    templates?: string;
+    contollers?: string;
+    schemas?: string;
+    middlewares?: string;
 }
 export interface BrandInterface {
     name: string;
     country: string;
     address: string;
 }
+export interface TransactionsInterface {
+    version: number;
+    transactions: Array<TransactionInterface>;
+}
 export interface TransactionInterface {
     command: string;
     params: Record<string, any>;
 }
-export interface InitializationOptions {
-    type: ProjectType;
-    name: string;
-    description: string;
-    brandName: string;
-    brandCountry: string;
-    brandAddress: string;
-}
+export declare const ConfigManager: EpicConfigManager<Required<{
+    main: ConfigurationInterface;
+    transactions: TransactionsInterface;
+}>>;
 export declare class Core {
-    static RootPath: string;
-    static ConfigFileName: string;
-    static ConfigFilePath: () => string;
-    static DefaultConfig: ConfigurationInterface;
-    static SupportedConfigVersions: number[];
-    static initialize: (options: InitializationOptions) => Promise<void>;
-    static install: () => Promise<void>;
-    static getConfiguration: (strict?: boolean) => ConfigurationInterface | null;
-    static setConfiguration: (data: ConfigurationInterface) => void;
-    static removeConfiguration: () => void;
+    static install(): Promise<void>;
 }
