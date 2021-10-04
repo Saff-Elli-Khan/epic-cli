@@ -309,7 +309,6 @@ export class Project {
               outFile: `./${
                 options.parent === "None" ? "App.controllers" : options.parent
               }.ts`,
-              logs: true,
             })
               .parse()
               .push(
@@ -323,7 +322,7 @@ export class Project {
               )
               .push(
                 "ControllerChildsContainer",
-                "ControllerChildsListTemplate",
+                "ControllerChildTemplate",
                 options.name + "ControllerChilds",
                 {
                   child: options.name + "Controller",
@@ -421,7 +420,6 @@ export class Project {
                     ? "App.controllers"
                     : Transaction.params.parent
                 }.ts`,
-                logs: true,
               })
                 .parse()
                 .pop("ImportsContainer", options.name + "Import")

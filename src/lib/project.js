@@ -221,14 +221,13 @@ class Project {
                                     : Project.ControllersPath(),
                                 inFile: `./${options.parent === "None" ? "App.controllers" : options.parent}.ts`,
                                 outFile: `./${options.parent === "None" ? "App.controllers" : options.parent}.ts`,
-                                logs: true,
                             })
                                 .parse()
                                 .push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
                                 modules: [options.name + "Controller"],
                                 location: `./${options.name}`,
                             })
-                                .push("ControllerChildsContainer", "ControllerChildsListTemplate", options.name + "ControllerChilds", {
+                                .push("ControllerChildsContainer", "ControllerChildTemplate", options.name + "ControllerChilds", {
                                 child: options.name + "Controller",
                             })
                                 .render();
@@ -300,7 +299,6 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
                             outFile: `./${Transaction.params.parent === "None"
                                 ? "App.controllers"
                                 : Transaction.params.parent}.ts`,
-                            logs: true,
                         })
                             .parse()
                             .pop("ImportsContainer", options.name + "Import")
