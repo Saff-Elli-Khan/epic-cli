@@ -43,11 +43,11 @@ class Project {
         return path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.middlewares);
     }
     static getPackage() {
-        return require(this.PackagePath());
+        return require(Project.PackagePath());
     }
     static configure(Configuration) {
         // Get Package Information
-        const Package = this.getPackage();
+        const Package = Project.getPackage();
         // Update Package Information
         Package.name = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.name) || Package.name;
         Package.description = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.description) || Package.description;
@@ -65,11 +65,11 @@ class Project {
             Package.keywords = ["epic", "plugin"];
         }
         // Put Package Data
-        fs_1.default.writeFileSync(this.PackagePath(), JSON.stringify(Package, undefined, 2));
+        fs_1.default.writeFileSync(Project.PackagePath(), JSON.stringify(Package, undefined, 2));
         // Re-Create Configuration
         core_1.ConfigManager.setConfig("main", Configuration);
         // Create Environment Directory
-        fs_1.default.mkdirSync(this.EnvironmentsPath(), {
+        fs_1.default.mkdirSync(Project.EnvironmentsPath(), {
             recursive: true,
         });
     }
@@ -96,9 +96,9 @@ class Project {
                 {
                     title: "Configuring your project",
                     task: () => {
-                        if (fs_1.default.existsSync(this.PackagePath()))
+                        if (fs_1.default.existsSync(Project.PackagePath()))
                             // Configure Project
-                            this.configure(core_1.ConfigManager.getConfig("main"));
+                            Project.configure(core_1.ConfigManager.getConfig("main"));
                     },
                 },
             ]).run();
@@ -137,7 +137,7 @@ class Project {
                         }
                         catch (error) {
                             // Configure Project
-                            this.configure(configuration);
+                            Project.configure(configuration);
                             // Throw Git Error
                             throw error;
                         }
@@ -146,11 +146,11 @@ class Project {
                 {
                     title: "Configuring your project",
                     task: ({ configuration }) => {
-                        if (fs_1.default.existsSync(this.PackagePath())) {
+                        if (fs_1.default.existsSync(Project.PackagePath())) {
                             // Configure Project
-                            this.configure(configuration);
+                            Project.configure(configuration);
                             // Create Environment Files
-                            ["development", "production"].forEach((env) => fs_1.default.writeFileSync(path_1.default.join(this.EnvironmentsPath(), `./.${env}.env`), `ENCRYPTION_KEY=${utils_1.generateRandomKey(32)}`));
+                            ["development", "production"].forEach((env) => fs_1.default.writeFileSync(path_1.default.join(Project.EnvironmentsPath(), `./.${env}.env`), `ENCRYPTION_KEY=${utils_1.generateRandomKey(32)}`));
                         }
                         else
                             throw new Error(`We did not found a 'package.json' in the project!`);
@@ -189,9 +189,9 @@ class Project {
                         // Parse Template
                         new epic_parser_1.TemplateParser({
                             inDir: options.templateDir ||
-                                path_1.default.join(this.SamplesPath(), "./controllers/"),
+                                path_1.default.join(Project.SamplesPath(), "./controllers/"),
                             inFile: `./${options.template}.ts`,
-                            outDir: this.ControllersPath(),
+                            outDir: Project.ControllersPath(),
                             outFile: `./${options.name}.ts`,
                         })
                             .parse()
@@ -200,9 +200,9 @@ class Project {
                         })
                             .push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
                             modules: [options.name],
-                            location: path_1.default.relative(this.ControllersPath(), path_1.default.join(this.SchemasPath(), options.name)).replace(/\\/g, "/"),
+                            location: path_1.default.relative(Project.ControllersPath(), path_1.default.join(Project.SchemasPath(), options.name)).replace(/\\/g, "/"),
                         })
-                            .render((_) => _.replace(/@AppPath/g, path_1.default.relative(this.ControllersPath(), this.AppPath()).replace(/\\/g, "/")) // Add App Path
+                            .render((_) => _.replace(/@AppPath/g, path_1.default.relative(Project.ControllersPath(), Project.AppPath()).replace(/\\/g, "/")) // Add App Path
                             .replace(/Sample/g, options.name) // Add Name
                         );
                     },
@@ -214,8 +214,8 @@ class Project {
                             // Get Parent Controller Content & Parse Template
                             new epic_parser_1.TemplateParser({
                                 inDir: options.parent === "None"
-                                    ? this.ControllersPath()
-                                    : this.AppPath(),
+                                    ? Project.ControllersPath()
+                                    : Project.AppPath(),
                                 inFile: `./${options.parent === "None" ? "App.controller" : options.parent}.ts`,
                                 outFile: `./${options.parent === "None" ? "App.controller" : options.parent}.ts`,
                             })

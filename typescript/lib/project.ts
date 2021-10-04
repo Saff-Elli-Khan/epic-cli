@@ -71,12 +71,12 @@ export class Project {
   }
 
   static getPackage() {
-    return require(this.PackagePath());
+    return require(Project.PackagePath());
   }
 
   static configure(Configuration: ConfigurationInterface) {
     // Get Package Information
-    const Package = this.getPackage();
+    const Package = Project.getPackage();
 
     // Update Package Information
     Package.name = Configuration?.name || Package.name;
@@ -103,13 +103,16 @@ export class Project {
     }
 
     // Put Package Data
-    Fs.writeFileSync(this.PackagePath(), JSON.stringify(Package, undefined, 2));
+    Fs.writeFileSync(
+      Project.PackagePath(),
+      JSON.stringify(Package, undefined, 2)
+    );
 
     // Re-Create Configuration
     ConfigManager.setConfig("main", Configuration);
 
     // Create Environment Directory
-    Fs.mkdirSync(this.EnvironmentsPath(), {
+    Fs.mkdirSync(Project.EnvironmentsPath(), {
       recursive: true,
     });
   }
@@ -136,9 +139,9 @@ export class Project {
       {
         title: "Configuring your project",
         task: () => {
-          if (Fs.existsSync(this.PackagePath()))
+          if (Fs.existsSync(Project.PackagePath()))
             // Configure Project
-            this.configure(ConfigManager.getConfig("main"));
+            Project.configure(ConfigManager.getConfig("main"));
         },
       },
     ]).run();
@@ -179,7 +182,7 @@ export class Project {
             await Execa("git", ["init"]);
           } catch (error) {
             // Configure Project
-            this.configure(configuration);
+            Project.configure(configuration);
 
             // Throw Git Error
             throw error;
@@ -189,14 +192,14 @@ export class Project {
       {
         title: "Configuring your project",
         task: ({ configuration }) => {
-          if (Fs.existsSync(this.PackagePath())) {
+          if (Fs.existsSync(Project.PackagePath())) {
             // Configure Project
-            this.configure(configuration);
+            Project.configure(configuration);
 
             // Create Environment Files
             ["development", "production"].forEach((env) =>
               Fs.writeFileSync(
-                Path.join(this.EnvironmentsPath(), `./.${env}.env`),
+                Path.join(Project.EnvironmentsPath(), `./.${env}.env`),
                 `ENCRYPTION_KEY=${generateRandomKey(32)}`
               )
             );
@@ -246,9 +249,9 @@ export class Project {
           new TemplateParser({
             inDir:
               options.templateDir ||
-              Path.join(this.SamplesPath(), "./controllers/"),
+              Path.join(Project.SamplesPath(), "./controllers/"),
             inFile: `./${options.template}.ts`,
-            outDir: this.ControllersPath(),
+            outDir: Project.ControllersPath(),
             outFile: `./${options.name}.ts`,
           })
             .parse()
@@ -262,8 +265,8 @@ export class Project {
               {
                 modules: [options.name],
                 location: Path.relative(
-                  this.ControllersPath(),
-                  Path.join(this.SchemasPath(), options.name)
+                  Project.ControllersPath(),
+                  Path.join(Project.SchemasPath(), options.name)
                 ).replace(/\\/g, "/"),
               }
             )
@@ -271,10 +274,10 @@ export class Project {
               (_) =>
                 _.replace(
                   /@AppPath/g,
-                  Path.relative(this.ControllersPath(), this.AppPath()).replace(
-                    /\\/g,
-                    "/"
-                  )
+                  Path.relative(
+                    Project.ControllersPath(),
+                    Project.AppPath()
+                  ).replace(/\\/g, "/")
                 ) // Add App Path
                   .replace(/Sample/g, options.name) // Add Name
             );
@@ -288,8 +291,8 @@ export class Project {
             new TemplateParser({
               inDir:
                 options.parent === "None"
-                  ? this.ControllersPath()
-                  : this.AppPath(),
+                  ? Project.ControllersPath()
+                  : Project.AppPath(),
               inFile: `./${
                 options.parent === "None" ? "App.controller" : options.parent
               }.ts`,
