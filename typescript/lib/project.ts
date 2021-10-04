@@ -6,7 +6,6 @@ import { ProjectType, ConfigManager, ConfigurationInterface } from "./core";
 import { generateRandomKey } from "./utils";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 import { TemplateParser } from "@saffellikhan/epic-parser";
-import { EpicCli } from "../cli";
 
 export interface InitializationOptions {
   type: ProjectType;
@@ -318,9 +317,9 @@ export class Project {
               )
               .render();
           } catch (e) {
-            EpicCli.Logger.warn(
+            console.warn(
               "We are unable to parse controllers/index properly! Please add the child controller manually."
-            ).log();
+            );
           }
 
           // Update Configuration & Transactions

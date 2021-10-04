@@ -1,6 +1,5 @@
-import { EpicCli } from "../cli";
-import { EpicConfigManager } from "@saffellikhan/epic-config-manager";
 import Listr from "listr";
+import { EpicConfigManager } from "@saffellikhan/epic-config-manager";
 
 export type FrameworkType = "Express";
 
@@ -107,7 +106,9 @@ export class Core {
           // Execute Each Transaction
           for (const Transaction of Transactions.transactions) {
             // Get Command
-            const Command = EpicCli.getCommand(Transaction.command);
+            const Command = require("../make-cli").EpicCli.getCommand(
+              Transaction.command
+            );
 
             // Execute Command
             await Command.method(Transaction.params, Command);

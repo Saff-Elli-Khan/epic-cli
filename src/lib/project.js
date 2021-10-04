@@ -20,7 +20,6 @@ const listr_1 = __importDefault(require("listr"));
 const core_1 = require("./core");
 const utils_1 = require("./utils");
 const epic_parser_1 = require("@saffellikhan/epic-parser");
-const cli_1 = require("../cli");
 class Project {
     static PackagePath() {
         return path_1.default.join(core_1.ConfigManager.Options.rootPath, "./package.json");
@@ -231,7 +230,7 @@ class Project {
                                 .render();
                         }
                         catch (e) {
-                            cli_1.EpicCli.Logger.warn("We are unable to parse controllers/index properly! Please add the child controller manually.").log();
+                            console.warn("We are unable to parse controllers/index properly! Please add the child controller manually.");
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("main", (_) => {

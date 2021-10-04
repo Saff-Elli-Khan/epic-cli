@@ -13,9 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Core = exports.ConfigManager = void 0;
-const cli_1 = require("../cli");
-const epic_config_manager_1 = require("@saffellikhan/epic-config-manager");
 const listr_1 = __importDefault(require("listr"));
+const epic_config_manager_1 = require("@saffellikhan/epic-config-manager");
 exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
     configFileNames: {
         main: "epic.config.json",
@@ -70,7 +69,7 @@ class Core {
                         // Execute Each Transaction
                         for (const Transaction of Transactions.transactions) {
                             // Get Command
-                            const Command = cli_1.EpicCli.getCommand(Transaction.command);
+                            const Command = require("../make-cli").EpicCli.getCommand(Transaction.command);
                             // Execute Command
                             yield Command.method(Transaction.params, Command);
                         }
