@@ -32,4 +32,5 @@ export declare class Project {
     static initialize(options: InitializationOptions): Promise<void>;
     static create(): Promise<void>;
     static createController(options: CreateControllerOptions, command: CommandInterface): Promise<void>;
+    static deleteController: (options: DeleteControllerOptions) => Promise<void>;
 }

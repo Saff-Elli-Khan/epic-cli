@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProjectCommands = void 0;
+const epic_config_manager_1 = require("@saffellikhan/epic-config-manager");
 const project_1 = require("../lib/project");
 const core_1 = require("../lib/core");
 const epic_geo_1 = require("epic-geo");
@@ -36,7 +37,7 @@ exports.ProjectCommands = [
                 },
                 default: () => {
                     var _a;
-                    return ((_a = core_1.ConfigManager.getConfig("main")) === null || _a === void 0 ? void 0 : _a.name) ||
+                    return ((_a = core_1.ConfigManager.getConfig("main", epic_config_manager_1.StrictLevel.NORMAL)) === null || _a === void 0 ? void 0 : _a.name) ||
                         path_1.default.basename(path_1.default.resolve());
                 },
             },
@@ -168,33 +169,32 @@ exports.ProjectCommands = [
         ],
         method: project_1.Project.createController,
     },
-    // {
-    //   name: "delete-controller",
-    //   description: "Remove controller from project.",
-    //   params: [
-    //     {
-    //       type: "list",
-    //       name: "name",
-    //       alias: ["--name", "-n"],
-    //       description: "Name of the controller.",
-    //       message: "Please provide a controller name:",
-    //       choices: () => {
-    //         const ControllersPath = ConfigManager.getConfig("main").paths!
-    //           .contollers!;
-    //         // Resolve Directory
-    //         Fs.mkdirSync(ControllersPath, {
-    //           recursive: true,
-    //         });
-    //         // Controllers List
-    //         const List = Fs.readdirSync(ControllersPath)
-    //           .filter((file) => /\.ts$/g.test(file))
-    //           .map((file) => file.replace(/\.\w*/g, ""));
-    //         return List.filter((v) => v !== "index");
-    //       },
-    //     },
-    //   ],
-    //   method: Project.deleteController,
-    // },
+    {
+        name: "delete-controller",
+        description: "Remove controller from project.",
+        params: [
+            {
+                type: "list",
+                name: "name",
+                alias: ["--name", "-n"],
+                description: "Name of the controller.",
+                message: "Please provide a controller name:",
+                choices: () => {
+                    const ControllersPath = core_1.ConfigManager.getConfig("main").paths
+                        .contollers;
+                    // Resolve Directory
+                    fs_1.default.mkdirSync(ControllersPath, {
+                        recursive: true,
+                    });
+                    // Controllers List
+                    return fs_1.default.readdirSync(ControllersPath)
+                        .filter((file) => /\.ts$/g.test(file))
+                        .map((file) => file.replace(/\.\w*/g, ""));
+                },
+            },
+        ],
+        method: project_1.Project.deleteController,
+    },
     // {
     //   name: "create-schema",
     //   description: "Create a database schema",

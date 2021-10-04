@@ -41,12 +41,21 @@ exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
 })
     .override("main", (data) => {
     var _a, _b, _c, _d;
-    return (Object.assign(Object.assign({}, data), { paths: {
+    // Check Configuration Version
+    if (data.version !== 1)
+        throw new Error(`Invalid configuration version! Currently installed CLI expects epic.config version 1.`);
+    return Object.assign(Object.assign({}, data), { paths: {
             templates: ((_a = data.paths) === null || _a === void 0 ? void 0 : _a.templates) || "./templates/",
             contollers: ((_b = data.paths) === null || _b === void 0 ? void 0 : _b.contollers) || "./src/controllers/",
             middlewares: ((_c = data.paths) === null || _c === void 0 ? void 0 : _c.middlewares) || "./src/middlewares/",
             schemas: ((_d = data.paths) === null || _d === void 0 ? void 0 : _d.schemas) || "./src/schemas/",
-        }, lastAccess: Object.assign({}, data.lastAccess) }));
+        }, lastAccess: Object.assign({}, data.lastAccess) });
+})
+    .override("transactions", (data) => {
+    // Check Transactions Version
+    if (data.version !== 1)
+        throw new Error(`Invalid transactions version! Currently installed CLI expects epic.transactions version 1.`);
+    return data;
 });
 class Core {
     static install() {

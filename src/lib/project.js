@@ -187,7 +187,7 @@ class Project {
                     title: "Creating new Controller",
                     task: () => {
                         // Parse Template
-                        new epic_parser_1.TemplateParser({
+                        const Parsed = new epic_parser_1.TemplateParser({
                             inDir: options.templateDir ||
                                 path_1.default.join(Project.SamplesPath(), "./controller/"),
                             inFile: `./${options.template}.ts`,
@@ -197,12 +197,15 @@ class Project {
                             .parse()
                             .injections({
                             ControllerPrefix: options.prefix,
-                        })
-                            .push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
-                            modules: [options.name],
-                            location: path_1.default.relative(Project.ControllersPath(), path_1.default.join(Project.SchemasPath(), options.name)).replace(/\\/g, "/"),
-                        })
-                            .render((_) => _.replace(/@AppPath/g, path_1.default.relative(Project.ControllersPath(), Project.AppPath()).replace(/\\/g, "/")) // Add App Path
+                        });
+                        // Push Database Schema
+                        if (options.template === "default")
+                            Parsed.push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
+                                modules: [options.name],
+                                location: path_1.default.relative(Project.ControllersPath(), path_1.default.join(Project.SchemasPath(), options.name)).replace(/\\/g, "/"),
+                            });
+                        // Render Controller Content
+                        Parsed.render((_) => _.replace(/@AppPath/g, path_1.default.relative(Project.ControllersPath(), Project.AppPath()).replace(/\\/g, "/")) // Add App Path
                             .replace(/Sample/g, options.name) // Add Name
                         );
                     },
@@ -214,8 +217,8 @@ class Project {
                             // Get Parent Controller Content & Parse Template
                             new epic_parser_1.TemplateParser({
                                 inDir: options.parent === "None"
-                                    ? Project.ControllersPath()
-                                    : Project.AppPath(),
+                                    ? Project.AppPath()
+                                    : Project.ControllersPath(),
                                 inFile: `./${options.parent === "None" ? "App.controller" : options.parent}.ts`,
                                 outFile: `./${options.parent === "None" ? "App.controller" : options.parent}.ts`,
                             })
@@ -234,7 +237,6 @@ class Project {
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("main", (_) => {
-                            // Update Last Access
                             _.lastAccess.controller = options.name;
                             return _;
                         }).setConfig("transactions", (_) => {
@@ -255,3 +257,68 @@ class Project {
     }
 }
 exports.Project = Project;
+Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, function* () {
+    // Queue the Tasks
+    yield new listr_1.default([
+        {
+            title: "Checking configuration...",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Check Configuration File
+                if (!core_1.ConfigManager.hasConfig("main"))
+                    throw new Error("Please initialize a project first!");
+            }),
+        },
+        {
+            title: "Deleting the controller",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Delete Controller
+                fs_1.default.unlinkSync(path_1.default.join(Project.ControllersPath(), `./${options.name}.ts`));
+            }),
+        },
+        {
+            title: "Configuring your project",
+            task: () => {
+                // Find & Undo (create-controller) Transaction related to this Controller
+                const Transaction = core_1.ConfigManager.getConfig("transactions").transactions.reduce((result, transaction) => result
+                    ? result
+                    : transaction.command === "create-controller" &&
+                        transaction.params.name === options.name
+                        ? transaction
+                        : null, null);
+                // If Transaction Exists
+                if (Transaction && typeof Transaction.params.parent === "string") {
+                    try {
+                        // Get Parent Controller Content & Parse Template
+                        new epic_parser_1.TemplateParser({
+                            inDir: Transaction.params.parent === "None"
+                                ? Project.AppPath()
+                                : Project.ControllersPath(),
+                            inFile: `./${Transaction.params.parent === "None"
+                                ? "App.controller"
+                                : Transaction.params.parent}.ts`,
+                            outFile: `./${Transaction.params.parent === "None"
+                                ? "App.controller"
+                                : Transaction.params.parent}.ts`,
+                        })
+                            .parse()
+                            .pop("ImportsContainer", options.name + "Import")
+                            .pop("ControllerChildsContainer", options.name + "ControllerChilds")
+                            .render();
+                    }
+                    catch (e) {
+                        console.warn(`We are unable to parse controllers/index properly! Please remove the child controller from "${Transaction.params.parent}" manually.`);
+                    }
+                }
+                // Update Configuration & Transactions
+                core_1.ConfigManager.setConfig("main", (_) => {
+                    _.lastAccess.controller = options.name;
+                    return _;
+                }).setConfig("transactions", (_) => {
+                    _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-controller" &&
+                        transaction.params.name === options.name));
+                    return _;
+                });
+            },
+        },
+    ]).run();
+});

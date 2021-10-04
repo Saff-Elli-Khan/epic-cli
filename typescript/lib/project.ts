@@ -2,7 +2,12 @@ import Path from "path";
 import Fs from "fs";
 import Execa from "execa";
 import Listr from "listr";
-import { ProjectType, ConfigManager, ConfigurationInterface } from "./core";
+import {
+  ProjectType,
+  ConfigManager,
+  ConfigurationInterface,
+  TransactionInterface,
+} from "./core";
 import { generateRandomKey } from "./utils";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 import { TemplateParser } from "@saffellikhan/epic-parser";
@@ -246,7 +251,7 @@ export class Project {
         title: "Creating new Controller",
         task: () => {
           // Parse Template
-          new TemplateParser({
+          const Parsed = new TemplateParser({
             inDir:
               options.templateDir ||
               Path.join(Project.SamplesPath(), "./controller/"),
@@ -257,8 +262,11 @@ export class Project {
             .parse()
             .injections({
               ControllerPrefix: options.prefix,
-            })
-            .push(
+            });
+
+          // Push Database Schema
+          if (options.template === "default")
+            Parsed.push(
               "ImportsContainer",
               "ImportsTemplate",
               options.name + "Import",
@@ -269,18 +277,20 @@ export class Project {
                   Path.join(Project.SchemasPath(), options.name)
                 ).replace(/\\/g, "/"),
               }
-            )
-            .render(
-              (_) =>
-                _.replace(
-                  /@AppPath/g,
-                  Path.relative(
-                    Project.ControllersPath(),
-                    Project.AppPath()
-                  ).replace(/\\/g, "/")
-                ) // Add App Path
-                  .replace(/Sample/g, options.name) // Add Name
             );
+
+          // Render Controller Content
+          Parsed.render(
+            (_) =>
+              _.replace(
+                /@AppPath/g,
+                Path.relative(
+                  Project.ControllersPath(),
+                  Project.AppPath()
+                ).replace(/\\/g, "/")
+              ) // Add App Path
+                .replace(/Sample/g, options.name) // Add Name
+          );
         },
       },
       {
@@ -291,8 +301,8 @@ export class Project {
             new TemplateParser({
               inDir:
                 options.parent === "None"
-                  ? Project.ControllersPath()
-                  : Project.AppPath(),
+                  ? Project.AppPath()
+                  : Project.ControllersPath(),
               inFile: `./${
                 options.parent === "None" ? "App.controller" : options.parent
               }.ts`,
@@ -327,7 +337,6 @@ export class Project {
 
           // Update Configuration & Transactions
           ConfigManager.setConfig("main", (_) => {
-            // Update Last Access
             _.lastAccess!.controller = options.name;
 
             return _;
@@ -353,4 +362,96 @@ export class Project {
       },
     ]).run();
   }
+
+  static deleteController = async (options: DeleteControllerOptions) => {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Checking configuration...",
+        task: async () => {
+          // Check Configuration File
+          if (!ConfigManager.hasConfig("main"))
+            throw new Error("Please initialize a project first!");
+        },
+      },
+      {
+        title: "Deleting the controller",
+        task: async () => {
+          // Delete Controller
+          Fs.unlinkSync(
+            Path.join(Project.ControllersPath(), `./${options.name}.ts`)
+          );
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          // Find & Undo (create-controller) Transaction related to this Controller
+          const Transaction = ConfigManager.getConfig(
+            "transactions"
+          ).transactions.reduce<TransactionInterface | null>(
+            (result, transaction) =>
+              result
+                ? result
+                : transaction.command === "create-controller" &&
+                  transaction.params.name === options.name
+                ? transaction
+                : null,
+            null
+          );
+
+          // If Transaction Exists
+          if (Transaction && typeof Transaction.params.parent === "string") {
+            try {
+              // Get Parent Controller Content & Parse Template
+              new TemplateParser({
+                inDir:
+                  Transaction.params.parent === "None"
+                    ? Project.AppPath()
+                    : Project.ControllersPath(),
+                inFile: `./${
+                  Transaction.params.parent === "None"
+                    ? "App.controller"
+                    : Transaction.params.parent
+                }.ts`,
+                outFile: `./${
+                  Transaction.params.parent === "None"
+                    ? "App.controller"
+                    : Transaction.params.parent
+                }.ts`,
+              })
+                .parse()
+                .pop("ImportsContainer", options.name + "Import")
+                .pop(
+                  "ControllerChildsContainer",
+                  options.name + "ControllerChilds"
+                )
+                .render();
+            } catch (e) {
+              console.warn(
+                `We are unable to parse controllers/index properly! Please remove the child controller from "${Transaction.params.parent}" manually.`
+              );
+            }
+          }
+
+          // Update Configuration & Transactions
+          ConfigManager.setConfig("main", (_) => {
+            _.lastAccess!.controller = options.name;
+
+            return _;
+          }).setConfig("transactions", (_) => {
+            _.transactions = _.transactions.filter(
+              (transaction) =>
+                !(
+                  transaction.command === "create-controller" &&
+                  transaction.params.name === options.name
+                )
+            );
+
+            return _;
+          });
+        },
+      },
+    ]).run();
+  };
 }

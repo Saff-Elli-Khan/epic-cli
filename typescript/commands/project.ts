@@ -1,4 +1,5 @@
 import { LooseCommandInterface } from "@saffellikhan/epic-cli-builder";
+import { StrictLevel } from "@saffellikhan/epic-config-manager";
 import { Project } from "../lib/project";
 import { ConfigManager } from "../lib/core";
 import { EpicGeo } from "epic-geo";
@@ -35,7 +36,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
             throw new Error("Please provide a valid lowercase project name!");
         },
         default: () =>
-          ConfigManager.getConfig("main")?.name ||
+          ConfigManager.getConfig("main", StrictLevel.NORMAL)?.name ||
           Path.basename(Path.resolve()),
       },
       {
@@ -175,36 +176,34 @@ export const ProjectCommands: LooseCommandInterface[] = [
     ],
     method: Project.createController,
   },
-  // {
-  //   name: "delete-controller",
-  //   description: "Remove controller from project.",
-  //   params: [
-  //     {
-  //       type: "list",
-  //       name: "name",
-  //       alias: ["--name", "-n"],
-  //       description: "Name of the controller.",
-  //       message: "Please provide a controller name:",
-  //       choices: () => {
-  //         const ControllersPath = ConfigManager.getConfig("main").paths!
-  //           .contollers!;
+  {
+    name: "delete-controller",
+    description: "Remove controller from project.",
+    params: [
+      {
+        type: "list",
+        name: "name",
+        alias: ["--name", "-n"],
+        description: "Name of the controller.",
+        message: "Please provide a controller name:",
+        choices: () => {
+          const ControllersPath = ConfigManager.getConfig("main").paths!
+            .contollers!;
 
-  //         // Resolve Directory
-  //         Fs.mkdirSync(ControllersPath, {
-  //           recursive: true,
-  //         });
+          // Resolve Directory
+          Fs.mkdirSync(ControllersPath, {
+            recursive: true,
+          });
 
-  //         // Controllers List
-  //         const List = Fs.readdirSync(ControllersPath)
-  //           .filter((file) => /\.ts$/g.test(file))
-  //           .map((file) => file.replace(/\.\w*/g, ""));
-
-  //         return List.filter((v) => v !== "index");
-  //       },
-  //     },
-  //   ],
-  //   method: Project.deleteController,
-  // },
+          // Controllers List
+          return Fs.readdirSync(ControllersPath)
+            .filter((file) => /\.ts$/g.test(file))
+            .map((file) => file.replace(/\.\w*/g, ""));
+        },
+      },
+    ],
+    method: Project.deleteController,
+  },
   // {
   //   name: "create-schema",
   //   description: "Create a database schema",

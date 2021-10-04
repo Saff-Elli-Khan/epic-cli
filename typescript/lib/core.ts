@@ -72,18 +72,35 @@ export const ConfigManager = new EpicConfigManager({
       transactions: [],
     },
   })
-  .override("main", (data) => ({
-    ...data,
-    paths: {
-      templates: data.paths?.templates || "./templates/",
-      contollers: data.paths?.contollers || "./src/controllers/",
-      middlewares: data.paths?.middlewares || "./src/middlewares/",
-      schemas: data.paths?.schemas || "./src/schemas/",
-    },
-    lastAccess: {
-      ...data.lastAccess,
-    },
-  }));
+  .override("main", (data) => {
+    // Check Configuration Version
+    if (data.version !== 1)
+      throw new Error(
+        `Invalid configuration version! Currently installed CLI expects epic.config version 1.`
+      );
+
+    return {
+      ...data,
+      paths: {
+        templates: data.paths?.templates || "./templates/",
+        contollers: data.paths?.contollers || "./src/controllers/",
+        middlewares: data.paths?.middlewares || "./src/middlewares/",
+        schemas: data.paths?.schemas || "./src/schemas/",
+      },
+      lastAccess: {
+        ...data.lastAccess,
+      },
+    };
+  })
+  .override("transactions", (data) => {
+    // Check Transactions Version
+    if (data.version !== 1)
+      throw new Error(
+        `Invalid transactions version! Currently installed CLI expects epic.transactions version 1.`
+      );
+
+    return data;
+  });
 
 export class Core {
   static async install() {
