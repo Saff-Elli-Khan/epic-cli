@@ -309,6 +309,7 @@ export class Project {
               outFile: `./${
                 options.parent === "None" ? "App.controllers" : options.parent
               }.ts`,
+              logs: true,
             })
               .parse()
               .push(

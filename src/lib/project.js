@@ -221,6 +221,7 @@ class Project {
                                     : Project.ControllersPath(),
                                 inFile: `./${options.parent === "None" ? "App.controllers" : options.parent}.ts`,
                                 outFile: `./${options.parent === "None" ? "App.controllers" : options.parent}.ts`,
+                                logs: true,
                             })
                                 .parse()
                                 .push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
