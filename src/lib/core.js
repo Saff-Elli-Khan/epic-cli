@@ -45,7 +45,7 @@ exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
     if (data.version !== 1)
         throw new Error(`Invalid configuration version! Currently installed CLI expects epic.config version 1.`);
     return Object.assign(Object.assign({}, data), { paths: {
-            templates: ((_a = data.paths) === null || _a === void 0 ? void 0 : _a.templates) || "./templates/",
+            templates: ((_a = data.paths) === null || _a === void 0 ? void 0 : _a.templates) || "./src/templates/",
             contollers: ((_b = data.paths) === null || _b === void 0 ? void 0 : _b.contollers) || "./src/controllers/",
             middlewares: ((_c = data.paths) === null || _c === void 0 ? void 0 : _c.middlewares) || "./src/middlewares/",
             schemas: ((_d = data.paths) === null || _d === void 0 ? void 0 : _d.schemas) || "./src/schemas/",

@@ -304,10 +304,10 @@ export class Project {
                   ? Project.AppPath()
                   : Project.ControllersPath(),
               inFile: `./${
-                options.parent === "None" ? "App.controller" : options.parent
+                options.parent === "None" ? "App.controllers" : options.parent
               }.ts`,
               outFile: `./${
-                options.parent === "None" ? "App.controller" : options.parent
+                options.parent === "None" ? "App.controllers" : options.parent
               }.ts`,
             })
               .parse()
@@ -331,7 +331,7 @@ export class Project {
               .render();
           } catch (e) {
             console.warn(
-              "We are unable to parse App.controller properly! Please add the child controller manually."
+              "We are unable to parse App.controllers properly! Please add the child controller manually."
             );
           }
 
@@ -411,12 +411,12 @@ export class Project {
                     : Project.ControllersPath(),
                 inFile: `./${
                   Transaction.params.parent === "None"
-                    ? "App.controller"
+                    ? "App.controllers"
                     : Transaction.params.parent
                 }.ts`,
                 outFile: `./${
                   Transaction.params.parent === "None"
-                    ? "App.controller"
+                    ? "App.controllers"
                     : Transaction.params.parent
                 }.ts`,
               })

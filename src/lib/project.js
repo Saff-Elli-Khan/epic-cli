@@ -219,8 +219,8 @@ class Project {
                                 inDir: options.parent === "None"
                                     ? Project.AppPath()
                                     : Project.ControllersPath(),
-                                inFile: `./${options.parent === "None" ? "App.controller" : options.parent}.ts`,
-                                outFile: `./${options.parent === "None" ? "App.controller" : options.parent}.ts`,
+                                inFile: `./${options.parent === "None" ? "App.controllers" : options.parent}.ts`,
+                                outFile: `./${options.parent === "None" ? "App.controllers" : options.parent}.ts`,
                             })
                                 .parse()
                                 .push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
@@ -233,7 +233,7 @@ class Project {
                                 .render();
                         }
                         catch (e) {
-                            console.warn("We are unable to parse App.controller properly! Please add the child controller manually.");
+                            console.warn("We are unable to parse App.controllers properly! Please add the child controller manually.");
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("main", (_) => {
@@ -294,10 +294,10 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
                                 ? Project.AppPath()
                                 : Project.ControllersPath(),
                             inFile: `./${Transaction.params.parent === "None"
-                                ? "App.controller"
+                                ? "App.controllers"
                                 : Transaction.params.parent}.ts`,
                             outFile: `./${Transaction.params.parent === "None"
-                                ? "App.controller"
+                                ? "App.controllers"
                                 : Transaction.params.parent}.ts`,
                         })
                             .parse()

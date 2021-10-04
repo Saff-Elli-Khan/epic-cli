@@ -82,7 +82,7 @@ export const ConfigManager = new EpicConfigManager({
     return {
       ...data,
       paths: {
-        templates: data.paths?.templates || "./templates/",
+        templates: data.paths?.templates || "./src/templates/",
         contollers: data.paths?.contollers || "./src/controllers/",
         middlewares: data.paths?.middlewares || "./src/middlewares/",
         schemas: data.paths?.schemas || "./src/schemas/",
