@@ -11,6 +11,13 @@ export interface ConfigurationInterface {
     brand: BrandInterface;
     paths?: PathsInterface;
     lastAccess?: AccessInterface;
+    database: {
+        host: string;
+        port: number;
+        user: string;
+        password: string;
+        dbname: string;
+    };
 }
 export declare type AccessInterface = {
     [key in ResourceType]?: string;

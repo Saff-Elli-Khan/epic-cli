@@ -195,84 +195,79 @@ exports.ProjectCommands = [
         ],
         method: project_1.Project.deleteController,
     },
-    // {
-    //   name: "create-schema",
-    //   description: "Create a database schema",
-    //   params: [
-    //     {
-    //       type: "input",
-    //       name: "name",
-    //       description: "Name of the schema.",
-    //       alias: ["--name", "-n"],
-    //       message: "Please provide a schema name:",
-    //       validator: (value) => {
-    //         if (!/^[A-Z]\w+$/.test(value))
-    //           throw new Error(`Please provide a valid schema name!`);
-    //       },
-    //     },
-    //     {
-    //       type: "input",
-    //       name: "description",
-    //       description: "Description for the schema.",
-    //       alias: ["--description", "-d"],
-    //       message: "Please provide a schema description:",
-    //       default: "N/A",
-    //     },
-    //     {
-    //       type: "input",
-    //       name: "templateDir",
-    //       description: "Schema templates container directory.",
-    //       alias: ["--templateDir", "-sd"],
-    //       skip: true,
-    //     },
-    //     {
-    //       type: "list",
-    //       name: "template",
-    //       description: "Template of the Schema",
-    //       message: "Please provide a schema template:",
-    //       choices: (options) => {
-    //         // Schema Path
-    //         const SchemaDir =
-    //           options.templateDir ||
-    //           Path.join(
-    //             ConfigManager.getConfig("main").paths!.templates!,
-    //             "./schema/"
-    //           );
-    //         // Resolve Directory
-    //         Fs.mkdirSync(SchemaDir, { recursive: true });
-    //         // Templates List
-    //         return Fs.readdirSync(SchemaDir)
-    //           .filter((file) => /\.ts$/g.test(file))
-    //           .map((file) => file.replace(/\.\w*/g, ""));
-    //       },
-    //     },
-    //   ],
-    //   method: Project.createSchema,
-    // },
-    // {
-    //   name: "delete-schema",
-    //   description: "Remove schema from project.",
-    //   params: [
-    //     {
-    //       type: "list",
-    //       name: "name",
-    //       alias: ["--name", "-n"],
-    //       description: "Name of the schema.",
-    //       message: "Please provide a schema name:",
-    //       choices: () => {
-    //         const SchemasPath = ConfigManager.getConfig("main").paths!.schemas!;
-    //         // Resolve Directory
-    //         Fs.mkdirSync(SchemasPath, { recursive: true });
-    //         // Schemas List
-    //         const List = Fs.readdirSync(SchemasPath)
-    //           .filter((file) => /\.ts$/g.test(file))
-    //           .map((file) => file.replace(/\.\w*/g, ""));
-    //         return List.filter((v) => !["index", "base"].includes(v));
-    //       },
-    //     },
-    //   ],
-    //   method: Project.deleteSchema,
-    // },
+    {
+        name: "create-schema",
+        description: "Create a database schema",
+        params: [
+            {
+                type: "input",
+                name: "name",
+                description: "Name of the schema.",
+                alias: ["--name", "-n"],
+                message: "Please provide a schema name:",
+                validator: (value) => {
+                    if (!/^[A-Z]\w+$/.test(value))
+                        throw new Error(`Please provide a valid schema name!`);
+                },
+            },
+            {
+                type: "input",
+                name: "description",
+                description: "Description for the schema.",
+                alias: ["--description", "-d"],
+                message: "Please provide a schema description:",
+                default: "N/A",
+            },
+            {
+                type: "input",
+                name: "templateDir",
+                description: "Schema templates container directory.",
+                alias: ["--templateDir", "-sd"],
+                skip: true,
+            },
+            {
+                type: "list",
+                name: "template",
+                description: "Template of the Schema",
+                message: "Please provide a schema template:",
+                choices: (options) => {
+                    // Schema Path
+                    const SchemaDir = options.templateDir ||
+                        path_1.default.join(core_1.ConfigManager.getConfig("main").paths.templates, "./schema/");
+                    // Resolve Directory
+                    fs_1.default.mkdirSync(SchemaDir, { recursive: true });
+                    // Templates List
+                    return fs_1.default.readdirSync(SchemaDir)
+                        .filter((file) => /\.ts$/g.test(file))
+                        .map((file) => file.replace(/\.\w*/g, ""));
+                },
+            },
+        ],
+        method: project_1.Project.createSchema,
+    },
+    {
+        name: "delete-schema",
+        description: "Remove schema from project.",
+        params: [
+            {
+                type: "list",
+                name: "name",
+                alias: ["--name", "-n"],
+                description: "Name of the schema.",
+                message: "Please provide a schema name:",
+                choices: () => {
+                    const SchemasPath = core_1.ConfigManager.getConfig("main").paths.schemas;
+                    // Resolve Directory
+                    fs_1.default.mkdirSync(SchemasPath, { recursive: true });
+                    // Schemas List
+                    return fs_1.default.readdirSync(SchemasPath)
+                        .filter((file) => /\.ts$/g.test(file))
+                        .map((file) => file.replace(/\.\w*/g, ""));
+                },
+            },
+        ],
+        method: project_1.Project.deleteSchema,
+    },
     // {
     //   name: "create-schema-column",
     //   description: "Create new schema column.",

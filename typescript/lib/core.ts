@@ -16,6 +16,13 @@ export interface ConfigurationInterface {
   brand: BrandInterface;
   paths?: PathsInterface;
   lastAccess?: AccessInterface;
+  database: {
+    host: string;
+    port: number;
+    user: string;
+    password: string;
+    dbname: string;
+  };
 }
 
 export type AccessInterface = {
@@ -78,6 +85,13 @@ export const ConfigManager = new EpicConfigManager({
         name: "My Company",
         country: "Pakistan",
         address: "House #22, Multan",
+      },
+      database: {
+        host: "localhost",
+        port: 3306,
+        user: "root",
+        password: "",
+        dbname: "test",
       },
     },
     transactions: {

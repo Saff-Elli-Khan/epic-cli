@@ -34,6 +34,17 @@ export interface DeleteControllerOptions {
   name: string;
 }
 
+export interface CreateSchemaOptions {
+  name: string;
+  description: string;
+  template: string;
+  templateDir?: string;
+}
+
+export interface DeleteSchemaOptions {
+  name: string;
+}
+
 export class Project {
   static PackagePath() {
     return Path.join(ConfigManager.Options.rootPath, "./package.json");
@@ -238,7 +249,7 @@ export class Project {
     command: CommandInterface
   ) {
     // Queue the Tasks
-    await new Listr<{ controllerContent: string }>([
+    await new Listr([
       {
         title: "Checking configuration...",
         task: async () => {
@@ -437,7 +448,7 @@ export class Project {
                 .render();
             } catch (error) {
               console.warn(
-                `We are unable to parse controllers/index properly! Please remove the child controller from "${Transaction.params.parent}" manually.`,
+                `We are unable to parse parent controller properly! Please remove the child controller from "${Transaction.params.parent}" controller manually.`,
                 error
               );
             }
@@ -475,4 +486,202 @@ export class Project {
       },
     ]).run();
   };
+
+  static async createSchema(
+    options: CreateSchemaOptions,
+    command: CommandInterface
+  ) {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Checking configuration...",
+        task: async () => {
+          // Check Configuration File
+          if (!ConfigManager.hasConfig("main"))
+            throw new Error("Please initialize a project first!");
+        },
+      },
+      {
+        title: "Creating new Schema",
+        task: () => {
+          // Parse Template
+          new TemplateParser({
+            inDir:
+              options.templateDir ||
+              Path.join(Project.SamplesPath(), "./schema/"),
+            inFile: `./${options.template}.ts`,
+            outDir: Project.SchemasPath(),
+            outFile: `./${options.name}.ts`,
+          })
+            .parse()
+            .render(
+              (_) =>
+                _.replace(
+                  /@AppPath/g,
+                  Path.relative(
+                    Project.SchemasPath(),
+                    Project.AppPath()
+                  ).replace(/\\/g, "/")
+                ) // Add App Path
+                  .replace(/Sample/g, options.name) // Add Name
+            );
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          try {
+            // Parse Template App.database.ts
+            new TemplateParser({
+              inDir: Project.AppPath(),
+              inFile: `./App.database.ts`,
+              outFile: `./App.database.ts`,
+            })
+              .parse()
+              .push(
+                "ImportsContainer",
+                "ImportsTemplate",
+                options.name + "Import",
+                {
+                  modules: [options.name],
+                  location: `./${Path.relative(
+                    Project.AppPath(),
+                    Path.join(Project.SchemasPath(), options.name)
+                  ).replace(/\\/g, "/")}`,
+                }
+              )
+              .push(
+                "SchemaListContainer",
+                "SchemaListTemplate",
+                options.name + "Schema",
+                {
+                  child: options.name,
+                }
+              )
+              .render();
+          } catch (error) {
+            console.warn(
+              "We are unable to parse App.database properly! Please add the schema to the list manually.",
+              error
+            );
+          }
+
+          // Update Configuration & Transactions
+          ConfigManager.setConfig("main", (_) => {
+            _.lastAccess!.schema = options.name;
+
+            return _;
+          })
+            .setConfig("transactions", (_) => {
+              // Add New Transaction
+              _.transactions.push({
+                command: command.name,
+                params: options,
+              });
+
+              return _;
+            })
+            .setConfig("resources", (_) => {
+              // Add New Resource
+              _.resources.push({
+                type: "schema",
+                name: options.name,
+              });
+
+              return _;
+            });
+        },
+      },
+    ]).run();
+  }
+
+  static async deleteSchema(options: DeleteSchemaOptions) {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Checking configuration...",
+        task: async () => {
+          // Check Configuration File
+          if (!ConfigManager.hasConfig("main"))
+            throw new Error("Please initialize a project first!");
+        },
+      },
+      {
+        title: "Deleting the schema",
+        task: async () => {
+          // Delete Schema
+          Fs.unlinkSync(
+            Path.join(Project.SchemasPath(), `./${options.name}.ts`)
+          );
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          // Find & Undo (create-schema) Transaction related to this Schema
+          const Transaction = ConfigManager.getConfig(
+            "transactions"
+          ).transactions.reduce<TransactionInterface | null>(
+            (result, transaction) =>
+              result
+                ? result
+                : transaction.command === "create-schema" &&
+                  transaction.params.name === options.name
+                ? transaction
+                : null,
+            null
+          );
+
+          // If Transaction Exists
+          if (Transaction) {
+            try {
+              // Parse Template
+              new TemplateParser({
+                inDir: Project.AppPath(),
+                inFile: `./App.database.ts`,
+                outFile: `./App.database.ts`,
+              })
+                .parse()
+                .pop("ImportsContainer", options.name + "Import")
+                .pop("SchemaListContainer", options.name + "Schema")
+                .render();
+            } catch (error) {
+              console.warn(
+                `We are unable to parse App.database properly! Please remove the schema from App.database manually.`,
+                error
+              );
+            }
+          }
+
+          // Update Configuration & Transactions
+          ConfigManager.setConfig("main", (_) => {
+            _.lastAccess!.schema = options.name;
+
+            return _;
+          })
+            .setConfig("transactions", (_) => {
+              _.transactions = _.transactions.filter(
+                (transaction) =>
+                  !(
+                    transaction.command === "create-schema" &&
+                    transaction.params.name === options.name
+                  )
+              );
+
+              return _;
+            })
+            .setConfig("resources", (_) => {
+              _.resources = _.resources.filter(
+                (resource) =>
+                  !(
+                    resource.type === "schema" && resource.name === options.name
+                  )
+              );
+
+              return _;
+            });
+        },
+      },
+    ]).run();
+  }
 }

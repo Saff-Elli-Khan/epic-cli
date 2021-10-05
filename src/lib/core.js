@@ -34,6 +34,13 @@ exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
             country: "Pakistan",
             address: "House #22, Multan",
         },
+        database: {
+            host: "localhost",
+            port: 3306,
+            user: "root",
+            password: "",
+            dbname: "test",
+        },
     },
     transactions: {
         version: 1,
