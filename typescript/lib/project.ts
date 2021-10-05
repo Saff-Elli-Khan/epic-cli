@@ -45,6 +45,36 @@ export interface DeleteSchemaOptions {
   name: string;
 }
 
+export interface CreateSchemaColumnOptions {
+  schema: string;
+  type:
+    | "String"
+    | "Number"
+    | "Boolean"
+    | "Enum"
+    | "Record"
+    | "Array"
+    | "Relation"
+    | "Any";
+  choices?: string[];
+  arrayof?: "String" | "Number" | "Boolean" | "Record" | "Relation" | "Any";
+  recordType?: string;
+  length?: number;
+  relation?: string;
+  mapping?: string[];
+  name: string;
+  nullable?: boolean;
+  defaultValue?: string;
+  collation?: string;
+  index?: ("FULLTEXT" | "UNIQUE" | "INDEX" | "SPATIAL")[];
+  onUpdate?: string;
+}
+
+export interface DeleteSchemaColumnOptions {
+  schema: string;
+  name: string;
+}
+
 export class Project {
   static PackagePath() {
     return Path.join(ConfigManager.Options.rootPath, "./package.json");
@@ -684,4 +714,166 @@ export class Project {
       },
     ]).run();
   }
+
+  static async createSchemaColumn(
+    options: CreateSchemaColumnOptions,
+    command: CommandInterface
+  ) {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Checking configuration...",
+        task: async () => {
+          // Check Configuration File
+          if (!ConfigManager.hasConfig("main"))
+            throw new Error("Please initialize a project first!");
+        },
+      },
+      {
+        title: "Preparing the Schema",
+        task: () => {
+          // Parse Template
+          const Parsed = new TemplateParser({
+            inDir: Project.SchemasPath(),
+            inFile: `./${options.schema}.ts`,
+            outFile: `./${options.schema}.ts`,
+          }).parse();
+
+          // Push Relation Import
+          if (options.relation)
+            Parsed.push(
+              "ImportsContainer",
+              "ImportsTemplate",
+              options.relation + "Import",
+              {
+                modules: [options.relation],
+                location: `./${options.relation}`,
+              }
+            );
+
+          // Push Column
+          Parsed.push(
+            "ColumnsContainer",
+            options.relation
+              ? options.arrayof === "Relation"
+                ? "ManyRelationTemplate"
+                : "OneRelationTemplate"
+              : "ColumnTemplate",
+            options.name + "Column",
+            {
+              name: options.name,
+              datatype:
+                options.type === "Array"
+                  ? `Array<${
+                      options.arrayof === "Record"
+                        ? `Record<string, ${options.recordType || "any"}>`
+                        : options.arrayof?.toLowerCase()
+                    }>`
+                  : options.type === "Enum"
+                  ? `"${options.choices?.join('" | "')}"`
+                  : options.type === "Record"
+                  ? `Record<string, ${options.recordType || "any"}>`
+                  : options.type.toLowerCase(),
+              options: `{${
+                options.length !== undefined && options.length !== 50
+                  ? `\nlength: ${options.length || null},`
+                  : ""
+              }${
+                options.collation !== undefined &&
+                options.collation !== "utf8mb4_unicode_ci"
+                  ? `\ncollation: "${options.collation}",`
+                  : ""
+              }${
+                options.choices
+                  ? `\nchoices: ["${options.choices.join('", "')}"],`
+                  : ""
+              }${options.nullable ? `\nnullable: true,` : ""}${
+                options.index?.length
+                  ? `\nindex: ["${options.index.join('", "')}"],`
+                  : ""
+              }${
+                options.defaultValue
+                  ? `\ndefaultValue: ${options.defaultValue},`
+                  : ""
+              }${
+                options.onUpdate ? `\nonUpdate: ${options.onUpdate},` : ""
+              }\n}`,
+              schema: options.schema,
+              relation: options.relation,
+              mapping: JSON.stringify(options.mapping),
+            }
+          ).render();
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          // Update Configuration & Transactions
+          ConfigManager.setConfig("main", (_) => {
+            _.lastAccess!.schema = options.schema;
+
+            return _;
+          }).setConfig("transactions", (_) => {
+            // Add New Transaction
+            _.transactions.push({
+              command: command.name,
+              params: options,
+            });
+
+            return _;
+          });
+        },
+      },
+    ]).run();
+  }
+
+  static deleteSchemaColumn = async (options: DeleteSchemaColumnOptions) => {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Checking configuration...",
+        task: async () => {
+          // Check Configuration File
+          if (!ConfigManager.hasConfig("main"))
+            throw new Error("Please initialize a project first!");
+        },
+      },
+      {
+        title: "Deleting the column",
+        task: async () => {
+          // Parse Template
+          new TemplateParser({
+            inDir: Project.SchemasPath(),
+            inFile: `./${options.schema}.ts`,
+            outFile: `./${options.schema}.ts`,
+          })
+            .parse()
+            .pop("ColumnsContainer", options.name + "Column")
+            .render();
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          // Update Configuration & Transactions
+          ConfigManager.setConfig("main", (_) => {
+            _.lastAccess!.schema = options.name;
+
+            return _;
+          }).setConfig("transactions", (_) => {
+            _.transactions = _.transactions.filter(
+              (transaction) =>
+                !(
+                  transaction.command === "create-schema-column" &&
+                  transaction.params.schema === options.schema &&
+                  transaction.params.name === options.name
+                )
+            );
+
+            return _;
+          });
+        },
+      },
+    ]).run();
+  };
 }

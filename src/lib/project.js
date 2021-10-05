@@ -408,6 +408,88 @@ class Project {
             ]).run();
         });
     }
+    static createSchemaColumn(options, command) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Queue the Tasks
+            yield new listr_1.default([
+                {
+                    title: "Checking configuration...",
+                    task: () => __awaiter(this, void 0, void 0, function* () {
+                        // Check Configuration File
+                        if (!core_1.ConfigManager.hasConfig("main"))
+                            throw new Error("Please initialize a project first!");
+                    }),
+                },
+                {
+                    title: "Preparing the Schema",
+                    task: () => {
+                        var _a, _b, _c;
+                        // Parse Template
+                        const Parsed = new epic_parser_1.TemplateParser({
+                            inDir: Project.SchemasPath(),
+                            inFile: `./${options.schema}.ts`,
+                            outFile: `./${options.schema}.ts`,
+                        }).parse();
+                        // Push Relation Import
+                        if (options.relation)
+                            Parsed.push("ImportsContainer", "ImportsTemplate", options.relation + "Import", {
+                                modules: [options.relation],
+                                location: `./${options.relation}`,
+                            });
+                        // Push Column
+                        Parsed.push("ColumnsContainer", options.relation
+                            ? options.arrayof === "Relation"
+                                ? "ManyRelationTemplate"
+                                : "OneRelationTemplate"
+                            : "ColumnTemplate", options.name + "Column", {
+                            name: options.name,
+                            datatype: options.type === "Array"
+                                ? `Array<${options.arrayof === "Record"
+                                    ? `Record<string, ${options.recordType || "any"}>`
+                                    : (_a = options.arrayof) === null || _a === void 0 ? void 0 : _a.toLowerCase()}>`
+                                : options.type === "Enum"
+                                    ? `"${(_b = options.choices) === null || _b === void 0 ? void 0 : _b.join('" | "')}"`
+                                    : options.type === "Record"
+                                        ? `Record<string, ${options.recordType || "any"}>`
+                                        : options.type.toLowerCase(),
+                            options: `{${options.length !== undefined && options.length !== 50
+                                ? `\nlength: ${options.length || null},`
+                                : ""}${options.collation !== undefined &&
+                                options.collation !== "utf8mb4_unicode_ci"
+                                ? `\ncollation: "${options.collation}",`
+                                : ""}${options.choices
+                                ? `\nchoices: ["${options.choices.join('", "')}"],`
+                                : ""}${options.nullable ? `\nnullable: true,` : ""}${((_c = options.index) === null || _c === void 0 ? void 0 : _c.length)
+                                ? `\nindex: ["${options.index.join('", "')}"],`
+                                : ""}${options.defaultValue
+                                ? `\ndefaultValue: ${options.defaultValue},`
+                                : ""}${options.onUpdate ? `\nonUpdate: ${options.onUpdate},` : ""}\n}`,
+                            schema: options.schema,
+                            relation: options.relation,
+                            mapping: JSON.stringify(options.mapping),
+                        }).render();
+                    },
+                },
+                {
+                    title: "Configuring your project",
+                    task: () => {
+                        // Update Configuration & Transactions
+                        core_1.ConfigManager.setConfig("main", (_) => {
+                            _.lastAccess.schema = options.schema;
+                            return _;
+                        }).setConfig("transactions", (_) => {
+                            // Add New Transaction
+                            _.transactions.push({
+                                command: command.name,
+                                params: options,
+                            });
+                            return _;
+                        });
+                    },
+                },
+            ]).run();
+        });
+    }
 }
 exports.Project = Project;
 Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, function* () {
@@ -475,6 +557,48 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
                     .setConfig("resources", (_) => {
                     _.resources = _.resources.filter((resource) => !(resource.type === "controller" &&
                         resource.name === options.name));
+                    return _;
+                });
+            },
+        },
+    ]).run();
+});
+Project.deleteSchemaColumn = (options) => __awaiter(void 0, void 0, void 0, function* () {
+    // Queue the Tasks
+    yield new listr_1.default([
+        {
+            title: "Checking configuration...",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Check Configuration File
+                if (!core_1.ConfigManager.hasConfig("main"))
+                    throw new Error("Please initialize a project first!");
+            }),
+        },
+        {
+            title: "Deleting the column",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Parse Template
+                new epic_parser_1.TemplateParser({
+                    inDir: Project.SchemasPath(),
+                    inFile: `./${options.schema}.ts`,
+                    outFile: `./${options.schema}.ts`,
+                })
+                    .parse()
+                    .pop("ColumnsContainer", options.name + "Column")
+                    .render();
+            }),
+        },
+        {
+            title: "Configuring your project",
+            task: () => {
+                // Update Configuration & Transactions
+                core_1.ConfigManager.setConfig("main", (_) => {
+                    _.lastAccess.schema = options.name;
+                    return _;
+                }).setConfig("transactions", (_) => {
+                    _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-schema-column" &&
+                        transaction.params.schema === options.schema &&
+                        transaction.params.name === options.name));
                     return _;
                 });
             },

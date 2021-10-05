@@ -268,194 +268,190 @@ exports.ProjectCommands = [
         ],
         method: project_1.Project.deleteSchema,
     },
-    // {
-    //   name: "create-schema-column",
-    //   description: "Create new schema column.",
-    //   params: [
-    //     {
-    //       type: "list",
-    //       name: "schema",
-    //       alias: ["--schema", "-s"],
-    //       description: "Name of the schema.",
-    //       message: "Please provide a schema:",
-    //       choices: () => {
-    //         const SchemasPath = ConfigManager.getConfig("main").paths!.schemas!;
-    //         // Resolve Directory
-    //         Fs.mkdirSync(SchemasPath, { recursive: true });
-    //         // Schemas List
-    //         const List = Fs.readdirSync(SchemasPath)
-    //           .filter((file) => /\.ts$/g.test(file))
-    //           .map((file) => file.replace(/\.\w*/g, ""));
-    //         return List.filter((v) => !["index", "base"].includes(v));
-    //       },
-    //       default: () => ConfigManager.getConfig("main")?.lastAccess?.schema,
-    //     },
-    //     {
-    //       type: "list",
-    //       name: "type",
-    //       alias: ["--type", "-t"],
-    //       description: "Type of the column.",
-    //       message: "Please provide a column type:",
-    //       choices: [
-    //         "String",
-    //         "Number",
-    //         "Boolean",
-    //         "Enum",
-    //         "Record",
-    //         "Array",
-    //         "Relation",
-    //         "Any",
-    //       ],
-    //       default: "String",
-    //     },
-    //     {
-    //       type: "array",
-    //       name: "choices",
-    //       description: "Column choices list.",
-    //       message: "Please provide comma separated choices list:",
-    //       skip: (options) => options.type !== "Enum",
-    //     },
-    //     {
-    //       type: "list",
-    //       name: "arrayof",
-    //       description: "Column is an array of type.",
-    //       message: "Array of type:",
-    //       choices: ["String", "Number", "Boolean", "Record", "Relation", "Any"],
-    //       default: "String",
-    //       skip: (options) => options.type !== "Array",
-    //     },
-    //     {
-    //       type: "input",
-    //       name: "recordType",
-    //       description: "Type of the record.",
-    //       message: "Please provide the type of the record:",
-    //       default: "any",
-    //       skip: (options) =>
-    //         options.type !== "Record" && options.arrayof !== "Record",
-    //     },
-    //     {
-    //       type: "number",
-    //       name: "length",
-    //       alias: ["--length", "-l"],
-    //       description: "Length of the column.",
-    //       message: "Please provide a column length:",
-    //       default: 50,
-    //       skip: (options) => !["String", "Number"].includes(options.type),
-    //     },
-    //     {
-    //       type: "list",
-    //       name: "relation",
-    //       alias: ["--relation", "-r"],
-    //       description: "Name of the Relation schema.",
-    //       message: "Please provide a relation schema:",
-    //       choices: () => {
-    //         const SchemasPath = ConfigManager.getConfig("main").paths!.schemas!;
-    //         // Resolve Directory
-    //         Fs.mkdirSync(SchemasPath, { recursive: true });
-    //         // Schemas List
-    //         const List = Fs.readdirSync(SchemasPath)
-    //           .filter((file) => /\.ts$/g.test(file))
-    //           .map((file) => file.replace(/\.\w*/g, ""));
-    //         return List.filter((v) => !["index", "base"].includes(v));
-    //       },
-    //       skip: (options) =>
-    //         options.type !== "Relation" && options.arrayof !== "Relation",
-    //     },
-    //     {
-    //       type: "array",
-    //       name: "mapping",
-    //       description: "Column relation mapping.",
-    //       message:
-    //         "Please provide two column relation mapping separated by comma:",
-    //       validator: (value) => {
-    //         if (value instanceof Array) {
-    //           if (value.length > 2)
-    //             throw new Error(`Please provide just two columns!`);
-    //           else if (value.length < 1)
-    //             throw new Error(`Please provide at least one column!`);
-    //           else if (value.length < 2) return [value[0], value[0]];
-    //         } else
-    //           throw new Error(`Please provide a valid list of column names!`);
-    //       },
-    //       default: (options) => options.relation + "Id",
-    //       skip: (options) => !options.relation,
-    //     },
-    //     {
-    //       type: "input",
-    //       name: "name",
-    //       alias: ["--name", "-n"],
-    //       description: "Name of the column.",
-    //       message: "Please provide a column name:",
-    //       validator: (value) => {
-    //         if (!/^[A-Z]\w+$/.test(value))
-    //           throw new Error(`Please provide a valid column name!`);
-    //       },
-    //       default: (options) =>
-    //         options.relation
-    //           ? options.type === "Array"
-    //             ? options.relation + "s"
-    //             : options.relation
-    //           : undefined,
-    //     },
-    //     {
-    //       type: "confirm",
-    //       name: "nullable",
-    //       alias: ["--nullable"],
-    //       description: "Is the column nullable or not.",
-    //       message: "Is this column nullable?",
-    //       skip: (options) => options.relation,
-    //     },
-    //     {
-    //       type: "input",
-    //       name: "defaultValue",
-    //       alias: ["--default"],
-    //       description: "Default column value.",
-    //       message: "Please provide a default value (code):",
-    //       skip: (options) => options.relation,
-    //     },
-    //     {
-    //       type: "confirm",
-    //       name: "advancedProperties",
-    //       description: "Should add advanced properties to the column or not.",
-    //       message: "Do you want to add advanced properties?",
-    //       skip: (options) => options.relation,
-    //     },
-    //     {
-    //       type: "input",
-    //       name: "collation",
-    //       alias: ["--collation", "-c"],
-    //       description: "Collation of the column.",
-    //       message: "Please provide a column collation:",
-    //       default: "utf8mb4_unicode_ci",
-    //       skip: (options) => !options.advancedProperties,
-    //     },
-    //     {
-    //       type: "checkbox",
-    //       name: "index",
-    //       alias: ["--index", "-i"],
-    //       description: "Index on the column.",
-    //       message: "Please provide a column index:",
-    //       choices: ["FULLTEXT", "UNIQUE", "INDEX", "SPATIAL"],
-    //       skip: (options) => !options.advancedProperties,
-    //     },
-    //     {
-    //       type: "input",
-    //       name: "onUpdate",
-    //       alias: ["--on-update"],
-    //       description: "Value on update.",
-    //       message: "Please provide a value on update (code):",
-    //       skip: (options) => !options.advancedProperties,
-    //     },
-    //   ],
-    //   default: {
-    //     type: "String",
-    //     length: 50,
-    //     nullable: false,
-    //     defaultValue: "",
-    //     advancedProperties: false,
-    //   },
-    //   method: Project.createSchemaColumn,
-    // },
+    {
+        name: "create-schema-column",
+        description: "Create new schema column.",
+        params: [
+            {
+                type: "list",
+                name: "schema",
+                alias: ["--schema", "-s"],
+                description: "Name of the schema.",
+                message: "Please provide a schema:",
+                choices: () => {
+                    const SchemasPath = core_1.ConfigManager.getConfig("main").paths.schemas;
+                    // Resolve Directory
+                    fs_1.default.mkdirSync(SchemasPath, { recursive: true });
+                    // Schemas List
+                    return fs_1.default.readdirSync(SchemasPath)
+                        .filter((file) => /\.ts$/g.test(file))
+                        .map((file) => file.replace(/\.\w*/g, ""));
+                },
+                default: () => { var _a, _b; return (_b = (_a = core_1.ConfigManager.getConfig("main")) === null || _a === void 0 ? void 0 : _a.lastAccess) === null || _b === void 0 ? void 0 : _b.schema; },
+            },
+            {
+                type: "list",
+                name: "type",
+                alias: ["--type", "-t"],
+                description: "Type of the column.",
+                message: "Please provide a column type:",
+                choices: [
+                    "String",
+                    "Number",
+                    "Boolean",
+                    "Enum",
+                    "Record",
+                    "Array",
+                    "Relation",
+                    "Any",
+                ],
+                default: "String",
+            },
+            {
+                type: "array",
+                name: "choices",
+                description: "Column choices list.",
+                message: "Please provide comma separated choices list:",
+                skip: (options) => options.type !== "Enum",
+            },
+            {
+                type: "list",
+                name: "arrayof",
+                description: "Column is an array of type.",
+                message: "Array of type:",
+                choices: ["String", "Number", "Boolean", "Record", "Relation", "Any"],
+                default: "String",
+                skip: (options) => options.type !== "Array",
+            },
+            {
+                type: "input",
+                name: "recordType",
+                description: "Type of the record.",
+                message: "Please provide the type of the record:",
+                default: "any",
+                skip: (options) => options.type !== "Record" && options.arrayof !== "Record",
+            },
+            {
+                type: "number",
+                name: "length",
+                alias: ["--length", "-l"],
+                description: "Length of the column.",
+                message: "Please provide a column length:",
+                default: 50,
+                skip: (options) => !["String", "Number"].includes(options.type),
+            },
+            {
+                type: "list",
+                name: "relation",
+                alias: ["--relation", "-r"],
+                description: "Name of the Relation schema.",
+                message: "Please provide a relation schema:",
+                choices: () => {
+                    const SchemasPath = core_1.ConfigManager.getConfig("main").paths.schemas;
+                    // Resolve Directory
+                    fs_1.default.mkdirSync(SchemasPath, { recursive: true });
+                    // Schemas List
+                    return fs_1.default.readdirSync(SchemasPath)
+                        .filter((file) => /\.ts$/g.test(file))
+                        .map((file) => file.replace(/\.\w*/g, ""));
+                },
+                skip: (options) => options.type !== "Relation" && options.arrayof !== "Relation",
+            },
+            {
+                type: "array",
+                name: "mapping",
+                description: "Column relation mapping.",
+                message: "Please provide two column relation mapping separated by comma:",
+                validator: (value) => {
+                    if (value instanceof Array) {
+                        if (value.length > 2)
+                            throw new Error(`Please provide just two columns!`);
+                        else if (value.length < 1)
+                            throw new Error(`Please provide at least one column!`);
+                        else if (value.length < 2)
+                            return [value[0], value[0]];
+                    }
+                    else
+                        throw new Error(`Please provide a valid list of column names!`);
+                },
+                default: (options) => options.relation + "Id",
+                skip: (options) => !options.relation,
+            },
+            {
+                type: "input",
+                name: "name",
+                alias: ["--name", "-n"],
+                description: "Name of the column.",
+                message: "Please provide a column name:",
+                validator: (value) => {
+                    if (!/^[A-Z]\w+$/.test(value))
+                        throw new Error(`Please provide a valid column name!`);
+                },
+                default: (options) => options.relation
+                    ? options.type === "Array"
+                        ? options.relation + "s"
+                        : options.relation
+                    : undefined,
+            },
+            {
+                type: "confirm",
+                name: "nullable",
+                alias: ["--nullable"],
+                description: "Is the column nullable or not.",
+                message: "Is this column nullable?",
+                skip: (options) => options.relation,
+            },
+            {
+                type: "input",
+                name: "defaultValue",
+                alias: ["--default"],
+                description: "Default column value.",
+                message: "Please provide a default value (code):",
+                skip: (options) => options.relation,
+            },
+            {
+                type: "confirm",
+                name: "advancedProperties",
+                description: "Should add advanced properties to the column or not.",
+                message: "Do you want to add advanced properties?",
+                skip: (options) => options.relation,
+            },
+            {
+                type: "input",
+                name: "collation",
+                alias: ["--collation", "-c"],
+                description: "Collation of the column.",
+                message: "Please provide a column collation:",
+                default: "utf8mb4_unicode_ci",
+                skip: (options) => !options.advancedProperties,
+            },
+            {
+                type: "checkbox",
+                name: "index",
+                alias: ["--index", "-i"],
+                description: "Index on the column.",
+                message: "Please provide a column index:",
+                choices: ["FULLTEXT", "UNIQUE", "INDEX", "SPATIAL"],
+                skip: (options) => !options.advancedProperties,
+            },
+            {
+                type: "input",
+                name: "onUpdate",
+                alias: ["--on-update"],
+                description: "Value on update.",
+                message: "Please provide a value on update (code):",
+                skip: (options) => !options.advancedProperties,
+            },
+        ],
+        default: {
+            type: "String",
+            length: 50,
+            nullable: false,
+            defaultValue: "",
+            advancedProperties: false,
+        },
+        method: project_1.Project.createSchemaColumn,
+    },
     // {
     //   name: "delete-schema-column",
     //   description: "Delete a schema column.",
