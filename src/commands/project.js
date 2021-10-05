@@ -452,42 +452,41 @@ exports.ProjectCommands = [
         },
         method: project_1.Project.createSchemaColumn,
     },
-    // {
-    //   name: "delete-schema-column",
-    //   description: "Delete a schema column.",
-    //   params: [
-    //     {
-    //       type: "input",
-    //       name: "name",
-    //       alias: ["--name", "-n"],
-    //       description: "Name of the column.",
-    //       message: "Please provide a column name:",
-    //       validator: (value) => {
-    //         if (!/^[A-Z]\w+$/.test(value))
-    //           throw new Error(`Please provide a valid column name!`);
-    //       },
-    //     },
-    //     {
-    //       type: "list",
-    //       name: "schema",
-    //       alias: ["--schema", "-s"],
-    //       description: "Name of the schema.",
-    //       message: "Please provide a schema:",
-    //       choices: () => {
-    //         const SchemasPath = ConfigManager.getConfig("main").paths!.schemas!;
-    //         // Resolve Directory
-    //         Fs.mkdirSync(SchemasPath, { recursive: true });
-    //         // Schemas List
-    //         const List = Fs.readdirSync(SchemasPath)
-    //           .filter((file) => /\.ts$/g.test(file))
-    //           .map((file) => file.replace(/\.\w*/g, ""));
-    //         return List.filter((v) => !["index", "base"].includes(v));
-    //       },
-    //       default: () => ConfigManager.getConfig("main")?.lastAccess?.schema,
-    //     },
-    //   ],
-    //   method: Project.deleteSchemaColumn,
-    // },
+    {
+        name: "delete-schema-column",
+        description: "Delete a schema column.",
+        params: [
+            {
+                type: "input",
+                name: "name",
+                alias: ["--name", "-n"],
+                description: "Name of the column.",
+                message: "Please provide a column name:",
+                validator: (value) => {
+                    if (!/^[A-Z]\w+$/.test(value))
+                        throw new Error(`Please provide a valid column name!`);
+                },
+            },
+            {
+                type: "list",
+                name: "schema",
+                alias: ["--schema", "-s"],
+                description: "Name of the schema.",
+                message: "Please provide a schema:",
+                choices: () => {
+                    const SchemasPath = core_1.ConfigManager.getConfig("main").paths.schemas;
+                    // Resolve Directory
+                    fs_1.default.mkdirSync(SchemasPath, { recursive: true });
+                    // Schemas List
+                    return fs_1.default.readdirSync(SchemasPath)
+                        .filter((file) => /\.ts$/g.test(file))
+                        .map((file) => file.replace(/\.\w*/g, ""));
+                },
+                default: () => { var _a, _b; return (_b = (_a = core_1.ConfigManager.getConfig("main")) === null || _a === void 0 ? void 0 : _a.lastAccess) === null || _b === void 0 ? void 0 : _b.schema; },
+            },
+        ],
+        method: project_1.Project.deleteSchemaColumn,
+    },
     // {
     //   name: "create-middleware",
     //   description: "Create a new middleware.",
