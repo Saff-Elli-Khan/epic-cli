@@ -309,7 +309,7 @@ class Project {
                                 location: `./${path_1.default.relative(Project.AppPath(), path_1.default.join(Project.SchemasPath(), options.name)).replace(/\\/g, "/")}`,
                             })
                                 .push("SchemaListContainer", "SchemaListTemplate", options.name + "Schema", {
-                                child: options.name,
+                                schema: options.name,
                             })
                                 .render();
                         }

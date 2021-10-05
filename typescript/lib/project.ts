@@ -555,7 +555,7 @@ export class Project {
                 "SchemaListTemplate",
                 options.name + "Schema",
                 {
-                  child: options.name,
+                  schema: options.name,
                 }
               )
               .render();
