@@ -388,7 +388,7 @@ class Project {
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("transactions", (_) => {
                             // Update Last Access
-                            _.lastAccess.schema = options.name;
+                            delete _.lastAccess.schema;
                             // Remove Transaction
                             _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-schema" &&
                                 transaction.params.name === options.name));
@@ -545,7 +545,7 @@ class Project {
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("transactions", (_) => {
                             // Update Last Access
-                            _.lastAccess.middleware = options.name;
+                            delete _.lastAccess.middleware;
                             // Remove Transaction
                             _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-middleware" &&
                                 transaction.params.name === options.name));
@@ -617,7 +617,7 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
                 // Update Configuration & Transactions
                 core_1.ConfigManager.setConfig("transactions", (_) => {
                     // Update Last Access
-                    _.lastAccess.controller = options.name;
+                    delete _.lastAccess.controller;
                     // Remove Transaction
                     _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-controller" &&
                         transaction.params.name === options.name));

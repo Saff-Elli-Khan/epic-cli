@@ -517,7 +517,7 @@ export class Project {
           // Update Configuration & Transactions
           ConfigManager.setConfig("transactions", (_) => {
             // Update Last Access
-            _.lastAccess!.controller = options.name;
+            delete _.lastAccess!.controller;
 
             // Remove Transaction
             _.transactions = _.transactions.filter(
@@ -709,7 +709,7 @@ export class Project {
           // Update Configuration & Transactions
           ConfigManager.setConfig("transactions", (_) => {
             // Update Last Access
-            _.lastAccess!.schema = options.name;
+            delete _.lastAccess!.schema;
 
             // Remove Transaction
             _.transactions = _.transactions.filter(
@@ -1117,7 +1117,7 @@ export class Project {
           // Update Configuration & Transactions
           ConfigManager.setConfig("transactions", (_) => {
             // Update Last Access
-            _.lastAccess!.middleware = options.name;
+            delete _.lastAccess!.middleware;
 
             // Remove Transaction
             _.transactions = _.transactions.filter(
