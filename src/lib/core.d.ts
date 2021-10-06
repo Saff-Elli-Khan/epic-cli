@@ -9,7 +9,7 @@ export interface ConfigurationInterface {
     name: string;
     description: string;
     brand: BrandInterface;
-    paths?: PathsInterface;
+    paths: PathsInterface;
     database: {
         host: string;
         port: number;
@@ -31,7 +31,7 @@ export interface BrandInterface {
 }
 export interface TransactionsInterface {
     version: number;
-    lastAccess?: AccessInterface;
+    lastAccess: AccessInterface;
     transactions: Array<TransactionInterface>;
 }
 export declare type AccessInterface = {

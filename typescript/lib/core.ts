@@ -14,7 +14,7 @@ export interface ConfigurationInterface {
   name: string;
   description: string;
   brand: BrandInterface;
-  paths?: PathsInterface;
+  paths: PathsInterface;
   database: {
     host: string;
     port: number;
@@ -39,7 +39,7 @@ export interface BrandInterface {
 
 export interface TransactionsInterface {
   version: number;
-  lastAccess?: AccessInterface;
+  lastAccess: AccessInterface;
   transactions: Array<TransactionInterface>;
 }
 
@@ -93,10 +93,17 @@ export const ConfigManager = new EpicConfigManager({
         password: "",
         dbname: "test",
       },
+      paths: {
+        templates: "./src/templates/",
+        contollers: "./src/controllers/",
+        middlewares: "./src/middlewares/",
+        schemas: "./src/schemas/",
+      },
     },
     transactions: {
       version: 1,
       transactions: [],
+      lastAccess: {},
     },
     resources: {
       version: 1,
@@ -110,15 +117,7 @@ export const ConfigManager = new EpicConfigManager({
         `Invalid configuration version! Currently installed CLI expects epic.config version 1.`
       );
 
-    return {
-      ...data,
-      paths: {
-        templates: data.paths?.templates || "./src/templates/",
-        contollers: data.paths?.contollers || "./src/controllers/",
-        middlewares: data.paths?.middlewares || "./src/middlewares/",
-        schemas: data.paths?.schemas || "./src/schemas/",
-      },
-    };
+    return data;
   })
   .override("transactions", (data) => {
     // Check Transactions Version
@@ -127,12 +126,7 @@ export const ConfigManager = new EpicConfigManager({
         `Invalid transactions version! Currently installed CLI expects epic.transactions version 1.`
       );
 
-    return {
-      ...data,
-      lastAccess: {
-        ...data.lastAccess,
-      },
-    };
+    return data;
   })
   .override("resources", (data) => {
     // Check Transactions Version
