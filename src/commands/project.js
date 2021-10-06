@@ -304,7 +304,7 @@ exports.ProjectCommands = [
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, ""));
                 },
-                default: () => { var _a, _b; return (_b = (_a = core_1.ConfigManager.getConfig("main")) === null || _a === void 0 ? void 0 : _a.lastAccess) === null || _b === void 0 ? void 0 : _b.schema; },
+                default: () => { var _a, _b; return (_b = (_a = core_1.ConfigManager.getConfig("transactions")) === null || _a === void 0 ? void 0 : _a.lastAccess) === null || _b === void 0 ? void 0 : _b.schema; },
             },
             {
                 type: "list",
@@ -499,7 +499,7 @@ exports.ProjectCommands = [
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, ""));
                 },
-                default: () => { var _a, _b; return (_b = (_a = core_1.ConfigManager.getConfig("main")) === null || _a === void 0 ? void 0 : _a.lastAccess) === null || _b === void 0 ? void 0 : _b.schema; },
+                default: () => { var _a, _b; return (_b = (_a = core_1.ConfigManager.getConfig("transactions")) === null || _a === void 0 ? void 0 : _a.lastAccess) === null || _b === void 0 ? void 0 : _b.schema; },
             },
         ],
         method: project_1.Project.deleteSchemaColumn,

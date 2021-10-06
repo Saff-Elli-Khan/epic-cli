@@ -10,7 +10,6 @@ export interface ConfigurationInterface {
     description: string;
     brand: BrandInterface;
     paths?: PathsInterface;
-    lastAccess?: AccessInterface;
     database: {
         host: string;
         port: number;
@@ -19,9 +18,6 @@ export interface ConfigurationInterface {
         dbname: string;
     };
 }
-export declare type AccessInterface = {
-    [key in ResourceType]?: string;
-};
 export interface PathsInterface {
     templates?: string;
     contollers?: string;
@@ -35,8 +31,12 @@ export interface BrandInterface {
 }
 export interface TransactionsInterface {
     version: number;
+    lastAccess?: AccessInterface;
     transactions: Array<TransactionInterface>;
 }
+export declare type AccessInterface = {
+    [key in ResourceType]?: string;
+};
 export interface TransactionInterface {
     command: string;
     params: Record<string, any>;

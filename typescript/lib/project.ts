@@ -398,48 +398,45 @@ export class Project {
           }
 
           // Update Configuration & Transactions
-          ConfigManager.setConfig("main", (_) => {
+          ConfigManager.setConfig("transactions", (_) => {
+            // Update Last Access
             _.lastAccess!.controller = options.name;
 
-            return _;
-          })
-            .setConfig("transactions", (_) => {
-              // Remove Duplicate Transaction
-              _.transactions = _.transactions.filter(
-                (transaction) =>
-                  !(
-                    transaction.command === "create-controller" &&
-                    transaction.params.name === options.name
-                  )
-              );
+            // Remove Duplicate Transaction
+            _.transactions = _.transactions.filter(
+              (transaction) =>
+                !(
+                  transaction.command === "create-controller" &&
+                  transaction.params.name === options.name
+                )
+            );
 
-              // Add New Transaction
-              _.transactions.push({
-                command: command.name,
-                params: options,
-              });
-
-              return _;
-            })
-            .setConfig("resources", (_) => {
-              // Remove Duplicate Resource
-              _.resources = _.resources.filter(
-                (resource) =>
-                  !(
-                    resource.type === "controller" &&
-                    resource.name === options.name
-                  )
-              );
-
-              // Add New Resource
-              _.resources.push({
-                type: "controller",
-                name: options.name,
-                parent: options.parent,
-              });
-
-              return _;
+            // Add New Transaction
+            _.transactions.push({
+              command: command.name,
+              params: options,
             });
+
+            return _;
+          }).setConfig("resources", (_) => {
+            // Remove Duplicate Resource
+            _.resources = _.resources.filter(
+              (resource) =>
+                !(
+                  resource.type === "controller" &&
+                  resource.name === options.name
+                )
+            );
+
+            // Add New Resource
+            _.resources.push({
+              type: "controller",
+              name: options.name,
+              parent: options.parent,
+            });
+
+            return _;
+          });
         },
       },
     ]).run();
@@ -518,33 +515,31 @@ export class Project {
           }
 
           // Update Configuration & Transactions
-          ConfigManager.setConfig("main", (_) => {
+          ConfigManager.setConfig("transactions", (_) => {
+            // Update Last Access
             _.lastAccess!.controller = options.name;
 
+            // Remove Transaction
+            _.transactions = _.transactions.filter(
+              (transaction) =>
+                !(
+                  transaction.command === "create-controller" &&
+                  transaction.params.name === options.name
+                )
+            );
+
             return _;
-          })
-            .setConfig("transactions", (_) => {
-              _.transactions = _.transactions.filter(
-                (transaction) =>
-                  !(
-                    transaction.command === "create-controller" &&
-                    transaction.params.name === options.name
-                  )
-              );
+          }).setConfig("resources", (_) => {
+            _.resources = _.resources.filter(
+              (resource) =>
+                !(
+                  resource.type === "controller" &&
+                  resource.name === options.name
+                )
+            );
 
-              return _;
-            })
-            .setConfig("resources", (_) => {
-              _.resources = _.resources.filter(
-                (resource) =>
-                  !(
-                    resource.type === "controller" &&
-                    resource.name === options.name
-                  )
-              );
-
-              return _;
-            });
+            return _;
+          });
         },
       },
     ]).run();
@@ -630,46 +625,41 @@ export class Project {
           }
 
           // Update Configuration & Transactions
-          ConfigManager.setConfig("main", (_) => {
+          ConfigManager.setConfig("transactions", (_) => {
+            // Update Last Access
             _.lastAccess!.schema = options.name;
 
-            return _;
-          })
-            .setConfig("transactions", (_) => {
-              // Remove Duplicate Transaction
-              _.transactions = _.transactions.filter(
-                (transaction) =>
-                  !(
-                    transaction.command === "create-schema" &&
-                    transaction.params.name === options.name
-                  )
-              );
+            // Remove Duplicate Transaction
+            _.transactions = _.transactions.filter(
+              (transaction) =>
+                !(
+                  transaction.command === "create-schema" &&
+                  transaction.params.name === options.name
+                )
+            );
 
-              // Add New Transaction
-              _.transactions.push({
-                command: command.name,
-                params: options,
-              });
-
-              return _;
-            })
-            .setConfig("resources", (_) => {
-              // Remove Duplicate Resource
-              _.resources = _.resources.filter(
-                (resource) =>
-                  !(
-                    resource.type === "schema" && resource.name === options.name
-                  )
-              );
-
-              // Add New Resource
-              _.resources.push({
-                type: "schema",
-                name: options.name,
-              });
-
-              return _;
+            // Add New Transaction
+            _.transactions.push({
+              command: command.name,
+              params: options,
             });
+
+            return _;
+          }).setConfig("resources", (_) => {
+            // Remove Duplicate Resource
+            _.resources = _.resources.filter(
+              (resource) =>
+                !(resource.type === "schema" && resource.name === options.name)
+            );
+
+            // Add New Resource
+            _.resources.push({
+              type: "schema",
+              name: options.name,
+            });
+
+            return _;
+          });
         },
       },
     ]).run();
@@ -717,32 +707,28 @@ export class Project {
           }
 
           // Update Configuration & Transactions
-          ConfigManager.setConfig("main", (_) => {
+          ConfigManager.setConfig("transactions", (_) => {
+            // Update Last Access
             _.lastAccess!.schema = options.name;
 
+            // Remove Transaction
+            _.transactions = _.transactions.filter(
+              (transaction) =>
+                !(
+                  transaction.command === "create-schema" &&
+                  transaction.params.name === options.name
+                )
+            );
+
             return _;
-          })
-            .setConfig("transactions", (_) => {
-              _.transactions = _.transactions.filter(
-                (transaction) =>
-                  !(
-                    transaction.command === "create-schema" &&
-                    transaction.params.name === options.name
-                  )
-              );
+          }).setConfig("resources", (_) => {
+            _.resources = _.resources.filter(
+              (resource) =>
+                !(resource.type === "schema" && resource.name === options.name)
+            );
 
-              return _;
-            })
-            .setConfig("resources", (_) => {
-              _.resources = _.resources.filter(
-                (resource) =>
-                  !(
-                    resource.type === "schema" && resource.name === options.name
-                  )
-              );
-
-              return _;
-            });
+            return _;
+          });
         },
       },
     ]).run();
@@ -752,7 +738,16 @@ export class Project {
     options: CreateControllerOptions,
     command: CommandInterface
   ) {
+    // Update Temporary Command Name
+    command.name = "create-controller";
+
+    // Create New Controller
     await Project.createController(options, command);
+
+    // Update Temporary Command Name
+    command.name = "create-schema";
+
+    // Create New Schema
     await Project.createSchema(options, command);
   }
 
@@ -855,11 +850,10 @@ export class Project {
         title: "Configuring your project",
         task: () => {
           // Update Configuration & Transactions
-          ConfigManager.setConfig("main", (_) => {
+          ConfigManager.setConfig("transactions", (_) => {
+            // Update Last Access
             _.lastAccess!.schema = options.schema;
 
-            return _;
-          }).setConfig("transactions", (_) => {
             // Remove Duplicate Transaction
             _.transactions = _.transactions.filter(
               (transaction) =>
@@ -935,11 +929,11 @@ export class Project {
         title: "Configuring your project",
         task: () => {
           // Update Configuration & Transactions
-          ConfigManager.setConfig("main", (_) => {
+          ConfigManager.setConfig("transactions", (_) => {
+            // Update Last Access
             _.lastAccess!.schema = options.name;
 
-            return _;
-          }).setConfig("transactions", (_) => {
+            // Remove Transaction
             _.transactions = _.transactions.filter(
               (transaction) =>
                 !(
@@ -1036,47 +1030,44 @@ export class Project {
           }
 
           // Update Configuration & Transactions
-          ConfigManager.setConfig("main", (_) => {
+          ConfigManager.setConfig("transactions", (_) => {
+            // Update Last Access
             _.lastAccess!.middleware = options.name;
 
-            return _;
-          })
-            .setConfig("transactions", (_) => {
-              // Remove Duplicate Transaction
-              _.transactions = _.transactions.filter(
-                (transaction) =>
-                  !(
-                    transaction.command === "create-middleware" &&
-                    transaction.params.name === options.name
-                  )
-              );
+            // Remove Duplicate Transaction
+            _.transactions = _.transactions.filter(
+              (transaction) =>
+                !(
+                  transaction.command === "create-middleware" &&
+                  transaction.params.name === options.name
+                )
+            );
 
-              // Add New Transaction
-              _.transactions.push({
-                command: command.name,
-                params: options,
-              });
-
-              return _;
-            })
-            .setConfig("resources", (_) => {
-              // Remove Duplicate Resource
-              _.resources = _.resources.filter(
-                (resource) =>
-                  !(
-                    resource.type === "middleware" &&
-                    resource.name === options.name
-                  )
-              );
-
-              // Add New Resource
-              _.resources.push({
-                type: "middleware",
-                name: options.name,
-              });
-
-              return _;
+            // Add New Transaction
+            _.transactions.push({
+              command: command.name,
+              params: options,
             });
+
+            return _;
+          }).setConfig("resources", (_) => {
+            // Remove Duplicate Resource
+            _.resources = _.resources.filter(
+              (resource) =>
+                !(
+                  resource.type === "middleware" &&
+                  resource.name === options.name
+                )
+            );
+
+            // Add New Resource
+            _.resources.push({
+              type: "middleware",
+              name: options.name,
+            });
+
+            return _;
+          });
         },
       },
     ]).run();
@@ -1124,33 +1115,31 @@ export class Project {
           }
 
           // Update Configuration & Transactions
-          ConfigManager.setConfig("main", (_) => {
+          ConfigManager.setConfig("transactions", (_) => {
+            // Update Last Access
             _.lastAccess!.middleware = options.name;
 
+            // Remove Transaction
+            _.transactions = _.transactions.filter(
+              (transaction) =>
+                !(
+                  transaction.command === "create-middleware" &&
+                  transaction.params.name === options.name
+                )
+            );
+
             return _;
-          })
-            .setConfig("transactions", (_) => {
-              _.transactions = _.transactions.filter(
-                (transaction) =>
-                  !(
-                    transaction.command === "create-middleware" &&
-                    transaction.params.name === options.name
-                  )
-              );
+          }).setConfig("resources", (_) => {
+            _.resources = _.resources.filter(
+              (resource) =>
+                !(
+                  resource.type === "middleware" &&
+                  resource.name === options.name
+                )
+            );
 
-              return _;
-            })
-            .setConfig("resources", (_) => {
-              _.resources = _.resources.filter(
-                (resource) =>
-                  !(
-                    resource.type === "middleware" &&
-                    resource.name === options.name
-                  )
-              );
-
-              return _;
-            });
+            return _;
+          });
         },
       },
     ]).run();

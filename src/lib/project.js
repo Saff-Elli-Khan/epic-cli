@@ -239,11 +239,9 @@ class Project {
                             console.warn("We are unable to parse App.controllers properly! Please add the child controller manually.", error);
                         }
                         // Update Configuration & Transactions
-                        core_1.ConfigManager.setConfig("main", (_) => {
+                        core_1.ConfigManager.setConfig("transactions", (_) => {
+                            // Update Last Access
                             _.lastAccess.controller = options.name;
-                            return _;
-                        })
-                            .setConfig("transactions", (_) => {
                             // Remove Duplicate Transaction
                             _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-controller" &&
                                 transaction.params.name === options.name));
@@ -253,8 +251,7 @@ class Project {
                                 params: options,
                             });
                             return _;
-                        })
-                            .setConfig("resources", (_) => {
+                        }).setConfig("resources", (_) => {
                             // Remove Duplicate Resource
                             _.resources = _.resources.filter((resource) => !(resource.type === "controller" &&
                                 resource.name === options.name));
@@ -324,11 +321,9 @@ class Project {
                             console.warn("We are unable to parse App.database properly! Please add the schema to the list manually.", error);
                         }
                         // Update Configuration & Transactions
-                        core_1.ConfigManager.setConfig("main", (_) => {
+                        core_1.ConfigManager.setConfig("transactions", (_) => {
+                            // Update Last Access
                             _.lastAccess.schema = options.name;
-                            return _;
-                        })
-                            .setConfig("transactions", (_) => {
                             // Remove Duplicate Transaction
                             _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-schema" &&
                                 transaction.params.name === options.name));
@@ -338,8 +333,7 @@ class Project {
                                 params: options,
                             });
                             return _;
-                        })
-                            .setConfig("resources", (_) => {
+                        }).setConfig("resources", (_) => {
                             // Remove Duplicate Resource
                             _.resources = _.resources.filter((resource) => !(resource.type === "schema" && resource.name === options.name));
                             // Add New Resource
@@ -392,16 +386,14 @@ class Project {
                             console.warn(`We are unable to parse App.database properly! Please remove the schema from App.database manually.`, error);
                         }
                         // Update Configuration & Transactions
-                        core_1.ConfigManager.setConfig("main", (_) => {
+                        core_1.ConfigManager.setConfig("transactions", (_) => {
+                            // Update Last Access
                             _.lastAccess.schema = options.name;
-                            return _;
-                        })
-                            .setConfig("transactions", (_) => {
+                            // Remove Transaction
                             _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-schema" &&
                                 transaction.params.name === options.name));
                             return _;
-                        })
-                            .setConfig("resources", (_) => {
+                        }).setConfig("resources", (_) => {
                             _.resources = _.resources.filter((resource) => !(resource.type === "schema" && resource.name === options.name));
                             return _;
                         });
@@ -412,7 +404,13 @@ class Project {
     }
     static createModule(options, command) {
         return __awaiter(this, void 0, void 0, function* () {
+            // Update Temporary Command Name
+            command.name = "create-controller";
+            // Create New Controller
             yield Project.createController(options, command);
+            // Update Temporary Command Name
+            command.name = "create-schema";
+            // Create New Schema
             yield Project.createSchema(options, command);
         });
     }
@@ -488,10 +486,9 @@ class Project {
                     title: "Configuring your project",
                     task: () => {
                         // Update Configuration & Transactions
-                        core_1.ConfigManager.setConfig("main", (_) => {
+                        core_1.ConfigManager.setConfig("transactions", (_) => {
+                            // Update Last Access
                             _.lastAccess.schema = options.schema;
-                            return _;
-                        }).setConfig("transactions", (_) => {
                             // Remove Duplicate Transaction
                             _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-schema-column" &&
                                 transaction.params.schema === options.schema &&
@@ -546,16 +543,14 @@ class Project {
                             console.warn(`We are unable to parse App.middlewares properly! Please remove the schema from App.middlewares manually.`, error);
                         }
                         // Update Configuration & Transactions
-                        core_1.ConfigManager.setConfig("main", (_) => {
+                        core_1.ConfigManager.setConfig("transactions", (_) => {
+                            // Update Last Access
                             _.lastAccess.middleware = options.name;
-                            return _;
-                        })
-                            .setConfig("transactions", (_) => {
+                            // Remove Transaction
                             _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-middleware" &&
                                 transaction.params.name === options.name));
                             return _;
-                        })
-                            .setConfig("resources", (_) => {
+                        }).setConfig("resources", (_) => {
                             _.resources = _.resources.filter((resource) => !(resource.type === "middleware" &&
                                 resource.name === options.name));
                             return _;
@@ -620,16 +615,14 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
                     }
                 }
                 // Update Configuration & Transactions
-                core_1.ConfigManager.setConfig("main", (_) => {
+                core_1.ConfigManager.setConfig("transactions", (_) => {
+                    // Update Last Access
                     _.lastAccess.controller = options.name;
-                    return _;
-                })
-                    .setConfig("transactions", (_) => {
+                    // Remove Transaction
                     _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-controller" &&
                         transaction.params.name === options.name));
                     return _;
-                })
-                    .setConfig("resources", (_) => {
+                }).setConfig("resources", (_) => {
                     _.resources = _.resources.filter((resource) => !(resource.type === "controller" &&
                         resource.name === options.name));
                     return _;
@@ -678,10 +671,10 @@ Project.deleteSchemaColumn = (options) => __awaiter(void 0, void 0, void 0, func
             title: "Configuring your project",
             task: () => {
                 // Update Configuration & Transactions
-                core_1.ConfigManager.setConfig("main", (_) => {
+                core_1.ConfigManager.setConfig("transactions", (_) => {
+                    // Update Last Access
                     _.lastAccess.schema = options.name;
-                    return _;
-                }).setConfig("transactions", (_) => {
+                    // Remove Transaction
                     _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-schema-column" &&
                         transaction.params.schema === options.schema &&
                         transaction.params.name === options.name));
@@ -743,11 +736,9 @@ Project.createMiddleware = (options, command) => __awaiter(void 0, void 0, void 
                     console.warn("We are unable to parse App.middlewares properly! Please add the child controller manually.", error);
                 }
                 // Update Configuration & Transactions
-                core_1.ConfigManager.setConfig("main", (_) => {
+                core_1.ConfigManager.setConfig("transactions", (_) => {
+                    // Update Last Access
                     _.lastAccess.middleware = options.name;
-                    return _;
-                })
-                    .setConfig("transactions", (_) => {
                     // Remove Duplicate Transaction
                     _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-middleware" &&
                         transaction.params.name === options.name));
@@ -757,8 +748,7 @@ Project.createMiddleware = (options, command) => __awaiter(void 0, void 0, void 
                         params: options,
                     });
                     return _;
-                })
-                    .setConfig("resources", (_) => {
+                }).setConfig("resources", (_) => {
                     // Remove Duplicate Resource
                     _.resources = _.resources.filter((resource) => !(resource.type === "middleware" &&
                         resource.name === options.name));

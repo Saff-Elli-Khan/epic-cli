@@ -326,7 +326,8 @@ export const ProjectCommands: LooseCommandInterface[] = [
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
         },
-        default: () => ConfigManager.getConfig("main")?.lastAccess?.schema,
+        default: () =>
+          ConfigManager.getConfig("transactions")?.lastAccess?.schema,
       },
       {
         type: "list",
@@ -527,7 +528,8 @@ export const ProjectCommands: LooseCommandInterface[] = [
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
         },
-        default: () => ConfigManager.getConfig("main")?.lastAccess?.schema,
+        default: () =>
+          ConfigManager.getConfig("transactions")?.lastAccess?.schema,
       },
     ],
     method: Project.deleteSchemaColumn,

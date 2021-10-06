@@ -15,7 +15,6 @@ export interface ConfigurationInterface {
   description: string;
   brand: BrandInterface;
   paths?: PathsInterface;
-  lastAccess?: AccessInterface;
   database: {
     host: string;
     port: number;
@@ -24,10 +23,6 @@ export interface ConfigurationInterface {
     dbname: string;
   };
 }
-
-export type AccessInterface = {
-  [key in ResourceType]?: string;
-};
 
 export interface PathsInterface {
   templates?: string;
@@ -44,8 +39,13 @@ export interface BrandInterface {
 
 export interface TransactionsInterface {
   version: number;
+  lastAccess?: AccessInterface;
   transactions: Array<TransactionInterface>;
 }
+
+export type AccessInterface = {
+  [key in ResourceType]?: string;
+};
 
 export interface TransactionInterface {
   command: string;
@@ -118,9 +118,6 @@ export const ConfigManager = new EpicConfigManager({
         middlewares: data.paths?.middlewares || "./src/middlewares/",
         schemas: data.paths?.schemas || "./src/schemas/",
       },
-      lastAccess: {
-        ...data.lastAccess,
-      },
     };
   })
   .override("transactions", (data) => {
@@ -130,7 +127,12 @@ export const ConfigManager = new EpicConfigManager({
         `Invalid transactions version! Currently installed CLI expects epic.transactions version 1.`
       );
 
-    return data;
+    return {
+      ...data,
+      lastAccess: {
+        ...data.lastAccess,
+      },
+    };
   })
   .override("resources", (data) => {
     // Check Transactions Version
