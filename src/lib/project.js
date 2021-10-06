@@ -410,6 +410,18 @@ class Project {
             ]).run();
         });
     }
+    static createModule(options, command) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield Project.createController(options, command);
+            yield Project.createSchema(options, command);
+        });
+    }
+    static deleteModule(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield Project.deleteController(options);
+            yield Project.deleteSchema(options);
+        });
+    }
     static createSchemaColumn(options, command) {
         return __awaiter(this, void 0, void 0, function* () {
             // Queue the Tasks
@@ -522,8 +534,8 @@ class Project {
                             // Parse Template
                             new epic_parser_1.TemplateParser({
                                 inDir: Project.AppPath(),
-                                inFile: `./App.middleware.ts`,
-                                outFile: `./App.middleware.ts`,
+                                inFile: `./App.middlewares.ts`,
+                                outFile: `./App.middlewares.ts`,
                             })
                                 .parse()
                                 .pop("ImportsContainer", options.name + "Import")
@@ -531,7 +543,7 @@ class Project {
                                 .render();
                         }
                         catch (error) {
-                            console.warn(`We are unable to parse App.middleware properly! Please remove the schema from App.middleware manually.`, error);
+                            console.warn(`We are unable to parse App.middlewares properly! Please remove the schema from App.middlewares manually.`, error);
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("main", (_) => {

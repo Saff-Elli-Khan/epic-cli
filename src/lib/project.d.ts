@@ -73,6 +73,8 @@ export declare class Project {
     static deleteController: (options: DeleteControllerOptions) => Promise<void>;
     static createSchema(options: CreateSchemaOptions, command: CommandInterface): Promise<void>;
     static deleteSchema(options: DeleteSchemaOptions): Promise<void>;
+    static createModule(options: CreateControllerOptions, command: CommandInterface): Promise<void>;
+    static deleteModule(options: DeleteControllerOptions): Promise<void>;
     static createSchemaColumn(options: CreateSchemaColumnOptions, command: CommandInterface): Promise<void>;
     static deleteSchemaColumn: (options: DeleteSchemaColumnOptions) => Promise<void>;
     static createMiddleware: (options: CreateMiddlewareOptions, command: CommandInterface) => Promise<void>;

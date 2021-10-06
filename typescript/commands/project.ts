@@ -1,4 +1,7 @@
-import { LooseCommandInterface } from "@saffellikhan/epic-cli-builder";
+import {
+  LooseCommandInterface,
+  ParamInterface,
+} from "@saffellikhan/epic-cli-builder";
 import { StrictLevel } from "@saffellikhan/epic-config-manager";
 import { Project } from "../lib/project";
 import { ConfigManager } from "../lib/core";
@@ -6,6 +9,115 @@ import { EpicGeo } from "epic-geo";
 import Path from "path";
 import Fs from "fs";
 
+// Create Controller Parameters
+const CreateControllerParams: ParamInterface[] = [
+  {
+    type: "input",
+    name: "name",
+    description: "Name of the controller.",
+    alias: ["--name", "-n"],
+    message: "Please provide a controller name:",
+    validator: (value) => {
+      if (value === "None")
+        throw new Error(`Controller name 'None' is not allowed!`);
+      else if (!/^[A-Z]\w+$/.test(value))
+        throw new Error(`Please provide a valid controller name!`);
+    },
+  },
+  {
+    type: "input",
+    name: "description",
+    description: "Description for the controller.",
+    alias: ["--description", "-d"],
+    message: "Please provide a controller description:",
+    default: "N/A",
+  },
+  {
+    type: "input",
+    name: "prefix",
+    description: "Prefix of the controller.",
+    alias: ["--prefix", "-p"],
+    message: "Please provide a controller prefix:",
+    default: (options) => `/${(options.name as string).toLowerCase()}/`,
+  },
+  {
+    type: "input",
+    name: "templateDir",
+    description: "Controller templates container directory.",
+    alias: ["--templateDir", "-td"],
+    skip: true,
+  },
+  {
+    type: "list",
+    name: "template",
+    description: "Template of the Controller",
+    message: "Please select a controller template:",
+    choices: (options) => {
+      // Controller Path
+      const ControllerDir =
+        options.templateDir ||
+        Path.join(
+          ConfigManager.getConfig("main").paths!.templates!,
+          "./controller/"
+        );
+
+      // Resolve Directory
+      Fs.mkdirSync(ControllerDir, { recursive: true });
+
+      // Templates List
+      return Fs.readdirSync(ControllerDir)
+        .filter((file) => /\.ts$/g.test(file))
+        .map((file) => file.replace(/\.\w*/g, ""));
+    },
+  },
+  {
+    type: "list",
+    name: "parent",
+    description: "Controller parent name.",
+    message: "Please provide the name of parent controller:",
+    choices: () => {
+      // Resolve Directory
+      Fs.mkdirSync(ConfigManager.getConfig("main").paths!.contollers!, {
+        recursive: true,
+      });
+
+      // Controllers List
+      return [
+        "None",
+        ...Fs.readdirSync(ConfigManager.getConfig("main").paths!.contollers!)
+          .filter((file) => /\.ts$/g.test(file))
+          .map((file) => file.replace(/\.\w*/g, "")),
+      ];
+    },
+  },
+];
+
+// Delete Controller Params
+const DeleteControllerParams: ParamInterface[] = [
+  {
+    type: "list",
+    name: "name",
+    alias: ["--name", "-n"],
+    description: "Name of the controller.",
+    message: "Please provide a controller name:",
+    choices: () => {
+      const ControllersPath = ConfigManager.getConfig("main").paths!
+        .contollers!;
+
+      // Resolve Directory
+      Fs.mkdirSync(ControllersPath, {
+        recursive: true,
+      });
+
+      // Controllers List
+      return Fs.readdirSync(ControllersPath)
+        .filter((file) => /\.ts$/g.test(file))
+        .map((file) => file.replace(/\.\w*/g, ""));
+    },
+  },
+];
+
+// Create Project CLI Commands List
 export const ProjectCommands: LooseCommandInterface[] = [
   {
     name: "init",
@@ -91,122 +203,18 @@ export const ProjectCommands: LooseCommandInterface[] = [
   {
     name: "create-controller",
     description: "Create a new controller in your Epic project.",
-    params: [
-      {
-        type: "input",
-        name: "name",
-        description: "Name of the controller.",
-        alias: ["--name", "-n"],
-        message: "Please provide a controller name:",
-        validator: (value) => {
-          if (value === "None")
-            throw new Error(`Controller name 'None' is not allowed!`);
-          else if (!/^[A-Z]\w+$/.test(value))
-            throw new Error(`Please provide a valid controller name!`);
-        },
-      },
-      {
-        type: "input",
-        name: "description",
-        description: "Description for the controller.",
-        alias: ["--description", "-d"],
-        message: "Please provide a controller description:",
-        default: "N/A",
-      },
-      {
-        type: "input",
-        name: "prefix",
-        description: "Prefix of the controller.",
-        alias: ["--prefix", "-p"],
-        message: "Please provide a controller prefix:",
-        default: (options) => `/${(options.name as string).toLowerCase()}/`,
-      },
-      {
-        type: "input",
-        name: "templateDir",
-        description: "Controller templates container directory.",
-        alias: ["--templateDir", "-td"],
-        skip: true,
-      },
-      {
-        type: "list",
-        name: "template",
-        description: "Template of the Controller",
-        message: "Please select a controller template:",
-        choices: (options) => {
-          // Controller Path
-          const ControllerDir =
-            options.templateDir ||
-            Path.join(
-              ConfigManager.getConfig("main").paths!.templates!,
-              "./controller/"
-            );
-
-          // Resolve Directory
-          Fs.mkdirSync(ControllerDir, { recursive: true });
-
-          // Templates List
-          return Fs.readdirSync(ControllerDir)
-            .filter((file) => /\.ts$/g.test(file))
-            .map((file) => file.replace(/\.\w*/g, ""));
-        },
-      },
-      {
-        type: "list",
-        name: "parent",
-        description: "Controller parent name.",
-        message: "Please provide the name of parent controller:",
-        choices: () => {
-          // Resolve Directory
-          Fs.mkdirSync(ConfigManager.getConfig("main").paths!.contollers!, {
-            recursive: true,
-          });
-
-          // Controllers List
-          return [
-            "None",
-            ...Fs.readdirSync(
-              ConfigManager.getConfig("main").paths!.contollers!
-            )
-              .filter((file) => /\.ts$/g.test(file))
-              .map((file) => file.replace(/\.\w*/g, "")),
-          ];
-        },
-      },
-    ],
+    params: CreateControllerParams,
     method: Project.createController,
   },
   {
     name: "delete-controller",
     description: "Remove controller from project.",
-    params: [
-      {
-        type: "list",
-        name: "name",
-        alias: ["--name", "-n"],
-        description: "Name of the controller.",
-        message: "Please provide a controller name:",
-        choices: () => {
-          const ControllersPath = ConfigManager.getConfig("main").paths!
-            .contollers!;
-
-          // Resolve Directory
-          Fs.mkdirSync(ControllersPath, {
-            recursive: true,
-          });
-
-          // Controllers List
-          return Fs.readdirSync(ControllersPath)
-            .filter((file) => /\.ts$/g.test(file))
-            .map((file) => file.replace(/\.\w*/g, ""));
-        },
-      },
-    ],
+    params: DeleteControllerParams,
     method: Project.deleteController,
   },
   {
     name: "create-schema",
-    description: "Create a database schema",
+    description: "Create a database schema.",
     params: [
       {
         type: "input",
@@ -284,6 +292,18 @@ export const ProjectCommands: LooseCommandInterface[] = [
       },
     ],
     method: Project.deleteSchema,
+  },
+  {
+    name: "create-module",
+    description: "Create a new module.",
+    params: CreateControllerParams,
+    method: Project.createModule,
+  },
+  {
+    name: "delete-module",
+    description: "Delete module from project.",
+    params: DeleteControllerParams,
+    method: Project.deleteModule,
   },
   {
     name: "create-schema-column",

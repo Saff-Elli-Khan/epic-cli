@@ -748,6 +748,19 @@ export class Project {
     ]).run();
   }
 
+  static async createModule(
+    options: CreateControllerOptions,
+    command: CommandInterface
+  ) {
+    await Project.createController(options, command);
+    await Project.createSchema(options, command);
+  }
+
+  static async deleteModule(options: DeleteControllerOptions) {
+    await Project.deleteController(options);
+    await Project.deleteSchema(options);
+  }
+
   static async createSchemaColumn(
     options: CreateSchemaColumnOptions,
     command: CommandInterface
@@ -1096,8 +1109,8 @@ export class Project {
             // Parse Template
             new TemplateParser({
               inDir: Project.AppPath(),
-              inFile: `./App.middleware.ts`,
-              outFile: `./App.middleware.ts`,
+              inFile: `./App.middlewares.ts`,
+              outFile: `./App.middlewares.ts`,
             })
               .parse()
               .pop("ImportsContainer", options.name + "Import")
@@ -1105,7 +1118,7 @@ export class Project {
               .render();
           } catch (error) {
             console.warn(
-              `We are unable to parse App.middleware properly! Please remove the schema from App.middleware manually.`,
+              `We are unable to parse App.middlewares properly! Please remove the schema from App.middlewares manually.`,
               error
             );
           }
