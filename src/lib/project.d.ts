@@ -48,6 +48,15 @@ export interface DeleteSchemaColumnOptions {
     schema: string;
     name: string;
 }
+export interface CreateMiddlewareOptions {
+    name: string;
+    description: string;
+    template: string;
+    templateDir?: string;
+}
+export interface DeleteMiddlewareOptions {
+    name: string;
+}
 export declare class Project {
     static PackagePath(): string;
     static EnvironmentsPath(): string;
@@ -66,4 +75,6 @@ export declare class Project {
     static deleteSchema(options: DeleteSchemaOptions): Promise<void>;
     static createSchemaColumn(options: CreateSchemaColumnOptions, command: CommandInterface): Promise<void>;
     static deleteSchemaColumn: (options: DeleteSchemaColumnOptions) => Promise<void>;
+    static createMiddleware: (options: CreateMiddlewareOptions, command: CommandInterface) => Promise<void>;
+    static deleteMiddleware(options: DeleteMiddlewareOptions): Promise<void>;
 }

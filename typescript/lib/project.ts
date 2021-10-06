@@ -75,6 +75,17 @@ export interface DeleteSchemaColumnOptions {
   name: string;
 }
 
+export interface CreateMiddlewareOptions {
+  name: string;
+  description: string;
+  template: string;
+  templateDir?: string;
+}
+
+export interface DeleteMiddlewareOptions {
+  name: string;
+}
+
 export class Project {
   static PackagePath() {
     return Path.join(ConfigManager.Options.rootPath, "./package.json");
@@ -393,6 +404,15 @@ export class Project {
             return _;
           })
             .setConfig("transactions", (_) => {
+              // Remove Duplicate Transaction
+              _.transactions = _.transactions.filter(
+                (transaction) =>
+                  !(
+                    transaction.command === "create-controller" &&
+                    transaction.params.name === options.name
+                  )
+              );
+
               // Add New Transaction
               _.transactions.push({
                 command: command.name,
@@ -402,6 +422,15 @@ export class Project {
               return _;
             })
             .setConfig("resources", (_) => {
+              // Remove Duplicate Resource
+              _.resources = _.resources.filter(
+                (resource) =>
+                  !(
+                    resource.type === "controller" &&
+                    resource.name === options.name
+                  )
+              );
+
               // Add New Resource
               _.resources.push({
                 type: "controller",
@@ -428,7 +457,7 @@ export class Project {
         },
       },
       {
-        title: "Deleting the controller",
+        title: "Deleting the Controller",
         task: async () => {
           // Delete Controller
           Fs.unlinkSync(
@@ -607,6 +636,15 @@ export class Project {
             return _;
           })
             .setConfig("transactions", (_) => {
+              // Remove Duplicate Transaction
+              _.transactions = _.transactions.filter(
+                (transaction) =>
+                  !(
+                    transaction.command === "create-schema" &&
+                    transaction.params.name === options.name
+                  )
+              );
+
               // Add New Transaction
               _.transactions.push({
                 command: command.name,
@@ -616,6 +654,14 @@ export class Project {
               return _;
             })
             .setConfig("resources", (_) => {
+              // Remove Duplicate Resource
+              _.resources = _.resources.filter(
+                (resource) =>
+                  !(
+                    resource.type === "schema" && resource.name === options.name
+                  )
+              );
+
               // Add New Resource
               _.resources.push({
                 type: "schema",
@@ -641,7 +687,7 @@ export class Project {
         },
       },
       {
-        title: "Deleting the schema",
+        title: "Deleting the Schema",
         task: async () => {
           // Delete Schema
           Fs.unlinkSync(
@@ -652,39 +698,22 @@ export class Project {
       {
         title: "Configuring your project",
         task: () => {
-          // Find & Undo (create-schema) Transaction related to this Schema
-          const Transaction = ConfigManager.getConfig(
-            "transactions"
-          ).transactions.reduce<TransactionInterface | null>(
-            (result, transaction) =>
-              result
-                ? result
-                : transaction.command === "create-schema" &&
-                  transaction.params.name === options.name
-                ? transaction
-                : null,
-            null
-          );
-
-          // If Transaction Exists
-          if (Transaction) {
-            try {
-              // Parse Template
-              new TemplateParser({
-                inDir: Project.AppPath(),
-                inFile: `./App.database.ts`,
-                outFile: `./App.database.ts`,
-              })
-                .parse()
-                .pop("ImportsContainer", options.name + "Import")
-                .pop("SchemaListContainer", options.name + "Schema")
-                .render();
-            } catch (error) {
-              console.warn(
-                `We are unable to parse App.database properly! Please remove the schema from App.database manually.`,
-                error
-              );
-            }
+          try {
+            // Parse Template
+            new TemplateParser({
+              inDir: Project.AppPath(),
+              inFile: `./App.database.ts`,
+              outFile: `./App.database.ts`,
+            })
+              .parse()
+              .pop("ImportsContainer", options.name + "Import")
+              .pop("SchemaListContainer", options.name + "Schema")
+              .render();
+          } catch (error) {
+            console.warn(
+              `We are unable to parse App.database properly! Please remove the schema from App.database manually.`,
+              error
+            );
           }
 
           // Update Configuration & Transactions
@@ -734,7 +763,7 @@ export class Project {
         },
       },
       {
-        title: "Preparing the Schema",
+        title: "Creating the Schema Column",
         task: () => {
           // Parse Template
           const Parsed = new TemplateParser({
@@ -818,6 +847,16 @@ export class Project {
 
             return _;
           }).setConfig("transactions", (_) => {
+            // Remove Duplicate Transaction
+            _.transactions = _.transactions.filter(
+              (transaction) =>
+                !(
+                  transaction.command === "create-schema-column" &&
+                  transaction.params.schema === options.schema &&
+                  transaction.params.name === options.name
+                )
+            );
+
             // Add New Transaction
             _.transactions.push({
               command: command.name,
@@ -843,17 +882,40 @@ export class Project {
         },
       },
       {
-        title: "Deleting the column",
+        title: "Deleting the Column",
         task: async () => {
           // Parse Template
-          new TemplateParser({
+          const Parsed = new TemplateParser({
             inDir: Project.SchemasPath(),
             inFile: `./${options.schema}.ts`,
             outFile: `./${options.schema}.ts`,
           })
             .parse()
-            .pop("ColumnsContainer", options.name + "Column")
-            .render();
+            .pop("ColumnsContainer", options.name + "Column");
+
+          // Find & Undo (create-schema) Transaction related to this Schema
+          const Transaction = ConfigManager.getConfig(
+            "transactions"
+          ).transactions.reduce<TransactionInterface | null>(
+            (result, transaction) =>
+              result
+                ? result
+                : transaction.command === "create-schema-column" &&
+                  transaction.params.schema === options.schema &&
+                  transaction.params.name === options.name
+                ? transaction
+                : null,
+            null
+          );
+
+          // Pop Relation Import
+          if (Transaction && typeof Transaction.params.relation === "string")
+            Parsed.pop(
+              "ImportsContainer",
+              Transaction.params.relation + "Import"
+            );
+
+          Parsed.render();
         },
       },
       {
@@ -880,4 +942,204 @@ export class Project {
       },
     ]).run();
   };
+
+  static createMiddleware = async (
+    options: CreateMiddlewareOptions,
+    command: CommandInterface
+  ) => {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Checking configuration...",
+        task: async () => {
+          // Check Configuration File
+          if (!ConfigManager.hasConfig("main"))
+            throw new Error("Please initialize a project first!");
+        },
+      },
+      {
+        title: "Creating new Middleware",
+        task: () => {
+          // Parse Template
+          new TemplateParser({
+            inDir:
+              options.templateDir ||
+              Path.join(Project.SamplesPath(), "./middleware/"),
+            inFile: `./${options.template}.ts`,
+            outDir: Project.MiddlewaresPath(),
+            outFile: `./${options.name}.ts`,
+          })
+            .parse()
+            .render(
+              (_) =>
+                _.replace(
+                  /@AppPath/g,
+                  Path.relative(
+                    Project.MiddlewaresPath(),
+                    Project.AppPath()
+                  ).replace(/\\/g, "/")
+                ) // Add App Path
+                  .replace(/Sample/g, options.name) // Add Name
+            );
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          try {
+            // Parse Template
+            new TemplateParser({
+              inDir: Project.AppPath(),
+              inFile: `./App.middlewares.ts`,
+              outFile: `./App.middlewares.ts`,
+            })
+              .parse()
+              .push(
+                "ImportsContainer",
+                "ImportsTemplate",
+                options.name + "Import",
+                {
+                  modules: [options.name + "Middleware"],
+                  location: `./${Path.relative(
+                    Project.AppPath(),
+                    Path.join(Project.MiddlewaresPath(), options.name)
+                  ).replace(/\\/g, "/")}`,
+                }
+              )
+              .push(
+                "MiddlewaresContainer",
+                "MiddlewareTemplate",
+                options.name + "Middleware",
+                {
+                  middleware: options.name + "Middleware",
+                }
+              )
+              .render();
+          } catch (error) {
+            console.warn(
+              "We are unable to parse App.middlewares properly! Please add the child controller manually.",
+              error
+            );
+          }
+
+          // Update Configuration & Transactions
+          ConfigManager.setConfig("main", (_) => {
+            _.lastAccess!.middleware = options.name;
+
+            return _;
+          })
+            .setConfig("transactions", (_) => {
+              // Remove Duplicate Transaction
+              _.transactions = _.transactions.filter(
+                (transaction) =>
+                  !(
+                    transaction.command === "create-middleware" &&
+                    transaction.params.name === options.name
+                  )
+              );
+
+              // Add New Transaction
+              _.transactions.push({
+                command: command.name,
+                params: options,
+              });
+
+              return _;
+            })
+            .setConfig("resources", (_) => {
+              // Remove Duplicate Resource
+              _.resources = _.resources.filter(
+                (resource) =>
+                  !(
+                    resource.type === "middleware" &&
+                    resource.name === options.name
+                  )
+              );
+
+              // Add New Resource
+              _.resources.push({
+                type: "middleware",
+                name: options.name,
+              });
+
+              return _;
+            });
+        },
+      },
+    ]).run();
+  };
+
+  static async deleteMiddleware(options: DeleteMiddlewareOptions) {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Checking configuration...",
+        task: async () => {
+          // Check Configuration File
+          if (!ConfigManager.hasConfig("main"))
+            throw new Error("Please initialize a project first!");
+        },
+      },
+      {
+        title: "Deleting the Middlware",
+        task: async () => {
+          // Delete Middleware
+          Fs.unlinkSync(
+            Path.join(Project.MiddlewaresPath(), `./${options.name}.ts`)
+          );
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          try {
+            // Parse Template
+            new TemplateParser({
+              inDir: Project.AppPath(),
+              inFile: `./App.middleware.ts`,
+              outFile: `./App.middleware.ts`,
+            })
+              .parse()
+              .pop("ImportsContainer", options.name + "Import")
+              .pop("MiddlewaresContainer", options.name + "Middleware")
+              .render();
+          } catch (error) {
+            console.warn(
+              `We are unable to parse App.middleware properly! Please remove the schema from App.middleware manually.`,
+              error
+            );
+          }
+
+          // Update Configuration & Transactions
+          ConfigManager.setConfig("main", (_) => {
+            _.lastAccess!.middleware = options.name;
+
+            return _;
+          })
+            .setConfig("transactions", (_) => {
+              _.transactions = _.transactions.filter(
+                (transaction) =>
+                  !(
+                    transaction.command === "create-middleware" &&
+                    transaction.params.name === options.name
+                  )
+              );
+
+              return _;
+            })
+            .setConfig("resources", (_) => {
+              _.resources = _.resources.filter(
+                (resource) =>
+                  !(
+                    resource.type === "middleware" &&
+                    resource.name === options.name
+                  )
+              );
+
+              return _;
+            });
+        },
+      },
+    ]).run();
+  }
 }

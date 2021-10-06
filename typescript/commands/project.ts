@@ -125,7 +125,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         type: "input",
         name: "templateDir",
         description: "Controller templates container directory.",
-        alias: ["--templateDir", "-sd"],
+        alias: ["--templateDir", "-td"],
         skip: true,
       },
       {
@@ -231,7 +231,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         type: "input",
         name: "templateDir",
         description: "Schema templates container directory.",
-        alias: ["--templateDir", "-sd"],
+        alias: ["--templateDir", "-td"],
         skip: true,
       },
       {
@@ -512,97 +512,86 @@ export const ProjectCommands: LooseCommandInterface[] = [
     ],
     method: Project.deleteSchemaColumn,
   },
-  // {
-  //   name: "create-middleware",
-  //   description: "Create a new middleware.",
-  //   params: [
-  //     {
-  //       type: "list",
-  //       name: "type",
-  //       description: "Type of the middleware.",
-  //       alias: ["--type", "-t"],
-  //       message: "Please provide a middleware type:",
-  //       choices: ["Global", "Local"],
-  //       default: "Global",
-  //     },
-  //     {
-  //       type: "input",
-  //       name: "name",
-  //       description: "Name of the middleware.",
-  //       alias: ["--name", "-n"],
-  //       message: "Please provide a middleware name:",
-  //       validator: (value) => {
-  //         if (!/^[A-Z]\w+$/.test(value))
-  //           throw new Error(`Please provide a valid middleware name!`);
-  //       },
-  //     },
-  //     {
-  //       type: "input",
-  //       name: "description",
-  //       description: "Description for the middleware.",
-  //       alias: ["--description", "-d"],
-  //       message: "Please provide a middleware description:",
-  //       default: "N/A",
-  //     },
-  //     {
-  //       type: "input",
-  //       name: "templateDir",
-  //       description: "Middleware templates container directory.",
-  //       alias: ["--templateDir", "-sd"],
-  //       skip: true,
-  //     },
-  //     {
-  //       type: "list",
-  //       name: "template",
-  //       description: "Template of the Middleware",
-  //       message: "Please provide a middleware template:",
-  //       choices: (options) => {
-  //         // Middleware Path
-  //         const MiddlewareDir =
-  //           options.templateDir ||
-  //           Path.join(
-  //             ConfigManager.getConfig("main").paths!.templates!,
-  //             "./middleware/"
-  //           );
+  {
+    name: "create-middleware",
+    description: "Create a new middleware.",
+    params: [
+      {
+        type: "input",
+        name: "name",
+        description: "Name of the middleware.",
+        alias: ["--name", "-n"],
+        message: "Please provide a middleware name:",
+        validator: (value) => {
+          if (!/^[A-Z]\w+$/.test(value))
+            throw new Error(`Please provide a valid middleware name!`);
+        },
+      },
+      {
+        type: "input",
+        name: "description",
+        description: "Description for the middleware.",
+        alias: ["--description", "-d"],
+        message: "Please provide a middleware description:",
+        default: "N/A",
+      },
+      {
+        type: "input",
+        name: "templateDir",
+        description: "Middleware templates container directory.",
+        alias: ["--templateDir", "-td"],
+        skip: true,
+      },
+      {
+        type: "list",
+        name: "template",
+        description: "Template of the Middleware",
+        message: "Please provide a middleware template:",
+        choices: (options) => {
+          // Middleware Path
+          const MiddlewareDir =
+            options.templateDir ||
+            Path.join(
+              ConfigManager.getConfig("main").paths!.templates!,
+              "./middleware/"
+            );
 
-  //         // Resolve Directory
-  //         Fs.mkdirSync(MiddlewareDir, { recursive: true });
+          // Resolve Directory
+          Fs.mkdirSync(MiddlewareDir, { recursive: true });
 
-  //         // Templates List
-  //         return Fs.readdirSync(MiddlewareDir)
-  //           .filter((file) => /\.ts$/g.test(file))
-  //           .map((file) => file.replace(/\.\w*/g, ""));
-  //       },
-  //     },
-  //   ],
-  //   method: Project.createMiddleware,
-  // },
-  // {
-  //   name: "delete-middleware",
-  //   description: "Remove middleware from project.",
-  //   params: [
-  //     {
-  //       type: "list",
-  //       name: "name",
-  //       alias: ["--name", "-n"],
-  //       description: "Name of the middleware.",
-  //       message: "Please provide a middleware name:",
-  //       choices: () => {
-  //         const MiddlewaresPath = ConfigManager.getConfig("main").paths!
-  //           .middlewares!;
+          // Templates List
+          return Fs.readdirSync(MiddlewareDir)
+            .filter((file) => /\.ts$/g.test(file))
+            .map((file) => file.replace(/\.\w*/g, ""));
+        },
+      },
+    ],
+    method: Project.createMiddleware,
+  },
+  {
+    name: "delete-middleware",
+    description: "Remove middleware from project.",
+    params: [
+      {
+        type: "list",
+        name: "name",
+        alias: ["--name", "-n"],
+        description: "Name of the middleware.",
+        message: "Please provide a middleware name:",
+        choices: () => {
+          const MiddlewaresPath = ConfigManager.getConfig("main").paths!
+            .middlewares!;
 
-  //         // Resolve Directory
-  //         Fs.mkdirSync(MiddlewaresPath, { recursive: true });
+          // Resolve Directory
+          Fs.mkdirSync(MiddlewaresPath, { recursive: true });
 
-  //         // Middlewares List
-  //         const List = Fs.readdirSync(MiddlewaresPath)
-  //           .filter((file) => /\.ts$/g.test(file))
-  //           .map((file) => file.replace(/\.\w*/g, ""));
-
-  //         return List.filter((v) => v !== "index");
-  //       },
-  //     },
-  //   ],
-  //   method: Project.deleteMiddleware,
-  // },
+          // Middlewares List
+          return Fs.readdirSync(MiddlewaresPath)
+            .filter((file) => /\.ts$/g.test(file))
+            .map((file) => file.replace(/\.\w*/g, ""));
+        },
+      },
+    ],
+    method: Project.deleteMiddleware,
+  },
 ];

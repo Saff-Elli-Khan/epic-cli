@@ -244,6 +244,9 @@ class Project {
                             return _;
                         })
                             .setConfig("transactions", (_) => {
+                            // Remove Duplicate Transaction
+                            _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-controller" &&
+                                transaction.params.name === options.name));
                             // Add New Transaction
                             _.transactions.push({
                                 command: command.name,
@@ -252,6 +255,9 @@ class Project {
                             return _;
                         })
                             .setConfig("resources", (_) => {
+                            // Remove Duplicate Resource
+                            _.resources = _.resources.filter((resource) => !(resource.type === "controller" &&
+                                resource.name === options.name));
                             // Add New Resource
                             _.resources.push({
                                 type: "controller",
@@ -323,6 +329,9 @@ class Project {
                             return _;
                         })
                             .setConfig("transactions", (_) => {
+                            // Remove Duplicate Transaction
+                            _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-schema" &&
+                                transaction.params.name === options.name));
                             // Add New Transaction
                             _.transactions.push({
                                 command: command.name,
@@ -331,6 +340,8 @@ class Project {
                             return _;
                         })
                             .setConfig("resources", (_) => {
+                            // Remove Duplicate Resource
+                            _.resources = _.resources.filter((resource) => !(resource.type === "schema" && resource.name === options.name));
                             // Add New Resource
                             _.resources.push({
                                 type: "schema",
@@ -356,7 +367,7 @@ class Project {
                     }),
                 },
                 {
-                    title: "Deleting the schema",
+                    title: "Deleting the Schema",
                     task: () => __awaiter(this, void 0, void 0, function* () {
                         // Delete Schema
                         fs_1.default.unlinkSync(path_1.default.join(Project.SchemasPath(), `./${options.name}.ts`));
@@ -365,30 +376,20 @@ class Project {
                 {
                     title: "Configuring your project",
                     task: () => {
-                        // Find & Undo (create-schema) Transaction related to this Schema
-                        const Transaction = core_1.ConfigManager.getConfig("transactions").transactions.reduce((result, transaction) => result
-                            ? result
-                            : transaction.command === "create-schema" &&
-                                transaction.params.name === options.name
-                                ? transaction
-                                : null, null);
-                        // If Transaction Exists
-                        if (Transaction) {
-                            try {
-                                // Parse Template
-                                new epic_parser_1.TemplateParser({
-                                    inDir: Project.AppPath(),
-                                    inFile: `./App.database.ts`,
-                                    outFile: `./App.database.ts`,
-                                })
-                                    .parse()
-                                    .pop("ImportsContainer", options.name + "Import")
-                                    .pop("SchemaListContainer", options.name + "Schema")
-                                    .render();
-                            }
-                            catch (error) {
-                                console.warn(`We are unable to parse App.database properly! Please remove the schema from App.database manually.`, error);
-                            }
+                        try {
+                            // Parse Template
+                            new epic_parser_1.TemplateParser({
+                                inDir: Project.AppPath(),
+                                inFile: `./App.database.ts`,
+                                outFile: `./App.database.ts`,
+                            })
+                                .parse()
+                                .pop("ImportsContainer", options.name + "Import")
+                                .pop("SchemaListContainer", options.name + "Schema")
+                                .render();
+                        }
+                        catch (error) {
+                            console.warn(`We are unable to parse App.database properly! Please remove the schema from App.database manually.`, error);
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("main", (_) => {
@@ -422,7 +423,7 @@ class Project {
                     }),
                 },
                 {
-                    title: "Preparing the Schema",
+                    title: "Creating the Schema Column",
                     task: () => {
                         var _a, _b, _c;
                         // Parse Template
@@ -479,11 +480,72 @@ class Project {
                             _.lastAccess.schema = options.schema;
                             return _;
                         }).setConfig("transactions", (_) => {
+                            // Remove Duplicate Transaction
+                            _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-schema-column" &&
+                                transaction.params.schema === options.schema &&
+                                transaction.params.name === options.name));
                             // Add New Transaction
                             _.transactions.push({
                                 command: command.name,
                                 params: options,
                             });
+                            return _;
+                        });
+                    },
+                },
+            ]).run();
+        });
+    }
+    static deleteMiddleware(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Queue the Tasks
+            yield new listr_1.default([
+                {
+                    title: "Checking configuration...",
+                    task: () => __awaiter(this, void 0, void 0, function* () {
+                        // Check Configuration File
+                        if (!core_1.ConfigManager.hasConfig("main"))
+                            throw new Error("Please initialize a project first!");
+                    }),
+                },
+                {
+                    title: "Deleting the Middlware",
+                    task: () => __awaiter(this, void 0, void 0, function* () {
+                        // Delete Middleware
+                        fs_1.default.unlinkSync(path_1.default.join(Project.MiddlewaresPath(), `./${options.name}.ts`));
+                    }),
+                },
+                {
+                    title: "Configuring your project",
+                    task: () => {
+                        try {
+                            // Parse Template
+                            new epic_parser_1.TemplateParser({
+                                inDir: Project.AppPath(),
+                                inFile: `./App.middleware.ts`,
+                                outFile: `./App.middleware.ts`,
+                            })
+                                .parse()
+                                .pop("ImportsContainer", options.name + "Import")
+                                .pop("MiddlewaresContainer", options.name + "Middleware")
+                                .render();
+                        }
+                        catch (error) {
+                            console.warn(`We are unable to parse App.middleware properly! Please remove the schema from App.middleware manually.`, error);
+                        }
+                        // Update Configuration & Transactions
+                        core_1.ConfigManager.setConfig("main", (_) => {
+                            _.lastAccess.middleware = options.name;
+                            return _;
+                        })
+                            .setConfig("transactions", (_) => {
+                            _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-middleware" &&
+                                transaction.params.name === options.name));
+                            return _;
+                        })
+                            .setConfig("resources", (_) => {
+                            _.resources = _.resources.filter((resource) => !(resource.type === "middleware" &&
+                                resource.name === options.name));
                             return _;
                         });
                     },
@@ -505,7 +567,7 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
             }),
         },
         {
-            title: "Deleting the controller",
+            title: "Deleting the Controller",
             task: () => __awaiter(void 0, void 0, void 0, function* () {
                 // Delete Controller
                 fs_1.default.unlinkSync(path_1.default.join(Project.ControllersPath(), `./${options.name}.ts`));
@@ -576,17 +638,28 @@ Project.deleteSchemaColumn = (options) => __awaiter(void 0, void 0, void 0, func
             }),
         },
         {
-            title: "Deleting the column",
+            title: "Deleting the Column",
             task: () => __awaiter(void 0, void 0, void 0, function* () {
                 // Parse Template
-                new epic_parser_1.TemplateParser({
+                const Parsed = new epic_parser_1.TemplateParser({
                     inDir: Project.SchemasPath(),
                     inFile: `./${options.schema}.ts`,
                     outFile: `./${options.schema}.ts`,
                 })
                     .parse()
-                    .pop("ColumnsContainer", options.name + "Column")
-                    .render();
+                    .pop("ColumnsContainer", options.name + "Column");
+                // Find & Undo (create-schema) Transaction related to this Schema
+                const Transaction = core_1.ConfigManager.getConfig("transactions").transactions.reduce((result, transaction) => result
+                    ? result
+                    : transaction.command === "create-schema-column" &&
+                        transaction.params.schema === options.schema &&
+                        transaction.params.name === options.name
+                        ? transaction
+                        : null, null);
+                // Pop Relation Import
+                if (Transaction && typeof Transaction.params.relation === "string")
+                    Parsed.pop("ImportsContainer", Transaction.params.relation + "Import");
+                Parsed.render();
             }),
         },
         {
@@ -600,6 +673,88 @@ Project.deleteSchemaColumn = (options) => __awaiter(void 0, void 0, void 0, func
                     _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-schema-column" &&
                         transaction.params.schema === options.schema &&
                         transaction.params.name === options.name));
+                    return _;
+                });
+            },
+        },
+    ]).run();
+});
+Project.createMiddleware = (options, command) => __awaiter(void 0, void 0, void 0, function* () {
+    // Queue the Tasks
+    yield new listr_1.default([
+        {
+            title: "Checking configuration...",
+            task: () => __awaiter(void 0, void 0, void 0, function* () {
+                // Check Configuration File
+                if (!core_1.ConfigManager.hasConfig("main"))
+                    throw new Error("Please initialize a project first!");
+            }),
+        },
+        {
+            title: "Creating new Middleware",
+            task: () => {
+                // Parse Template
+                new epic_parser_1.TemplateParser({
+                    inDir: options.templateDir ||
+                        path_1.default.join(Project.SamplesPath(), "./middleware/"),
+                    inFile: `./${options.template}.ts`,
+                    outDir: Project.MiddlewaresPath(),
+                    outFile: `./${options.name}.ts`,
+                })
+                    .parse()
+                    .render((_) => _.replace(/@AppPath/g, path_1.default.relative(Project.MiddlewaresPath(), Project.AppPath()).replace(/\\/g, "/")) // Add App Path
+                    .replace(/Sample/g, options.name) // Add Name
+                );
+            },
+        },
+        {
+            title: "Configuring your project",
+            task: () => {
+                try {
+                    // Parse Template
+                    new epic_parser_1.TemplateParser({
+                        inDir: Project.AppPath(),
+                        inFile: `./App.middlewares.ts`,
+                        outFile: `./App.middlewares.ts`,
+                    })
+                        .parse()
+                        .push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
+                        modules: [options.name + "Middleware"],
+                        location: `./${path_1.default.relative(Project.AppPath(), path_1.default.join(Project.MiddlewaresPath(), options.name)).replace(/\\/g, "/")}`,
+                    })
+                        .push("MiddlewaresContainer", "MiddlewareTemplate", options.name + "Middleware", {
+                        middleware: options.name + "Middleware",
+                    })
+                        .render();
+                }
+                catch (error) {
+                    console.warn("We are unable to parse App.middlewares properly! Please add the child controller manually.", error);
+                }
+                // Update Configuration & Transactions
+                core_1.ConfigManager.setConfig("main", (_) => {
+                    _.lastAccess.middleware = options.name;
+                    return _;
+                })
+                    .setConfig("transactions", (_) => {
+                    // Remove Duplicate Transaction
+                    _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-middleware" &&
+                        transaction.params.name === options.name));
+                    // Add New Transaction
+                    _.transactions.push({
+                        command: command.name,
+                        params: options,
+                    });
+                    return _;
+                })
+                    .setConfig("resources", (_) => {
+                    // Remove Duplicate Resource
+                    _.resources = _.resources.filter((resource) => !(resource.type === "middleware" &&
+                        resource.name === options.name));
+                    // Add New Resource
+                    _.resources.push({
+                        type: "middleware",
+                        name: options.name,
+                    });
                     return _;
                 });
             },
