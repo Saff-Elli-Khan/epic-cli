@@ -1353,6 +1353,17 @@ export class Project {
     ]).run();
   }
 
+  static async updatePlugin(
+    options: AddPluginOptions,
+    command: CommandInterface
+  ) {
+    // Remove Plugin
+    await Project.removePlugin(options, command);
+
+    // Add Plugin
+    await Project.addPlugin(options, command);
+  }
+
   static async removePlugin(
     options: RemovePluginOptions,
     command: CommandInterface

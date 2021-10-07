@@ -698,6 +698,14 @@ class Project {
             ]).run();
         });
     }
+    static updatePlugin(options, command) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Remove Plugin
+            yield Project.removePlugin(options, command);
+            // Add Plugin
+            yield Project.addPlugin(options, command);
+        });
+    }
     static removePlugin(options, command) {
         return __awaiter(this, void 0, void 0, function* () {
             // Unlink Plugin

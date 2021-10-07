@@ -675,6 +675,26 @@ exports.ProjectCommands = [
         method: project_1.Project.linkPlugin,
     },
     {
+        name: "update-plugin",
+        description: "Update an Epic plugin on the project.",
+        params: [
+            {
+                type: "list",
+                name: "name",
+                alias: ["--name", "-n"],
+                description: "Name of the plugin.",
+                message: "Please select a plugin:",
+                choices: () => Object.keys(core_1.ConfigManager.getConfig("main").plugins),
+            },
+        ],
+        before: () => {
+            // Check Configuration File
+            if (!core_1.ConfigManager.hasConfig("main"))
+                throw new Error("Please initialize a project first!");
+        },
+        method: project_1.Project.updatePlugin,
+    },
+    {
         name: "remove-plugin",
         description: "Remove an Epic plugin from the project.",
         params: [
