@@ -1209,11 +1209,11 @@ export class Project {
             const Resources = ConfigManager.getConfig("resources").resources;
 
             // Check Resource Version
-            if (ctx.resources!.version === 1) {
+            if (ctx.resources && ctx.resources!.version === 1) {
               // Filter Conflicting Resources
-              const Conflictions: Array<ResourceInterface> = ctx.resources!.resources.filter(
+              const Conflictions: Array<ResourceInterface> = ctx.resources.resources.filter(
                 (resource) =>
-                  !Resources.reduce(
+                  Resources.reduce<boolean>(
                     (conflicts, pluginResource) =>
                       !conflicts
                         ? resource.type === pluginResource.type &&

@@ -593,9 +593,9 @@ class Project {
                             // Get Current Resources
                             const Resources = core_1.ConfigManager.getConfig("resources").resources;
                             // Check Resource Version
-                            if (ctx.resources.version === 1) {
+                            if (ctx.resources && ctx.resources.version === 1) {
                                 // Filter Conflicting Resources
-                                const Conflictions = ctx.resources.resources.filter((resource) => !Resources.reduce((conflicts, pluginResource) => !conflicts
+                                const Conflictions = ctx.resources.resources.filter((resource) => Resources.reduce((conflicts, pluginResource) => !conflicts
                                     ? resource.type === pluginResource.type &&
                                         resource.name === pluginResource.name
                                     : conflicts, false));
