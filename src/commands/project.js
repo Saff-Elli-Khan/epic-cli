@@ -192,12 +192,22 @@ exports.ProjectCommands = [
         name: "create-controller",
         description: "Create a new controller in your Epic project.",
         params: CreateControllerParams,
+        before: () => {
+            // Check Configuration File
+            if (!core_1.ConfigManager.hasConfig("main"))
+                throw new Error("Please initialize a project first!");
+        },
         method: project_1.Project.createController,
     },
     {
         name: "delete-controller",
         description: "Remove controller from project.",
         params: DeleteControllerParams,
+        before: () => {
+            // Check Configuration File
+            if (!core_1.ConfigManager.hasConfig("main"))
+                throw new Error("Please initialize a project first!");
+        },
         method: project_1.Project.deleteController,
     },
     {
@@ -248,6 +258,11 @@ exports.ProjectCommands = [
                 },
             },
         ],
+        before: () => {
+            // Check Configuration File
+            if (!core_1.ConfigManager.hasConfig("main"))
+                throw new Error("Please initialize a project first!");
+        },
         method: project_1.Project.createSchema,
     },
     {
@@ -271,18 +286,33 @@ exports.ProjectCommands = [
                 },
             },
         ],
+        before: () => {
+            // Check Configuration File
+            if (!core_1.ConfigManager.hasConfig("main"))
+                throw new Error("Please initialize a project first!");
+        },
         method: project_1.Project.deleteSchema,
     },
     {
         name: "create-module",
         description: "Create a new module.",
         params: CreateControllerParams,
+        before: () => {
+            // Check Configuration File
+            if (!core_1.ConfigManager.hasConfig("main"))
+                throw new Error("Please initialize a project first!");
+        },
         method: project_1.Project.createModule,
     },
     {
         name: "delete-module",
         description: "Delete module from project.",
         params: DeleteControllerParams,
+        before: () => {
+            // Check Configuration File
+            if (!core_1.ConfigManager.hasConfig("main"))
+                throw new Error("Please initialize a project first!");
+        },
         method: project_1.Project.deleteModule,
     },
     {
@@ -467,6 +497,11 @@ exports.ProjectCommands = [
             defaultValue: "",
             advancedProperties: false,
         },
+        before: () => {
+            // Check Configuration File
+            if (!core_1.ConfigManager.hasConfig("main"))
+                throw new Error("Please initialize a project first!");
+        },
         method: project_1.Project.createSchemaColumn,
     },
     {
@@ -502,6 +537,11 @@ exports.ProjectCommands = [
                 default: () => { var _a, _b; return (_b = (_a = core_1.ConfigManager.getConfig("transactions")) === null || _a === void 0 ? void 0 : _a.lastAccess) === null || _b === void 0 ? void 0 : _b.schema; },
             },
         ],
+        before: () => {
+            // Check Configuration File
+            if (!core_1.ConfigManager.hasConfig("main"))
+                throw new Error("Please initialize a project first!");
+        },
         method: project_1.Project.deleteSchemaColumn,
     },
     {
@@ -552,6 +592,11 @@ exports.ProjectCommands = [
                 },
             },
         ],
+        before: () => {
+            // Check Configuration File
+            if (!core_1.ConfigManager.hasConfig("main"))
+                throw new Error("Please initialize a project first!");
+        },
         method: project_1.Project.createMiddleware,
     },
     {
@@ -576,6 +621,100 @@ exports.ProjectCommands = [
                 },
             },
         ],
+        before: () => {
+            // Check Configuration File
+            if (!core_1.ConfigManager.hasConfig("main"))
+                throw new Error("Please initialize a project first!");
+        },
         method: project_1.Project.deleteMiddleware,
+    },
+    {
+        name: "add-plugin",
+        description: "Add an Epic plugin to the project.",
+        params: [
+            {
+                type: "input",
+                name: "name",
+                alias: ["--name", "-n"],
+                description: "Name of the plugin.",
+                message: "Please provide a plugin name:",
+                validator: (value) => {
+                    if (!/^(?:@[a-z0-9-*~][a-z0-9-*._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/.test(value))
+                        throw new Error("Please provide a valid lowercase plugin name!");
+                },
+            },
+        ],
+        before: () => {
+            // Check Configuration File
+            if (!core_1.ConfigManager.hasConfig("main"))
+                throw new Error("Please initialize a project first!");
+        },
+        method: project_1.Project.addPlugin,
+    },
+    {
+        name: "link-plugin",
+        description: "Manually link an Epic plugin to the project.",
+        params: [
+            {
+                type: "input",
+                name: "name",
+                alias: ["--name", "-n"],
+                description: "Name of the plugin.",
+                message: "Please provide a plugin name:",
+                validator: (value) => {
+                    if (!/^(?:@[a-z0-9-*~][a-z0-9-*._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/.test(value))
+                        throw new Error("Please provide a valid lowercase plugin name!");
+                },
+            },
+        ],
+        before: () => {
+            // Check Configuration File
+            if (!core_1.ConfigManager.hasConfig("main"))
+                throw new Error("Please initialize a project first!");
+        },
+        method: project_1.Project.linkPlugin,
+    },
+    {
+        name: "remove-plugin",
+        description: "Remove an Epic plugin from the project.",
+        params: [
+            {
+                type: "input",
+                name: "name",
+                alias: ["--name", "-n"],
+                description: "Name of the plugin.",
+                message: "Please provide a plugin name to remove:",
+                validator: (value) => {
+                    if (!/^(?:@[a-z0-9-*~][a-z0-9-*._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/.test(value))
+                        throw new Error("Please provide a valid lowercase plugin name!");
+                },
+            },
+        ],
+        before: () => {
+            // Check Configuration File
+            if (!core_1.ConfigManager.hasConfig("main"))
+                throw new Error("Please initialize a project first!");
+        },
+        method: project_1.Project.removePlugin,
+    },
+    {
+        name: "unlink-plugin",
+        description: "Manually unlink an Epic plugin from the project.",
+        params: [
+            {
+                type: "list",
+                name: "name",
+                alias: ["--name", "-n"],
+                description: "Name of the plugin.",
+                message: "Please select a plugin:",
+                choices: () => Object.keys(core_1.ConfigManager.getConfig("main").plugins),
+            },
+        ],
+        before: () => {
+            // Check Configuration File
+            if (!core_1.ConfigManager.hasConfig("main"))
+                throw new Error("Please initialize a project first!");
+        },
+        method: project_1.Project.unlinkPlugin,
     },
 ];

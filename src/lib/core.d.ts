@@ -2,14 +2,15 @@ import { EpicConfigManager } from "@saffellikhan/epic-config-manager";
 export declare type FrameworkType = "Express";
 export declare type ProjectType = "Application" | "Plugin";
 export declare type ResourceType = "controller" | "schema" | "middleware";
+export declare type PackageManagerType = "npm" | "yarn";
 export interface ConfigurationInterface {
     version: number;
     framework: FrameworkType;
     type: ProjectType;
+    packageManager: PackageManagerType;
     name: string;
     description: string;
     brand: BrandInterface;
-    paths: PathsInterface;
     database: {
         host: string;
         port: number;
@@ -17,6 +18,8 @@ export interface ConfigurationInterface {
         password: string;
         dbname: string;
     };
+    plugins: Record<string, string>;
+    paths: PathsInterface;
 }
 export interface PathsInterface {
     templates?: string;

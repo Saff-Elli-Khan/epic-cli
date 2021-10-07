@@ -7,14 +7,16 @@ export type ProjectType = "Application" | "Plugin";
 
 export type ResourceType = "controller" | "schema" | "middleware";
 
+export type PackageManagerType = "npm" | "yarn";
+
 export interface ConfigurationInterface {
   version: number;
   framework: FrameworkType;
   type: ProjectType;
+  packageManager: PackageManagerType;
   name: string;
   description: string;
   brand: BrandInterface;
-  paths: PathsInterface;
   database: {
     host: string;
     port: number;
@@ -22,6 +24,8 @@ export interface ConfigurationInterface {
     password: string;
     dbname: string;
   };
+  plugins: Record<string, string>;
+  paths: PathsInterface;
 }
 
 export interface PathsInterface {
@@ -79,6 +83,7 @@ export const ConfigManager = new EpicConfigManager({
       version: 1,
       framework: "Express",
       type: "Application",
+      packageManager: "npm",
       name: "my-project",
       description: "This is my project.",
       brand: {
@@ -93,6 +98,7 @@ export const ConfigManager = new EpicConfigManager({
         password: "",
         dbname: "test",
       },
+      plugins: {},
       paths: {
         templates: "./src/templates/",
         contollers: "./src/controllers/",

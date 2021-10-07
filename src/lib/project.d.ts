@@ -57,6 +57,12 @@ export interface CreateMiddlewareOptions {
 export interface DeleteMiddlewareOptions {
     name: string;
 }
+export interface AddPluginOptions {
+    name: string;
+}
+export interface RemovePluginOptions {
+    name: string;
+}
 export declare class Project {
     static PackagePath(): string;
     static EnvironmentsPath(): string;
@@ -79,4 +85,8 @@ export declare class Project {
     static deleteSchemaColumn: (options: DeleteSchemaColumnOptions) => Promise<void>;
     static createMiddleware: (options: CreateMiddlewareOptions, command: CommandInterface) => Promise<void>;
     static deleteMiddleware(options: DeleteMiddlewareOptions): Promise<void>;
+    static addPlugin(options: AddPluginOptions, command: CommandInterface): Promise<void>;
+    static linkPlugin(options: AddPluginOptions): Promise<void>;
+    static removePlugin(options: RemovePluginOptions): Promise<void>;
+    static unlinkPlugin(options: RemovePluginOptions): Promise<void>;
 }

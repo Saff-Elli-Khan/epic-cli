@@ -27,6 +27,7 @@ exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
         version: 1,
         framework: "Express",
         type: "Application",
+        packageManager: "npm",
         name: "my-project",
         description: "This is my project.",
         brand: {
@@ -41,6 +42,7 @@ exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
             password: "",
             dbname: "test",
         },
+        plugins: {},
         paths: {
             templates: "./src/templates/",
             contollers: "./src/controllers/",

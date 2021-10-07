@@ -7,10 +7,12 @@ import {
   ConfigManager,
   ConfigurationInterface,
   TransactionInterface,
+  ResourcesInterface,
 } from "./core";
 import { generateRandomKey } from "./utils";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 import { TemplateParser } from "@saffellikhan/epic-parser";
+import { ResourceInterface } from "..";
 
 export interface InitializationOptions {
   type: ProjectType;
@@ -83,6 +85,14 @@ export interface CreateMiddlewareOptions {
 }
 
 export interface DeleteMiddlewareOptions {
+  name: string;
+}
+
+export interface AddPluginOptions {
+  name: string;
+}
+
+export interface RemovePluginOptions {
   name: string;
 }
 
@@ -273,18 +283,35 @@ export class Project {
       {
         title: "Installing package dependencies with Yarn",
         task: (ctx, task) =>
-          Execa("yarn").catch(() => {
-            ctx.yarn = false;
+          Execa("yarn")
+            .then(() => {
+              ConfigManager.setConfig("main", (_) => {
+                // Set Package Manager
+                _.packageManager = "yarn";
 
-            task.skip(
-              "Yarn not available, install it via `npm install -g yarn`"
-            );
-          }),
+                return _;
+              });
+            })
+            .catch(() => {
+              ctx.yarn = false;
+
+              task.skip(
+                "Yarn not available, install it via `npm install -g yarn`"
+              );
+            }),
       },
       {
         title: "Installing package dependencies with npm",
         enabled: (ctx) => ctx.yarn === false,
-        task: () => Execa("npm", ["install"]),
+        task: () =>
+          Execa("npm", ["install"]).then(() => {
+            ConfigManager.setConfig("main", (_) => {
+              // Set Package Manager
+              _.packageManager = "npm";
+
+              return _;
+            });
+          }),
       },
     ]).run();
   }
@@ -295,14 +322,6 @@ export class Project {
   ) {
     // Queue the Tasks
     await new Listr([
-      {
-        title: "Checking configuration...",
-        task: async () => {
-          // Check Configuration File
-          if (!ConfigManager.hasConfig("main"))
-            throw new Error("Please initialize a project first!");
-        },
-      },
       {
         title: "Creating new Controller",
         task: () => {
@@ -446,14 +465,6 @@ export class Project {
     // Queue the Tasks
     await new Listr([
       {
-        title: "Checking configuration...",
-        task: async () => {
-          // Check Configuration File
-          if (!ConfigManager.hasConfig("main"))
-            throw new Error("Please initialize a project first!");
-        },
-      },
-      {
         title: "Deleting the Controller",
         task: async () => {
           // Delete Controller
@@ -551,14 +562,6 @@ export class Project {
   ) {
     // Queue the Tasks
     await new Listr([
-      {
-        title: "Checking configuration...",
-        task: async () => {
-          // Check Configuration File
-          if (!ConfigManager.hasConfig("main"))
-            throw new Error("Please initialize a project first!");
-        },
-      },
       {
         title: "Creating new Schema",
         task: () => {
@@ -669,14 +672,6 @@ export class Project {
     // Queue the Tasks
     await new Listr([
       {
-        title: "Checking configuration...",
-        task: async () => {
-          // Check Configuration File
-          if (!ConfigManager.hasConfig("main"))
-            throw new Error("Please initialize a project first!");
-        },
-      },
-      {
         title: "Deleting the Schema",
         task: async () => {
           // Delete Schema
@@ -762,14 +757,6 @@ export class Project {
   ) {
     // Queue the Tasks
     await new Listr([
-      {
-        title: "Checking configuration...",
-        task: async () => {
-          // Check Configuration File
-          if (!ConfigManager.hasConfig("main"))
-            throw new Error("Please initialize a project first!");
-        },
-      },
       {
         title: "Creating the Schema Column",
         task: () => {
@@ -881,14 +868,6 @@ export class Project {
     // Queue the Tasks
     await new Listr([
       {
-        title: "Checking configuration...",
-        task: async () => {
-          // Check Configuration File
-          if (!ConfigManager.hasConfig("main"))
-            throw new Error("Please initialize a project first!");
-        },
-      },
-      {
         title: "Deleting the Column",
         task: async () => {
           // Parse Template
@@ -956,14 +935,6 @@ export class Project {
   ) => {
     // Queue the Tasks
     await new Listr([
-      {
-        title: "Checking configuration...",
-        task: async () => {
-          // Check Configuration File
-          if (!ConfigManager.hasConfig("main"))
-            throw new Error("Please initialize a project first!");
-        },
-      },
       {
         title: "Creating new Middleware",
         task: () => {
@@ -1077,14 +1048,6 @@ export class Project {
     // Queue the Tasks
     await new Listr([
       {
-        title: "Checking configuration...",
-        task: async () => {
-          // Check Configuration File
-          if (!ConfigManager.hasConfig("main"))
-            throw new Error("Please initialize a project first!");
-        },
-      },
-      {
         title: "Deleting the Middlware",
         task: async () => {
           // Delete Middleware
@@ -1140,6 +1103,371 @@ export class Project {
 
             return _;
           });
+        },
+      },
+    ]).run();
+  }
+
+  static async addPlugin(options: AddPluginOptions, command: CommandInterface) {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Installing Plugin...",
+        task: () => {
+          // Get Configuration
+          const Configuration = ConfigManager.getConfig("main");
+
+          // Install Plugin
+          if (Configuration.packageManager === "npm")
+            return Execa("npm", ["install", options.name]);
+          else if (Configuration.packageManager === "yarn")
+            Execa("yarn", ["add", options.name]);
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          // Update Configuration & Transactions
+          ConfigManager.setConfig("transactions", (_) => {
+            // Remove Duplicate Resource
+            _.transactions = _.transactions.filter(
+              (transaction) =>
+                !(
+                  transaction.command === command.name &&
+                  transaction.params.name === options.name
+                )
+            );
+
+            // Add Transaction
+            _.transactions.push({
+              command: command.name,
+              params: options,
+            });
+
+            return _;
+          });
+        },
+      },
+    ]).run();
+
+    // Link Plugin
+    await this.linkPlugin(options);
+  }
+
+  static async linkPlugin(options: AddPluginOptions) {
+    // Resolve Plugin Name
+    options.name = options.name.split(/(?!^@)@/g)[0];
+
+    await new Listr<{ package: any; resources?: ResourcesInterface }>([
+      {
+        title: "Making sure we are ready to link plugin to the project...",
+        task: (ctx) => {
+          // Check If Valid Plugin
+          if (
+            !Fs.existsSync(
+              Path.join(
+                ConfigManager.Options.rootPath,
+                `./node_modules/${options.name}/epic.config.json`
+              )
+            )
+          )
+            throw new Error(
+              `We didn't found Configuration file on the plugin directory!`
+            );
+
+          // Validate Plugin
+          const Configuration: ConfigurationInterface = require(Path.join(
+            ConfigManager.Options.rootPath,
+            `./node_modules/${options.name}/epic.config.json`
+          ));
+
+          if (Configuration.type !== "Plugin")
+            throw new Error(
+              `Subject is not a plugin! Cannot link to the project.`
+            );
+
+          // Check If Resources Exist
+          if (
+            !Object.keys(ConfigManager.getConfig("main").plugins).includes(
+              options.name
+            ) &&
+            !Fs.existsSync(
+              Path.join(
+                ConfigManager.Options.rootPath,
+                `./node_modules/${options.name}/epic.resources.json`
+              )
+            )
+          ) {
+            // Get Package
+            ctx.package = require(Path.join(
+              ConfigManager.Options.rootPath,
+              `./node_modules/${options.name}/package.json`
+            ));
+
+            // Get Plugin Resources
+            ctx.resources = require(Path.join(
+              ConfigManager.Options.rootPath,
+              `./node_modules/${options.name}/epic.resources.json`
+            ));
+
+            // Get Current Resources
+            const Resources = ConfigManager.getConfig("resources").resources;
+
+            // Check Resource Version
+            if (ctx.resources!.version === 1) {
+              // Filter Conflicting Resources
+              const Conflictions: Array<ResourceInterface> = ctx.resources!.resources.filter(
+                (resource) =>
+                  !Resources.reduce(
+                    (conflicts, pluginResource) =>
+                      !conflicts
+                        ? resource.type === pluginResource.type &&
+                          resource.name === pluginResource.name
+                        : conflicts,
+                    false
+                  )
+              );
+
+              if (Conflictions.length) {
+                console.log("Conflicting Resources:", Conflictions);
+                throw new Error(
+                  `We have found some conflictions with the plugin!`
+                );
+              }
+            } else
+              throw new Error(
+                `We cannot link this plugin! Resource version is not supported.`
+              );
+          }
+        },
+      },
+      {
+        title: "Linking the plugin...",
+        task: (ctx) => {
+          if (typeof ctx.resources === "object")
+            // Add All Resources
+            ctx.resources.resources.forEach((resource) => {
+              const TargetFile =
+                resource.type === "controller"
+                  ? `./App.controllers.ts`
+                  : resource.type === "schema"
+                  ? `./App.database.ts`
+                  : `./App.middlewares.ts`;
+
+              // Parse Template
+              new TemplateParser({
+                inDir: Project.AppPath(),
+                inFile: TargetFile,
+                outFile: TargetFile,
+              })
+                .parse()
+                .push(
+                  "ImportsContainer",
+                  "ImportsTemplate",
+                  options.name + "Import",
+                  {
+                    modules: [
+                      resource.type === "schema"
+                        ? resource.name
+                        : resource.name +
+                          (resource.type === "controller"
+                            ? "Controller"
+                            : "Middleware"),
+                    ],
+                    location: options.name + `/src/${resource.type}s/`,
+                  }
+                )
+                .push(
+                  resource.type === "controller"
+                    ? "ControllerChildsContainer"
+                    : resource.type === "schema"
+                    ? "SchemaListContainer"
+                    : "MiddlewaresContainer",
+                  resource.type === "controller"
+                    ? "ControllerChildTemplate"
+                    : resource.type === "schema"
+                    ? "SchemaListTemplate"
+                    : "MiddlewareTemplate",
+                  resource.name + "Resource",
+                  {
+                    [resource.type === "controller"
+                      ? "child"
+                      : resource.type === "schema"
+                      ? "schema"
+                      : "middleware"]:
+                      resource.type === "schema"
+                        ? resource.name
+                        : resource.name +
+                          (resource.type === "controller"
+                            ? "Controller"
+                            : "Middleware"),
+                  }
+                )
+                .render();
+            });
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: (ctx) => {
+          if (typeof ctx.resources === "object")
+            // Update Configuration & Transactions
+            ConfigManager.setConfig("main", (_) => {
+              _.plugins[ctx.package.name] = `^${ctx.package.version}`;
+
+              return _;
+            })
+              .setConfig("transactions", (_) => {
+                // Remove Duplicate Resource
+                _.transactions = _.transactions.filter(
+                  (transaction) =>
+                    !(
+                      transaction.command === "link-plugin" &&
+                      transaction.params.name === options.name
+                    )
+                );
+
+                // Add Transaction
+                _.transactions.push({
+                  command: "link-plugin",
+                  params: options,
+                });
+
+                return _;
+              })
+              .setConfig("resources", (_) => {
+                _.resources.push(...ctx.resources!.resources);
+
+                return _;
+              });
+        },
+      },
+    ]).run();
+  }
+
+  static async removePlugin(options: RemovePluginOptions) {
+    // Unlink Plugin
+    await this.unlinkPlugin(options);
+
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Uninstalling the Plugin...",
+        task: () => {
+          // Get Configuration
+          const Configuration = ConfigManager.getConfig("main");
+
+          // Install Plugin
+          if (Configuration.packageManager === "npm")
+            return Execa("npm", ["uninstall", options.name]);
+          else if (Configuration.packageManager === "yarn")
+            Execa("yarn", ["remove", options.name]);
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          // Update Configuration & Transactions
+          ConfigManager.setConfig("transactions", (_) => {
+            // Remove Transaction
+            _.transactions = _.transactions.filter(
+              (transaction) =>
+                !(
+                  transaction.command === "add-plugin" &&
+                  transaction.params.name === options.name
+                )
+            );
+
+            return _;
+          });
+        },
+      },
+    ]).run();
+  }
+
+  static async unlinkPlugin(options: RemovePluginOptions) {
+    await new Listr<{ resources?: ResourcesInterface }>([
+      {
+        title: "Loading resource configuration...",
+        task: (ctx) => {
+          // Check If Resources Exist
+          if (
+            !Fs.existsSync(
+              Path.join(
+                ConfigManager.Options.rootPath,
+                `./node_modules/${options.name}/epic.resources.json`
+              )
+            )
+          )
+            // Get Plugin Resources
+            ctx.resources = require(Path.join(
+              ConfigManager.Options.rootPath,
+              `./node_modules/${options.name}/epic.resources.json`
+            ));
+          {
+          }
+        },
+      },
+      {
+        title: "Unlinking the plugin...",
+        task: (ctx) => {
+          if (typeof ctx.resources === "object")
+            // Add All Resources
+            ctx.resources.resources.forEach((resource) => {
+              const TargetFile =
+                resource.type === "controller"
+                  ? `./App.controllers.ts`
+                  : resource.type === "schema"
+                  ? `./App.database.ts`
+                  : `./App.middlewares.ts`;
+
+              // Parse Template
+              new TemplateParser({
+                inDir: Project.AppPath(),
+                inFile: TargetFile,
+                outFile: TargetFile,
+              })
+                .parse()
+                .pop("ImportsContainer", options.name + "Import")
+                .pop(
+                  resource.type === "controller"
+                    ? "ControllerChildsContainer"
+                    : resource.type === "schema"
+                    ? "SchemaListContainer"
+                    : "MiddlewaresContainer",
+                  resource.name + "Resource"
+                )
+                .render();
+            });
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: (ctx) => {
+          if (typeof ctx.resources === "object")
+            // Update Configuration & Transactions
+            ConfigManager.setConfig("main", (_) => {
+              delete _.plugins[options.name];
+
+              return _;
+            })
+              .setConfig("transactions", (_) => {
+                // Remove Transaction
+                _.transactions = _.transactions.filter(
+                  (transaction) =>
+                    !(
+                      transaction.command === "link-plugin" &&
+                      transaction.params.name === options.name
+                    )
+                );
+
+                return _;
+              })
+              .setConfig("resources", (_) => {
+                _.resources.push(...ctx.resources!.resources);
+
+                return _;
+              });
         },
       },
     ]).run();
