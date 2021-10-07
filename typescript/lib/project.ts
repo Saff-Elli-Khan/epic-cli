@@ -1181,26 +1181,12 @@ export class Project {
               `Subject is not a plugin! Cannot link to the project.`
             );
 
-          console.log(
-            "Plugins:",
-            Object.keys(ConfigManager.getConfig("main").plugins),
-            "Resources:",
-            require(Path.join(
-              ConfigManager.Options.rootPath,
-              `./node_modules/${options.name}/epic.resources.json`
-            )),
-            Path.join(
-              ConfigManager.Options.rootPath,
-              `./node_modules/${options.name}/epic.resources.json`
-            )
-          );
-
           // Check If Resources Exist
           if (
             !Object.keys(ConfigManager.getConfig("main").plugins).includes(
               options.name
             ) &&
-            !Fs.existsSync(
+            Fs.existsSync(
               Path.join(
                 ConfigManager.Options.rootPath,
                 `./node_modules/${options.name}/epic.resources.json`
@@ -1218,8 +1204,6 @@ export class Project {
               ConfigManager.Options.rootPath,
               `./node_modules/${options.name}/epic.resources.json`
             ));
-
-            console.log("Plugin Resources:", ctx.resources);
 
             // Get Current Resources
             const Resources = ConfigManager.getConfig("resources").resources;
@@ -1403,7 +1387,7 @@ export class Project {
         task: (ctx) => {
           // Check If Resources Exist
           if (
-            !Fs.existsSync(
+            Fs.existsSync(
               Path.join(
                 ConfigManager.Options.rootPath,
                 `./node_modules/${options.name}/epic.resources.json`
