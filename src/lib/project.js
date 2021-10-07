@@ -636,7 +636,7 @@ class Project {
                                                     ? "Controller"
                                                     : "Middleware"),
                                     ],
-                                    location: options.name + `/src/${resource.type}s/`,
+                                    location: options.name + `/src/${resource.type}s/${resource.name}`,
                                 })
                                     .push(resource.type === "controller"
                                     ? "ControllerChildsContainer"
