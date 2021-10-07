@@ -551,7 +551,7 @@ class Project {
                     task: () => {
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("transactions", (_) => {
-                            // Remove Duplicate Resource
+                            // Remove Duplicate Transactions
                             _.transactions = _.transactions.filter((transaction) => !(transaction.command === command.name &&
                                 transaction.params.name === options.name));
                             // Add Transaction
@@ -672,7 +672,7 @@ class Project {
                                 return _;
                             })
                                 .setConfig("transactions", (_) => {
-                                // Remove Duplicate Resource
+                                // Remove Duplicate Transactions
                                 _.transactions = _.transactions.filter((transaction) => !(transaction.command === "link-plugin" &&
                                     transaction.params.name === options.name));
                                 // Add Transaction
@@ -683,7 +683,13 @@ class Project {
                                 return _;
                             })
                                 .setConfig("resources", (_) => {
-                                _.resources.push(...ctx.resources.resources);
+                                ctx.resources.resources.forEach((resource) => {
+                                    // Remove Duplicate Resource
+                                    _.resources = _.resources.filter((oldResource) => !(oldResource.type === resource.type &&
+                                        oldResource.name === resource.name));
+                                    // Remove Duplicate
+                                    _.resources.push(resource);
+                                });
                                 return _;
                             });
                     },
@@ -782,7 +788,11 @@ class Project {
                                 return _;
                             })
                                 .setConfig("resources", (_) => {
-                                _.resources.push(...ctx.resources.resources);
+                                ctx.resources.resources.forEach((resource) => {
+                                    // Remove Resource
+                                    _.resources = _.resources.filter((oldResource) => !(oldResource.type === resource.type &&
+                                        oldResource.name === resource.name));
+                                });
                                 return _;
                             });
                     },

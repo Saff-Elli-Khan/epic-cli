@@ -1124,7 +1124,7 @@ export class Project {
         task: () => {
           // Update Configuration & Transactions
           ConfigManager.setConfig("transactions", (_) => {
-            // Remove Duplicate Resource
+            // Remove Duplicate Transactions
             _.transactions = _.transactions.filter(
               (transaction) =>
                 !(
@@ -1314,7 +1314,7 @@ export class Project {
               return _;
             })
               .setConfig("transactions", (_) => {
-                // Remove Duplicate Resource
+                // Remove Duplicate Transactions
                 _.transactions = _.transactions.filter(
                   (transaction) =>
                     !(
@@ -1332,7 +1332,19 @@ export class Project {
                 return _;
               })
               .setConfig("resources", (_) => {
-                _.resources.push(...ctx.resources!.resources);
+                ctx.resources!.resources.forEach((resource) => {
+                  // Remove Duplicate Resource
+                  _.resources = _.resources.filter(
+                    (oldResource) =>
+                      !(
+                        oldResource.type === resource.type &&
+                        oldResource.name === resource.name
+                      )
+                  );
+
+                  // Remove Duplicate
+                  _.resources.push(resource);
+                });
 
                 return _;
               });
@@ -1460,7 +1472,16 @@ export class Project {
                 return _;
               })
               .setConfig("resources", (_) => {
-                _.resources.push(...ctx.resources!.resources);
+                ctx.resources!.resources.forEach((resource) => {
+                  // Remove Resource
+                  _.resources = _.resources.filter(
+                    (oldResource) =>
+                      !(
+                        oldResource.type === resource.type &&
+                        oldResource.name === resource.name
+                      )
+                  );
+                });
 
                 return _;
               });
