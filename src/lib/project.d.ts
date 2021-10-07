@@ -87,6 +87,6 @@ export declare class Project {
     static deleteMiddleware(options: DeleteMiddlewareOptions): Promise<void>;
     static addPlugin(options: AddPluginOptions, command: CommandInterface): Promise<void>;
     static linkPlugin(options: AddPluginOptions): Promise<void>;
-    static removePlugin(options: RemovePluginOptions): Promise<void>;
+    static removePlugin(options: RemovePluginOptions, command: CommandInterface): Promise<void>;
     static unlinkPlugin(options: RemovePluginOptions): Promise<void>;
 }

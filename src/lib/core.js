@@ -100,6 +100,8 @@ class Core {
                         for (const Transaction of Transactions.transactions) {
                             // Get Command
                             const Command = require("../make-cli").EpicCli.getCommand(Transaction.command);
+                            // Change Command Source
+                            Command.source = "Manual";
                             // Execute Command
                             yield Command.method(Transaction.params, Command);
                         }

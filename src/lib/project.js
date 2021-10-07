@@ -565,7 +565,8 @@ class Project {
                 },
             ]).run();
             // Link Plugin
-            yield Project.linkPlugin(options);
+            if (command.source === "Cli")
+                yield Project.linkPlugin(options);
         });
     }
     static linkPlugin(options) {
@@ -697,10 +698,11 @@ class Project {
             ]).run();
         });
     }
-    static removePlugin(options) {
+    static removePlugin(options, command) {
         return __awaiter(this, void 0, void 0, function* () {
             // Unlink Plugin
-            yield Project.unlinkPlugin(options);
+            if (command.source === "Cli")
+                yield Project.unlinkPlugin(options);
             // Queue the Tasks
             yield new listr_1.default([
                 {

@@ -1146,7 +1146,7 @@ export class Project {
     ]).run();
 
     // Link Plugin
-    await Project.linkPlugin(options);
+    if (command.source === "Cli") await Project.linkPlugin(options);
   }
 
   static async linkPlugin(options: AddPluginOptions) {
@@ -1353,9 +1353,12 @@ export class Project {
     ]).run();
   }
 
-  static async removePlugin(options: RemovePluginOptions) {
+  static async removePlugin(
+    options: RemovePluginOptions,
+    command: CommandInterface
+  ) {
     // Unlink Plugin
-    await Project.unlinkPlugin(options);
+    if (command.source === "Cli") await Project.unlinkPlugin(options);
 
     // Queue the Tasks
     await new Listr([

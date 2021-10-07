@@ -1,5 +1,6 @@
 import Listr from "listr";
 import { EpicConfigManager } from "@saffellikhan/epic-config-manager";
+import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 
 export type FrameworkType = "Express";
 
@@ -167,7 +168,10 @@ export class Core {
             // Get Command
             const Command = require("../make-cli").EpicCli.getCommand(
               Transaction.command
-            );
+            ) as CommandInterface;
+
+            // Change Command Source
+            Command.source = "Manual";
 
             // Execute Command
             await Command.method(Transaction.params, Command);
