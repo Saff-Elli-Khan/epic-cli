@@ -54,10 +54,6 @@ class Project {
         Package.private = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.type) === "Application";
         Package.dependencies = Object.assign(Object.assign({}, Package.dependencies), { "@saffellikhan/epic-cli": `^${require("../../package.json").version}` });
         if ((Configuration === null || Configuration === void 0 ? void 0 : Configuration.type) === "Plugin") {
-            // Remove Git Information
-            Package.homepage = undefined;
-            Package.repository = undefined;
-            Package.bugs = undefined;
             // Dependencies to Development
             Package.devDependencies = Object.assign(Object.assign({}, Package.dependencies), Package.devDependencies);
             // Empty Dependencies

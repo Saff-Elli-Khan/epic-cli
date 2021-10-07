@@ -155,11 +155,6 @@ export class Project {
     };
 
     if (Configuration?.type === "Plugin") {
-      // Remove Git Information
-      Package.homepage = undefined;
-      Package.repository = undefined;
-      Package.bugs = undefined;
-
       // Dependencies to Development
       Package.devDependencies = {
         ...Package.dependencies,
