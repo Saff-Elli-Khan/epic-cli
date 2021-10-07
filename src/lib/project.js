@@ -565,7 +565,7 @@ class Project {
                 },
             ]).run();
             // Link Plugin
-            yield this.linkPlugin(options);
+            yield Project.linkPlugin(options);
         });
     }
     static linkPlugin(options) {
@@ -694,7 +694,7 @@ class Project {
     static removePlugin(options) {
         return __awaiter(this, void 0, void 0, function* () {
             // Unlink Plugin
-            yield this.unlinkPlugin(options);
+            yield Project.unlinkPlugin(options);
             // Queue the Tasks
             yield new listr_1.default([
                 {

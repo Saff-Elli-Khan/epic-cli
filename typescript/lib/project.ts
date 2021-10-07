@@ -1146,7 +1146,7 @@ export class Project {
     ]).run();
 
     // Link Plugin
-    await this.linkPlugin(options);
+    await Project.linkPlugin(options);
   }
 
   static async linkPlugin(options: AddPluginOptions) {
@@ -1342,7 +1342,7 @@ export class Project {
 
   static async removePlugin(options: RemovePluginOptions) {
     // Unlink Plugin
-    await this.unlinkPlugin(options);
+    await Project.unlinkPlugin(options);
 
     // Queue the Tasks
     await new Listr([
