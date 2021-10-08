@@ -631,26 +631,16 @@ class Project {
                                     : resource.type === "schema"
                                         ? `./App.database.ts`
                                         : `./App.middlewares.ts`;
-                                console.log("Pushing Import:", `${options.name}-${resource.type}-${resource.name}-import`, options.name + `/build/${resource.type}s/${resource.name}`);
-                                console.log("Pushing Resource:", `${options.name}-${resource.type}-${resource.name}-resource`, {
-                                    [resource.type === "controller"
-                                        ? "child"
-                                        : resource.type === "schema"
-                                            ? "schema"
-                                            : "middleware"]: resource.type === "schema"
-                                        ? resource.name
-                                        : resource.name +
-                                            (resource.type === "controller"
-                                                ? "Controller"
-                                                : "Middleware"),
-                                });
                                 // Parse Template
-                                new epic_parser_1.TemplateParser({
+                                const Parsed = new epic_parser_1.TemplateParser({
                                     inDir: Project.AppPath(),
                                     inFile: TargetFile,
                                     outFile: TargetFile,
-                                })
-                                    .parse()
+                                });
+                                console.log("Template:::::::::::::::::::::::::::::::::");
+                                console.log(Parsed.getContent());
+                                console.log("/Template:::::::::::::::::::::::::::::::::");
+                                Parsed.parse()
                                     .push("ImportsContainer", "ImportsTemplate", `${options.name}-${resource.type}-${resource.name}-import`, {
                                     modules: [
                                         resource.type === "schema"
