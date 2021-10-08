@@ -1280,6 +1280,30 @@ export class Project {
                   ? `./App.database.ts`
                   : `./App.middlewares.ts`;
 
+              console.log(
+                "Pushing Import:",
+                `${options.name}-${resource.type}-${resource.name}-import`,
+                options.name + `/build/${resource.type}s/${resource.name}`
+              );
+
+              console.log(
+                "Pushing Resource:",
+                `${options.name}-${resource.type}-${resource.name}-resource`,
+                {
+                  [resource.type === "controller"
+                    ? "child"
+                    : resource.type === "schema"
+                    ? "schema"
+                    : "middleware"]:
+                    resource.type === "schema"
+                      ? resource.name
+                      : resource.name +
+                        (resource.type === "controller"
+                          ? "Controller"
+                          : "Middleware"),
+                }
+              );
+
               // Parse Template
               new TemplateParser({
                 inDir: Project.AppPath(),
@@ -1332,6 +1356,23 @@ export class Project {
                   }
                 )
                 .render();
+
+              // Push Resource to Record
+              ConfigManager.setConfig("resources", (_) => {
+                // Remove Duplicate Resource
+                _.resources = _.resources.filter(
+                  (oldResource) =>
+                    !(
+                      oldResource.type === resource.type &&
+                      oldResource.name === resource.name
+                    )
+                );
+
+                // Remove Duplicate
+                _.resources.push(resource);
+
+                return _;
+              });
             });
         },
       },
@@ -1344,42 +1385,24 @@ export class Project {
               _.plugins[ctx.package.name] = `^${ctx.package.version}`;
 
               return _;
-            })
-              .setConfig("transactions", (_) => {
-                // Remove Duplicate Transactions
-                _.transactions = _.transactions.filter(
-                  (transaction) =>
-                    !(
-                      transaction.command === "link-plugin" &&
-                      transaction.params.name === options.name
-                    )
-                );
+            }).setConfig("transactions", (_) => {
+              // Remove Duplicate Transactions
+              _.transactions = _.transactions.filter(
+                (transaction) =>
+                  !(
+                    transaction.command === "link-plugin" &&
+                    transaction.params.name === options.name
+                  )
+              );
 
-                // Add Transaction
-                _.transactions.push({
-                  command: "link-plugin",
-                  params: options,
-                });
-
-                return _;
-              })
-              .setConfig("resources", (_) => {
-                ctx.resources!.resources.forEach((resource) => {
-                  // Remove Duplicate Resource
-                  _.resources = _.resources.filter(
-                    (oldResource) =>
-                      !(
-                        oldResource.type === resource.type &&
-                        oldResource.name === resource.name
-                      )
-                  );
-
-                  // Remove Duplicate
-                  _.resources.push(resource);
-                });
-
-                return _;
+              // Add Transaction
+              _.transactions.push({
+                command: "link-plugin",
+                params: options,
               });
+
+              return _;
+            });
         },
       },
     ]).run();

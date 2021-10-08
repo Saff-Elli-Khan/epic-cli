@@ -631,6 +631,19 @@ class Project {
                                     : resource.type === "schema"
                                         ? `./App.database.ts`
                                         : `./App.middlewares.ts`;
+                                console.log("Pushing Import:", `${options.name}-${resource.type}-${resource.name}-import`, options.name + `/build/${resource.type}s/${resource.name}`);
+                                console.log("Pushing Resource:", `${options.name}-${resource.type}-${resource.name}-resource`, {
+                                    [resource.type === "controller"
+                                        ? "child"
+                                        : resource.type === "schema"
+                                            ? "schema"
+                                            : "middleware"]: resource.type === "schema"
+                                        ? resource.name
+                                        : resource.name +
+                                            (resource.type === "controller"
+                                                ? "Controller"
+                                                : "Middleware"),
+                                });
                                 // Parse Template
                                 new epic_parser_1.TemplateParser({
                                     inDir: Project.AppPath(),
@@ -671,6 +684,15 @@ class Project {
                                                 : "Middleware"),
                                 })
                                     .render();
+                                // Push Resource to Record
+                                core_1.ConfigManager.setConfig("resources", (_) => {
+                                    // Remove Duplicate Resource
+                                    _.resources = _.resources.filter((oldResource) => !(oldResource.type === resource.type &&
+                                        oldResource.name === resource.name));
+                                    // Remove Duplicate
+                                    _.resources.push(resource);
+                                    return _;
+                                });
                             });
                     },
                 },
@@ -682,8 +704,7 @@ class Project {
                             core_1.ConfigManager.setConfig("main", (_) => {
                                 _.plugins[ctx.package.name] = `^${ctx.package.version}`;
                                 return _;
-                            })
-                                .setConfig("transactions", (_) => {
+                            }).setConfig("transactions", (_) => {
                                 // Remove Duplicate Transactions
                                 _.transactions = _.transactions.filter((transaction) => !(transaction.command === "link-plugin" &&
                                     transaction.params.name === options.name));
@@ -691,16 +712,6 @@ class Project {
                                 _.transactions.push({
                                     command: "link-plugin",
                                     params: options,
-                                });
-                                return _;
-                            })
-                                .setConfig("resources", (_) => {
-                                ctx.resources.resources.forEach((resource) => {
-                                    // Remove Duplicate Resource
-                                    _.resources = _.resources.filter((oldResource) => !(oldResource.type === resource.type &&
-                                        oldResource.name === resource.name));
-                                    // Remove Duplicate
-                                    _.resources.push(resource);
                                 });
                                 return _;
                             });

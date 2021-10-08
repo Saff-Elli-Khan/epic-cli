@@ -464,6 +464,14 @@ exports.ProjectCommands = [
                 skip: (options) => options.relation,
             },
             {
+                type: "confirm",
+                name: "isPublic",
+                alias: ["--public"],
+                description: "Is the Column Public?",
+                message: "Is this column Public:",
+                skip: (options) => !options.advancedProperties,
+            },
+            {
                 type: "input",
                 name: "collation",
                 alias: ["--collation", "-c"],
