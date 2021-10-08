@@ -617,6 +617,15 @@ class Project {
                         if (typeof ctx.resources === "object")
                             // Add All Resources
                             ctx.resources.resources.forEach((resource) => {
+                                // Resolve Plugin File
+                                new epic_parser_1.TemplateParser({
+                                    inDir: path_1.default.join(core_1.ConfigManager.Options.rootPath, "./node_modules/", options.name + `/build/${resource.type}s/`),
+                                    inFile: `${resource.name}.js`,
+                                    outFile: `${resource.name}.js`,
+                                })
+                                    .parse()
+                                    .render((_) => _.replace(/@AppPath/g, path_1.default.relative(path_1.default.join(core_1.ConfigManager.Options.rootPath, "./node_modules/", options.name + `/build/${resource.type}s/`), path_1.default.join(core_1.ConfigManager.Options.rootPath, "./node_modules/", options.name + `/build/`)).replace(/\\/g, "/")));
+                                // Link Plugin File
                                 const TargetFile = resource.type === "controller"
                                     ? `./App.controllers.ts`
                                     : resource.type === "schema"
