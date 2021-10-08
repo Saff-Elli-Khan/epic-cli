@@ -1291,7 +1291,7 @@ export class Project {
                 .push(
                   "ImportsContainer",
                   "ImportsTemplate",
-                  `${options.name}-${resource.type}-${resource.name}-import`,
+                  `${resource.name}-${resource.type}-import`,
                   {
                     modules: [
                       resource.type === "schema"
@@ -1317,7 +1317,7 @@ export class Project {
                     : resource.type === "schema"
                     ? "SchemaListTemplate"
                     : "MiddlewareTemplate",
-                  `${options.name}-${resource.type}-${resource.name}-resource`,
+                  `${resource.name}-${resource.type}-resource`,
                   {
                     [resource.type === "controller"
                       ? "child"
@@ -1484,7 +1484,7 @@ export class Project {
                 .parse()
                 .pop(
                   "ImportsContainer",
-                  `${options.name}-${resource.type}-${resource.name}-import`
+                  `${resource.name}-${resource.type}-import`
                 )
                 .pop(
                   resource.type === "controller"
@@ -1492,7 +1492,7 @@ export class Project {
                     : resource.type === "schema"
                     ? "SchemaListContainer"
                     : "MiddlewaresContainer",
-                  `${options.name}-${resource.type}-${resource.name}-resource`
+                  `${resource.name}-${resource.type}-resource`
                 )
                 .render();
             });

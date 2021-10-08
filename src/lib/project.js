@@ -639,7 +639,7 @@ class Project {
                                     logs: true,
                                 })
                                     .parse()
-                                    .push("ImportsContainer", "ImportsTemplate", `${options.name}-${resource.type}-${resource.name}-import`, {
+                                    .push("ImportsContainer", "ImportsTemplate", `${resource.name}-${resource.type}-import`, {
                                     modules: [
                                         resource.type === "schema"
                                             ? resource.name
@@ -659,7 +659,7 @@ class Project {
                                     ? "ControllerChildTemplate"
                                     : resource.type === "schema"
                                         ? "SchemaListTemplate"
-                                        : "MiddlewareTemplate", `${options.name}-${resource.type}-${resource.name}-resource`, {
+                                        : "MiddlewareTemplate", `${resource.name}-${resource.type}-resource`, {
                                     [resource.type === "controller"
                                         ? "child"
                                         : resource.type === "schema"
@@ -782,12 +782,12 @@ class Project {
                                     outFile: TargetFile,
                                 })
                                     .parse()
-                                    .pop("ImportsContainer", `${options.name}-${resource.type}-${resource.name}-import`)
+                                    .pop("ImportsContainer", `${resource.name}-${resource.type}-import`)
                                     .pop(resource.type === "controller"
                                     ? "ControllerChildsContainer"
                                     : resource.type === "schema"
                                         ? "SchemaListContainer"
-                                        : "MiddlewaresContainer", `${options.name}-${resource.type}-${resource.name}-resource`)
+                                        : "MiddlewaresContainer", `${resource.name}-${resource.type}-resource`)
                                     .render();
                             });
                     },
