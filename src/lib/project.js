@@ -203,7 +203,7 @@ class Project {
                         });
                         // Push Database Schema
                         if (options.template === "default")
-                            Parsed.push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
+                            Parsed.push("ImportsContainer", "ImportsTemplate", options.name + "SchemaImport", {
                                 modules: [options.name],
                                 location: path_1.default.relative(Project.ControllersPath(), path_1.default.join(Project.SchemasPath(), options.name)).replace(/\\/g, "/"),
                             });
@@ -226,7 +226,7 @@ class Project {
                                 outFile: `./${options.parent === "None" ? "App.controllers" : options.parent}.ts`,
                             })
                                 .parse()
-                                .push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
+                                .push("ImportsContainer", "ImportsTemplate", options.name + "ControllerImport", {
                                 modules: [options.name + "Controller"],
                                 location: `./${path_1.default.relative(options.parent === "None"
                                     ? Project.AppPath()
@@ -302,7 +302,7 @@ class Project {
                                 outFile: `./App.database.ts`,
                             })
                                 .parse()
-                                .push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
+                                .push("ImportsContainer", "ImportsTemplate", options.name + "SchemaImport", {
                                 modules: [options.name],
                                 location: `./${path_1.default.relative(Project.AppPath(), path_1.default.join(Project.SchemasPath(), options.name)).replace(/\\/g, "/")}`,
                             })
@@ -364,7 +364,7 @@ class Project {
                                 outFile: `./App.database.ts`,
                             })
                                 .parse()
-                                .pop("ImportsContainer", options.name + "Import")
+                                .pop("ImportsContainer", options.name + "SchemaImport")
                                 .pop("SchemaListContainer", options.name + "Schema")
                                 .render();
                         }
@@ -422,7 +422,7 @@ class Project {
                         }).parse();
                         // Push Relation Import
                         if (options.relation)
-                            Parsed.push("ImportsContainer", "ImportsTemplate", options.relation + "Import", {
+                            Parsed.push("ImportsContainer", "ImportsTemplate", options.relation + "SchemaImport", {
                                 modules: [options.relation],
                                 location: `./${options.relation}`,
                             });
@@ -505,7 +505,7 @@ class Project {
                                 outFile: `./App.middlewares.ts`,
                             })
                                 .parse()
-                                .pop("ImportsContainer", options.name + "Import")
+                                .pop("ImportsContainer", options.name + "MiddlewareImport")
                                 .pop("MiddlewaresContainer", options.name + "Middleware")
                                 .render();
                         }
@@ -628,7 +628,7 @@ class Project {
                                     outFile: TargetFile,
                                 })
                                     .parse()
-                                    .push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
+                                    .push("ImportsContainer", "ImportsTemplate", `${options.name}-${resource.type}-${resource.name}-import`, {
                                     modules: [
                                         resource.type === "schema"
                                             ? resource.name
@@ -647,7 +647,7 @@ class Project {
                                     ? "ControllerChildTemplate"
                                     : resource.type === "schema"
                                         ? "SchemaListTemplate"
-                                        : "MiddlewareTemplate", resource.name + "Resource", {
+                                        : "MiddlewareTemplate", `${options.name}-${resource.type}-${resource.name}-resource`, {
                                     [resource.type === "controller"
                                         ? "child"
                                         : resource.type === "schema"
@@ -772,12 +772,12 @@ class Project {
                                     outFile: TargetFile,
                                 })
                                     .parse()
-                                    .pop("ImportsContainer", options.name + "Import")
+                                    .pop("ImportsContainer", `${options.name}-${resource.type}-${resource.name}-import`)
                                     .pop(resource.type === "controller"
                                     ? "ControllerChildsContainer"
                                     : resource.type === "schema"
                                         ? "SchemaListContainer"
-                                        : "MiddlewaresContainer", resource.name + "Resource")
+                                        : "MiddlewaresContainer", `${options.name}-${resource.type}-${resource.name}-resource`)
                                     .render();
                             });
                     },
@@ -848,7 +848,7 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
                                 : Transaction.params.parent}.ts`,
                         })
                             .parse()
-                            .pop("ImportsContainer", options.name + "Import")
+                            .pop("ImportsContainer", options.name + "ControllerImport")
                             .pop("ControllerChildsContainer", options.name + "ControllerChilds")
                             .render();
                     }
@@ -897,7 +897,7 @@ Project.deleteSchemaColumn = (options) => __awaiter(void 0, void 0, void 0, func
                         : null, null);
                 // Pop Relation Import
                 if (Transaction && typeof Transaction.params.relation === "string")
-                    Parsed.pop("ImportsContainer", Transaction.params.relation + "Import");
+                    Parsed.pop("ImportsContainer", Transaction.params.relation + "SchemaImport");
                 Parsed.render();
             }),
         },
@@ -949,7 +949,7 @@ Project.createMiddleware = (options, command) => __awaiter(void 0, void 0, void 
                         outFile: `./App.middlewares.ts`,
                     })
                         .parse()
-                        .push("ImportsContainer", "ImportsTemplate", options.name + "Import", {
+                        .push("ImportsContainer", "ImportsTemplate", options.name + "MiddlewareImport", {
                         modules: [options.name + "Middleware"],
                         location: `./${path_1.default.relative(Project.AppPath(), path_1.default.join(Project.MiddlewaresPath(), options.name)).replace(/\\/g, "/")}`,
                     })
