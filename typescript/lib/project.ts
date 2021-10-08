@@ -1145,6 +1145,7 @@ export class Project {
       },
     ]).run();
 
+    console.log("Command Source is:", command.source);
     // Link Plugin
     if (command.source === "Cli") await Project.linkPlugin(options);
   }
@@ -1270,7 +1271,8 @@ export class Project {
                             : "Middleware"),
                     ],
                     location:
-                      options.name + `/src/${resource.type}s/${resource.name}`,
+                      options.name +
+                      `/build/${resource.type}s/${resource.name}`,
                   }
                 )
                 .push(

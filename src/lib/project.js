@@ -564,6 +564,7 @@ class Project {
                     },
                 },
             ]).run();
+            console.log("Command Source is:", command.source);
             // Link Plugin
             if (command.source === "Cli")
                 yield Project.linkPlugin(options);
@@ -637,7 +638,8 @@ class Project {
                                                     ? "Controller"
                                                     : "Middleware"),
                                     ],
-                                    location: options.name + `/src/${resource.type}s/${resource.name}`,
+                                    location: options.name +
+                                        `/build/${resource.type}s/${resource.name}`,
                                 })
                                     .push(resource.type === "controller"
                                     ? "ControllerChildsContainer"
