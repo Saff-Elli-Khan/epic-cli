@@ -632,15 +632,13 @@ class Project {
                                         ? `./App.database.ts`
                                         : `./App.middlewares.ts`;
                                 // Parse Template
-                                const Parsed = new epic_parser_1.TemplateParser({
+                                new epic_parser_1.TemplateParser({
                                     inDir: Project.AppPath(),
                                     inFile: TargetFile,
                                     outFile: TargetFile,
-                                });
-                                console.log("Template:::::::::::::::::::::::::::::::::");
-                                console.log(Parsed.getContent());
-                                console.log("/Template:::::::::::::::::::::::::::::::::");
-                                Parsed.parse()
+                                    logs: true,
+                                })
+                                    .parse()
                                     .push("ImportsContainer", "ImportsTemplate", `${options.name}-${resource.type}-${resource.name}-import`, {
                                     modules: [
                                         resource.type === "schema"

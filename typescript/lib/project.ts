@@ -1281,17 +1281,13 @@ export class Project {
                   : `./App.middlewares.ts`;
 
               // Parse Template
-              const Parsed = new TemplateParser({
+              new TemplateParser({
                 inDir: Project.AppPath(),
                 inFile: TargetFile,
                 outFile: TargetFile,
-              });
-
-              console.log("Template:::::::::::::::::::::::::::::::::");
-              console.log(Parsed.getContent());
-              console.log("/Template:::::::::::::::::::::::::::::::::");
-
-              Parsed.parse()
+                logs: true,
+              })
+                .parse()
                 .push(
                   "ImportsContainer",
                   "ImportsTemplate",
