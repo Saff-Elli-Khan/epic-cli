@@ -636,10 +636,9 @@ class Project {
                                     inDir: Project.AppPath(),
                                     inFile: TargetFile,
                                     outFile: TargetFile,
-                                    logs: true,
                                 })
                                     .parse()
-                                    .push("ImportsContainer", "ImportsTemplate", `${resource.name}-${resource.type}-import`, {
+                                    .push("ImportsContainer", "ImportsTemplate", `${options.name}-${resource.type}-${resource.name}-import`, {
                                     modules: [
                                         resource.type === "schema"
                                             ? resource.name
@@ -659,7 +658,7 @@ class Project {
                                     ? "ControllerChildTemplate"
                                     : resource.type === "schema"
                                         ? "SchemaListTemplate"
-                                        : "MiddlewareTemplate", `${resource.name}-${resource.type}-resource`, {
+                                        : "MiddlewareTemplate", `${options.name}-${resource.type}-${resource.name}-resource`, {
                                     [resource.type === "controller"
                                         ? "child"
                                         : resource.type === "schema"
@@ -782,12 +781,12 @@ class Project {
                                     outFile: TargetFile,
                                 })
                                     .parse()
-                                    .pop("ImportsContainer", `${resource.name}-${resource.type}-import`)
+                                    .pop("ImportsContainer", `${options.name}-${resource.type}-${resource.name}-import`)
                                     .pop(resource.type === "controller"
                                     ? "ControllerChildsContainer"
                                     : resource.type === "schema"
                                         ? "SchemaListContainer"
-                                        : "MiddlewaresContainer", `${resource.name}-${resource.type}-resource`)
+                                        : "MiddlewaresContainer", `${options.name}-${resource.type}-${resource.name}-resource`)
                                     .render();
                             });
                     },
