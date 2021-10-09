@@ -492,7 +492,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
       },
       {
         type: "confirm",
-        name: "isPublic",
+        name: "public",
         alias: ["--public"],
         description: "Is the Column Public?",
         message: "Is this column Public:",

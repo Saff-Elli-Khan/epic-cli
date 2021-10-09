@@ -208,9 +208,7 @@ class Project {
                                 location: path_1.default.relative(Project.ControllersPath(), path_1.default.join(Project.SchemasPath(), options.name)).replace(/\\/g, "/"),
                             });
                         // Render Controller Content
-                        Parsed.render((_) => _.replace(/@AppPath/g, path_1.default.relative(Project.ControllersPath(), Project.AppPath()).replace(/\\/g, "/")) // Add App Path
-                            .replace(/Sample/g, options.name) // Add Name
-                        );
+                        Parsed.render((_) => _.replace(/Sample/g, options.name));
                     },
                 },
                 {
@@ -222,8 +220,8 @@ class Project {
                                 inDir: options.parent === "None"
                                     ? Project.AppPath()
                                     : Project.ControllersPath(),
-                                inFile: `./${options.parent === "None" ? "App.controllers" : options.parent}.ts`,
-                                outFile: `./${options.parent === "None" ? "App.controllers" : options.parent}.ts`,
+                                inFile: `./${options.parent === "None" ? "core/controllers" : options.parent}.ts`,
+                                outFile: `./${options.parent === "None" ? "core/controllers" : options.parent}.ts`,
                             })
                                 .parse()
                                 .push("ImportsContainer", "ImportsTemplate", options.name + "ControllerImport", {
@@ -238,7 +236,7 @@ class Project {
                                 .render();
                         }
                         catch (error) {
-                            console.warn("We are unable to parse App.controllers properly! Please add the child controller manually.", error);
+                            console.warn("We are unable to parse core/controllers properly! Please add the child controller manually.", error);
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("transactions", (_) => {
@@ -286,20 +284,18 @@ class Project {
                             outFile: `./${options.name}.ts`,
                         })
                             .parse()
-                            .render((_) => _.replace(/@AppPath/g, path_1.default.relative(Project.SchemasPath(), Project.AppPath()).replace(/\\/g, "/")) // Add App Path
-                            .replace(/Sample/g, options.name) // Add Name
-                        );
+                            .render((_) => _.replace(/Sample/g, options.name));
                     },
                 },
                 {
                     title: "Configuring your project",
                     task: () => {
                         try {
-                            // Parse Template App.database.ts
+                            // Parse Template core/database.ts
                             new epic_parser_1.TemplateParser({
                                 inDir: Project.AppPath(),
-                                inFile: `./App.database.ts`,
-                                outFile: `./App.database.ts`,
+                                inFile: `./core/database.ts`,
+                                outFile: `./core/database.ts`,
                             })
                                 .parse()
                                 .push("ImportsContainer", "ImportsTemplate", options.name + "SchemaImport", {
@@ -312,7 +308,7 @@ class Project {
                                 .render();
                         }
                         catch (error) {
-                            console.warn("We are unable to parse App.database properly! Please add the schema to the list manually.", error);
+                            console.warn("We are unable to parse core/database properly! Please add the schema to the list manually.", error);
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("transactions", (_) => {
@@ -360,8 +356,8 @@ class Project {
                             // Parse Template
                             new epic_parser_1.TemplateParser({
                                 inDir: Project.AppPath(),
-                                inFile: `./App.database.ts`,
-                                outFile: `./App.database.ts`,
+                                inFile: `./core/database.ts`,
+                                outFile: `./core/database.ts`,
                             })
                                 .parse()
                                 .pop("ImportsContainer", options.name + "SchemaImport")
@@ -369,7 +365,7 @@ class Project {
                                 .render();
                         }
                         catch (error) {
-                            console.warn(`We are unable to parse App.database properly! Please remove the schema from App.database manually.`, error);
+                            console.warn(`We are unable to parse core/database properly! Please remove the schema from core/database manually.`, error);
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("transactions", (_) => {
@@ -444,7 +440,7 @@ class Project {
                                         : options.type.toLowerCase(),
                             options: `{${options.length !== undefined && options.length !== 50
                                 ? `\nlength: ${options.length || null},`
-                                : ""}${options.collation !== undefined &&
+                                : ""}${options.public === false ? `\npublic: false,` : ""}${options.collation !== undefined &&
                                 options.collation !== "utf8mb4_unicode_ci"
                                 ? `\ncollation: "${options.collation}",`
                                 : ""}${options.choices
@@ -501,8 +497,8 @@ class Project {
                             // Parse Template
                             new epic_parser_1.TemplateParser({
                                 inDir: Project.AppPath(),
-                                inFile: `./App.middlewares.ts`,
-                                outFile: `./App.middlewares.ts`,
+                                inFile: `./core/middlewares.ts`,
+                                outFile: `./core/middlewares.ts`,
                             })
                                 .parse()
                                 .pop("ImportsContainer", options.name + "MiddlewareImport")
@@ -510,7 +506,7 @@ class Project {
                                 .render();
                         }
                         catch (error) {
-                            console.warn(`We are unable to parse App.middlewares properly! Please remove the schema from App.middlewares manually.`, error);
+                            console.warn(`We are unable to parse core/middlewares properly! Please remove the schema from core/middlewares manually.`, error);
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("transactions", (_) => {
@@ -564,7 +560,6 @@ class Project {
                     },
                 },
             ]).run();
-            console.log("Command Source is:", command.source);
             // Link Plugin
             if (command.source === "Cli")
                 yield Project.linkPlugin(options);
@@ -614,15 +609,15 @@ class Project {
                 {
                     title: "Linking the plugin...",
                     task: (ctx) => {
-                        if (typeof ctx.resources === "object")
+                        if (typeof ctx.resources === "object") {
                             // Add All Resources
                             ctx.resources.resources.forEach((resource) => {
                                 // Link Plugin File
                                 const TargetFile = resource.type === "controller"
-                                    ? `./App.controllers.ts`
+                                    ? `./core/controllers.ts`
                                     : resource.type === "schema"
-                                        ? `./App.database.ts`
-                                        : `./App.middlewares.ts`;
+                                        ? `./core/database.ts`
+                                        : `./core/middlewares.ts`;
                                 // Parse Template
                                 new epic_parser_1.TemplateParser({
                                     inDir: Project.AppPath(),
@@ -673,6 +668,28 @@ class Project {
                                     return _;
                                 });
                             });
+                            // Add Exports Resolver File
+                            fs_1.default.writeFileSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/exports.js`), `
+              "use strict";
+              var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+                  if (k2 === undefined) k2 = k;
+                  Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+              }) : (function(o, m, k, k2) {
+                  if (k2 === undefined) k2 = k;
+                  o[k2] = m[k];
+              }));
+              var __exportStar = (this && this.__exportStar) || function(m, exports) {
+                  for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+              };
+              Object.defineProperty(exports, "__esModule", { value: true });
+              __exportStar(require("../../../../src/core/controllers"), exports);
+              __exportStar(require("../../../../src/core/database"), exports);
+              __exportStar(require("../../../../src/core/globals"), exports);
+              __exportStar(require("../../../../src/core/middlewares"), exports);
+              __exportStar(require("../../../../src/core/server"), exports);
+              __exportStar(require("../../../../src/core/typings"), exports);
+              `);
+                        }
                     },
                 },
                 {
@@ -762,10 +779,10 @@ class Project {
                             // Add All Resources
                             ctx.resources.resources.forEach((resource) => {
                                 const TargetFile = resource.type === "controller"
-                                    ? `./App.controllers.ts`
+                                    ? `./core/controllers.ts`
                                     : resource.type === "schema"
-                                        ? `./App.database.ts`
-                                        : `./App.middlewares.ts`;
+                                        ? `./core/database.ts`
+                                        : `./core/middlewares.ts`;
                                 // Parse Template
                                 new epic_parser_1.TemplateParser({
                                     inDir: Project.AppPath(),
@@ -842,10 +859,10 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
                                 ? Project.AppPath()
                                 : Project.ControllersPath(),
                             inFile: `./${Transaction.params.parent === "None"
-                                ? "App.controllers"
+                                ? "core/controllers"
                                 : Transaction.params.parent}.ts`,
                             outFile: `./${Transaction.params.parent === "None"
-                                ? "App.controllers"
+                                ? "core/controllers"
                                 : Transaction.params.parent}.ts`,
                         })
                             .parse()
@@ -934,9 +951,7 @@ Project.createMiddleware = (options, command) => __awaiter(void 0, void 0, void 
                     outFile: `./${options.name}.ts`,
                 })
                     .parse()
-                    .render((_) => _.replace(/@AppPath/g, path_1.default.relative(Project.MiddlewaresPath(), Project.AppPath()).replace(/\\/g, "/")) // Add App Path
-                    .replace(/Sample/g, options.name) // Add Name
-                );
+                    .render((_) => _.replace(/Sample/g, options.name));
             },
         },
         {
@@ -946,8 +961,8 @@ Project.createMiddleware = (options, command) => __awaiter(void 0, void 0, void 
                     // Parse Template
                     new epic_parser_1.TemplateParser({
                         inDir: Project.AppPath(),
-                        inFile: `./App.middlewares.ts`,
-                        outFile: `./App.middlewares.ts`,
+                        inFile: `./core/middlewares.ts`,
+                        outFile: `./core/middlewares.ts`,
                     })
                         .parse()
                         .push("ImportsContainer", "ImportsTemplate", options.name + "MiddlewareImport", {
@@ -960,7 +975,7 @@ Project.createMiddleware = (options, command) => __awaiter(void 0, void 0, void 
                         .render();
                 }
                 catch (error) {
-                    console.warn("We are unable to parse App.middlewares properly! Please add the child controller manually.", error);
+                    console.warn("We are unable to parse core/middlewares properly! Please add the child controller manually.", error);
                 }
                 // Update Configuration & Transactions
                 core_1.ConfigManager.setConfig("transactions", (_) => {

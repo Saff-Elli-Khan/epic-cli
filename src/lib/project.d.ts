@@ -40,6 +40,7 @@ export interface CreateSchemaColumnOptions {
     name: string;
     nullable?: boolean;
     defaultValue?: string;
+    public?: boolean;
     collation?: string;
     index?: ("FULLTEXT" | "UNIQUE" | "INDEX" | "SPATIAL")[];
     onUpdate?: string;
