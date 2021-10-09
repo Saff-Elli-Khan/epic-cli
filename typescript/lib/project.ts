@@ -154,10 +154,6 @@ export class Project {
     Package.name = Configuration?.name || Package.name;
     Package.description = Configuration?.description || Package.description;
     Package.private = Configuration?.type === "Application";
-    Package.dependencies = {
-      ...Package.dependencies,
-      "@saffellikhan/epic-cli": `^${require("../../package.json").version}`,
-    };
 
     if (Configuration?.type === "Plugin") {
       // Dependencies to Development
