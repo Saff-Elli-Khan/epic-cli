@@ -191,26 +191,28 @@ class Project {
                 {
                     title: "Creating new Controller",
                     task: () => {
-                        // Parse Template
-                        const Parsed = new epic_parser_1.TemplateParser({
-                            inDir: options.templateDir ||
-                                path_1.default.join(Project.SamplesPath(), "./controller/"),
-                            inFile: `./${options.template}.ts`,
-                            outDir: Project.ControllersPath(),
-                            outFile: `./${options.name}.ts`,
-                        })
-                            .parse()
-                            .injections({
-                            ControllerPrefix: options.prefix,
-                        });
-                        // Push Database Schema
-                        if (options.template === "default")
-                            Parsed.push("ImportsContainer", "ImportsTemplate", options.name + "SchemaImport", {
-                                modules: [options.name],
-                                location: path_1.default.relative(Project.ControllersPath(), path_1.default.join(Project.SchemasPath(), options.name)).replace(/\\/g, "/"),
+                        if (!fs_1.default.existsSync(path_1.default.join(Project.ControllersPath(), `./${options.name}.ts`))) {
+                            // Parse Template
+                            const Parsed = new epic_parser_1.TemplateParser({
+                                inDir: options.templateDir ||
+                                    path_1.default.join(Project.SamplesPath(), "./controller/"),
+                                inFile: `./${options.template}.ts`,
+                                outDir: Project.ControllersPath(),
+                                outFile: `./${options.name}.ts`,
+                            })
+                                .parse()
+                                .injections({
+                                ControllerPrefix: options.prefix,
                             });
-                        // Render Controller Content
-                        Parsed.render((_) => _.replace(/Sample/g, options.name));
+                            // Push Database Schema
+                            if (options.template === "default")
+                                Parsed.push("ImportsContainer", "ImportsTemplate", options.name + "SchemaImport", {
+                                    modules: [options.name],
+                                    location: path_1.default.relative(Project.ControllersPath(), path_1.default.join(Project.SchemasPath(), options.name)).replace(/\\/g, "/"),
+                                });
+                            // Render Controller Content
+                            Parsed.render((_) => _.replace(/Sample/g, options.name));
+                        }
                     },
                 },
                 {
@@ -277,16 +279,17 @@ class Project {
                 {
                     title: "Creating new Schema",
                     task: () => {
-                        // Parse Template
-                        new epic_parser_1.TemplateParser({
-                            inDir: options.templateDir ||
-                                path_1.default.join(Project.SamplesPath(), "./schema/"),
-                            inFile: `./${options.template}.ts`,
-                            outDir: Project.SchemasPath(),
-                            outFile: `./${options.name}.ts`,
-                        })
-                            .parse()
-                            .render((_) => _.replace(/Sample/g, options.name));
+                        if (!fs_1.default.existsSync(path_1.default.join(Project.SchemasPath(), `./${options.name}.ts`)))
+                            // Parse Template
+                            new epic_parser_1.TemplateParser({
+                                inDir: options.templateDir ||
+                                    path_1.default.join(Project.SamplesPath(), "./schema/"),
+                                inFile: `./${options.template}.ts`,
+                                outDir: Project.SchemasPath(),
+                                outFile: `./${options.name}.ts`,
+                            })
+                                .parse()
+                                .render((_) => _.replace(/Sample/g, options.name));
                     },
                 },
                 {
@@ -944,16 +947,17 @@ Project.createMiddleware = (options, command) => __awaiter(void 0, void 0, void 
         {
             title: "Creating new Middleware",
             task: () => {
-                // Parse Template
-                new epic_parser_1.TemplateParser({
-                    inDir: options.templateDir ||
-                        path_1.default.join(Project.SamplesPath(), "./middleware/"),
-                    inFile: `./${options.template}.ts`,
-                    outDir: Project.MiddlewaresPath(),
-                    outFile: `./${options.name}.ts`,
-                })
-                    .parse()
-                    .render((_) => _.replace(/Sample/g, options.name));
+                if (!fs_1.default.existsSync(path_1.default.join(Project.MiddlewaresPath(), `./${options.name}.ts`)))
+                    // Parse Template
+                    new epic_parser_1.TemplateParser({
+                        inDir: options.templateDir ||
+                            path_1.default.join(Project.SamplesPath(), "./middleware/"),
+                        inFile: `./${options.template}.ts`,
+                        outDir: Project.MiddlewaresPath(),
+                        outFile: `./${options.name}.ts`,
+                    })
+                        .parse()
+                        .render((_) => _.replace(/Sample/g, options.name));
             },
         },
         {

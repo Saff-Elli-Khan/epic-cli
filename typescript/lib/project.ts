@@ -321,37 +321,43 @@ export class Project {
       {
         title: "Creating new Controller",
         task: () => {
-          // Parse Template
-          const Parsed = new TemplateParser({
-            inDir:
-              options.templateDir ||
-              Path.join(Project.SamplesPath(), "./controller/"),
-            inFile: `./${options.template}.ts`,
-            outDir: Project.ControllersPath(),
-            outFile: `./${options.name}.ts`,
-          })
-            .parse()
-            .injections({
-              ControllerPrefix: options.prefix,
-            });
+          if (
+            !Fs.existsSync(
+              Path.join(Project.ControllersPath(), `./${options.name}.ts`)
+            )
+          ) {
+            // Parse Template
+            const Parsed = new TemplateParser({
+              inDir:
+                options.templateDir ||
+                Path.join(Project.SamplesPath(), "./controller/"),
+              inFile: `./${options.template}.ts`,
+              outDir: Project.ControllersPath(),
+              outFile: `./${options.name}.ts`,
+            })
+              .parse()
+              .injections({
+                ControllerPrefix: options.prefix,
+              });
 
-          // Push Database Schema
-          if (options.template === "default")
-            Parsed.push(
-              "ImportsContainer",
-              "ImportsTemplate",
-              options.name + "SchemaImport",
-              {
-                modules: [options.name],
-                location: Path.relative(
-                  Project.ControllersPath(),
-                  Path.join(Project.SchemasPath(), options.name)
-                ).replace(/\\/g, "/"),
-              }
-            );
+            // Push Database Schema
+            if (options.template === "default")
+              Parsed.push(
+                "ImportsContainer",
+                "ImportsTemplate",
+                options.name + "SchemaImport",
+                {
+                  modules: [options.name],
+                  location: Path.relative(
+                    Project.ControllersPath(),
+                    Path.join(Project.SchemasPath(), options.name)
+                  ).replace(/\\/g, "/"),
+                }
+              );
 
-          // Render Controller Content
-          Parsed.render((_) => _.replace(/Sample/g, options.name));
+            // Render Controller Content
+            Parsed.render((_) => _.replace(/Sample/g, options.name));
+          }
         },
       },
       {
@@ -551,17 +557,22 @@ export class Project {
       {
         title: "Creating new Schema",
         task: () => {
-          // Parse Template
-          new TemplateParser({
-            inDir:
-              options.templateDir ||
-              Path.join(Project.SamplesPath(), "./schema/"),
-            inFile: `./${options.template}.ts`,
-            outDir: Project.SchemasPath(),
-            outFile: `./${options.name}.ts`,
-          })
-            .parse()
-            .render((_) => _.replace(/Sample/g, options.name));
+          if (
+            !Fs.existsSync(
+              Path.join(Project.SchemasPath(), `./${options.name}.ts`)
+            )
+          )
+            // Parse Template
+            new TemplateParser({
+              inDir:
+                options.templateDir ||
+                Path.join(Project.SamplesPath(), "./schema/"),
+              inFile: `./${options.template}.ts`,
+              outDir: Project.SchemasPath(),
+              outFile: `./${options.name}.ts`,
+            })
+              .parse()
+              .render((_) => _.replace(/Sample/g, options.name));
         },
       },
       {
@@ -914,17 +925,22 @@ export class Project {
       {
         title: "Creating new Middleware",
         task: () => {
-          // Parse Template
-          new TemplateParser({
-            inDir:
-              options.templateDir ||
-              Path.join(Project.SamplesPath(), "./middleware/"),
-            inFile: `./${options.template}.ts`,
-            outDir: Project.MiddlewaresPath(),
-            outFile: `./${options.name}.ts`,
-          })
-            .parse()
-            .render((_) => _.replace(/Sample/g, options.name));
+          if (
+            !Fs.existsSync(
+              Path.join(Project.MiddlewaresPath(), `./${options.name}.ts`)
+            )
+          )
+            // Parse Template
+            new TemplateParser({
+              inDir:
+                options.templateDir ||
+                Path.join(Project.SamplesPath(), "./middleware/"),
+              inFile: `./${options.template}.ts`,
+              outDir: Project.MiddlewaresPath(),
+              outFile: `./${options.name}.ts`,
+            })
+              .parse()
+              .render((_) => _.replace(/Sample/g, options.name));
         },
       },
       {
