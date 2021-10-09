@@ -1243,35 +1243,6 @@ export class Project {
           if (typeof ctx.resources === "object")
             // Add All Resources
             ctx.resources.resources.forEach((resource) => {
-              // Resolve Plugin File
-              new TemplateParser({
-                inDir: Path.join(
-                  ConfigManager.Options.rootPath,
-                  "./node_modules/",
-                  options.name + `/build/${resource.type}s/`
-                ),
-                inFile: `${resource.name}.js`,
-                outFile: `${resource.name}.js`,
-              })
-                .parse()
-                .render((_) =>
-                  _.replace(
-                    /@AppPath/g,
-                    Path.relative(
-                      Path.join(
-                        ConfigManager.Options.rootPath,
-                        "./node_modules/",
-                        options.name + `/build/${resource.type}s/`
-                      ),
-                      Path.join(
-                        ConfigManager.Options.rootPath,
-                        "./node_modules/",
-                        options.name + `/build/`
-                      )
-                    ).replace(/\\/g, "/")
-                  )
-                );
-
               // Link Plugin File
               const TargetFile =
                 resource.type === "controller"

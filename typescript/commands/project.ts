@@ -457,7 +457,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Name of the column.",
         message: "Please provide a column name:",
         validator: (value) => {
-          if (!/^[A-Z]\w+$/.test(value))
+          if (!/^\w+$/.test(value))
             throw new Error(`Please provide a valid column name!`);
         },
         default: (options) =>
@@ -550,7 +550,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Name of the column.",
         message: "Please provide a column name:",
         validator: (value) => {
-          if (!/^[A-Z]\w+$/.test(value))
+          if (!/^\w+$/.test(value))
             throw new Error(`Please provide a valid column name!`);
         },
       },
