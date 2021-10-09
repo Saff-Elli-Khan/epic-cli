@@ -110,6 +110,10 @@ export class Project {
     return Path.join(ConfigManager.Options.rootPath, "./src/");
   }
 
+  static AppCore() {
+    return Path.join(ConfigManager.Options.rootPath, "./src/core/");
+  }
+
   static SamplesPath() {
     return Path.join(
       ConfigManager.Options.rootPath,
@@ -380,7 +384,7 @@ export class Project {
                   modules: [options.name + "Controller"],
                   location: `./${Path.relative(
                     options.parent === "None"
-                      ? Project.AppPath()
+                      ? Project.AppCore()
                       : Project.ControllersPath(),
                     Path.join(Project.ControllersPath(), options.name)
                   ).replace(/\\/g, "/")}`,
@@ -582,7 +586,7 @@ export class Project {
                 {
                   modules: [options.name],
                   location: `./${Path.relative(
-                    Project.AppPath(),
+                    Project.AppCore(),
                     Path.join(Project.SchemasPath(), options.name)
                   ).replace(/\\/g, "/")}`,
                 }
@@ -945,7 +949,7 @@ export class Project {
                 {
                   modules: [options.name + "Middleware"],
                   location: `./${Path.relative(
-                    Project.AppPath(),
+                    Project.AppCore(),
                     Path.join(Project.MiddlewaresPath(), options.name)
                   ).replace(/\\/g, "/")}`,
                 }

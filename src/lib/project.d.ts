@@ -68,6 +68,7 @@ export declare class Project {
     static PackagePath(): string;
     static EnvironmentsPath(): string;
     static AppPath(): string;
+    static AppCore(): string;
     static SamplesPath(): string;
     static ControllersPath(): string;
     static SchemasPath(): string;

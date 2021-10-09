@@ -30,6 +30,9 @@ class Project {
     static AppPath() {
         return path_1.default.join(core_1.ConfigManager.Options.rootPath, "./src/");
     }
+    static AppCore() {
+        return path_1.default.join(core_1.ConfigManager.Options.rootPath, "./src/core/");
+    }
     static SamplesPath() {
         return path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.templates);
     }
@@ -227,7 +230,7 @@ class Project {
                                 .push("ImportsContainer", "ImportsTemplate", options.name + "ControllerImport", {
                                 modules: [options.name + "Controller"],
                                 location: `./${path_1.default.relative(options.parent === "None"
-                                    ? Project.AppPath()
+                                    ? Project.AppCore()
                                     : Project.ControllersPath(), path_1.default.join(Project.ControllersPath(), options.name)).replace(/\\/g, "/")}`,
                             })
                                 .push("ControllerChildsContainer", "ControllerChildTemplate", options.name + "ControllerChilds", {
@@ -300,7 +303,7 @@ class Project {
                                 .parse()
                                 .push("ImportsContainer", "ImportsTemplate", options.name + "SchemaImport", {
                                 modules: [options.name],
-                                location: `./${path_1.default.relative(Project.AppPath(), path_1.default.join(Project.SchemasPath(), options.name)).replace(/\\/g, "/")}`,
+                                location: `./${path_1.default.relative(Project.AppCore(), path_1.default.join(Project.SchemasPath(), options.name)).replace(/\\/g, "/")}`,
                             })
                                 .push("SchemaListContainer", "SchemaListTemplate", options.name + "Schema", {
                                 schema: options.name,
@@ -967,7 +970,7 @@ Project.createMiddleware = (options, command) => __awaiter(void 0, void 0, void 
                         .parse()
                         .push("ImportsContainer", "ImportsTemplate", options.name + "MiddlewareImport", {
                         modules: [options.name + "Middleware"],
-                        location: `./${path_1.default.relative(Project.AppPath(), path_1.default.join(Project.MiddlewaresPath(), options.name)).replace(/\\/g, "/")}`,
+                        location: `./${path_1.default.relative(Project.AppCore(), path_1.default.join(Project.MiddlewaresPath(), options.name)).replace(/\\/g, "/")}`,
                     })
                         .push("MiddlewaresContainer", "MiddlewareTemplate", options.name + "Middleware", {
                         middleware: options.name + "Middleware",
