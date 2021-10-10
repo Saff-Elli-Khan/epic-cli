@@ -1327,12 +1327,8 @@ export class Project {
                   for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
               };
               Object.defineProperty(exports, "__esModule", { value: true });
-              __exportStar(require("../../../../src/core/controllers"), exports);
-              __exportStar(require("../../../../src/core/database"), exports);
-              __exportStar(require("../../../../src/core/globals"), exports);
-              __exportStar(require("../../../../src/core/middlewares"), exports);
-              __exportStar(require("../../../../src/core/server"), exports);
-              __exportStar(require("../../../../src/core/typings"), exports);
+              __exportStar(require("./core/globals"), exports);
+              __exportStar(require("./core/typings"), exports);
               `
             );
           }
