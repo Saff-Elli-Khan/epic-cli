@@ -674,7 +674,7 @@ class Project {
                                 });
                             });
                             // Add Exports Resolver File
-                            fs_1.default.writeFileSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/exports.js`), `
+                            fs_1.default.writeFileSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/build/exports.js`), `
               "use strict";
               var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
                   if (k2 === undefined) k2 = k;

@@ -1312,7 +1312,7 @@ export class Project {
             Fs.writeFileSync(
               Path.join(
                 ConfigManager.Options.rootPath,
-                `./node_modules/${options.name}/exports.js`
+                `./node_modules/${options.name}/build/exports.js`
               ),
               `
               "use strict";
