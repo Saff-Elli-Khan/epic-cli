@@ -8,11 +8,11 @@ import {
   ConfigurationInterface,
   TransactionInterface,
   ResourcesInterface,
+  ResourceInterface,
 } from "./core";
 import { generateRandomKey } from "./utils";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 import { TemplateParser } from "@saffellikhan/epic-parser";
-import { ResourceInterface } from "..";
 
 export interface InitializationOptions {
   type: ProjectType;
