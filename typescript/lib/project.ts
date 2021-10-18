@@ -286,7 +286,7 @@ export class Project {
         },
       },
       {
-        title: "Installing package dependencies with Yarn",
+        title: "Installing application dependencies with Yarn",
         task: (ctx, task) =>
           Execa("yarn")
             .then(() => {
@@ -306,7 +306,7 @@ export class Project {
             }),
       },
       {
-        title: "Installing package dependencies with npm",
+        title: "Installing application dependencies with npm",
         enabled: (ctx) => ctx.yarn === false,
         task: () =>
           Execa("npm", ["install"]).then(() => {
@@ -316,6 +316,27 @@ export class Project {
 
               return _;
             });
+          }),
+      },
+      {
+        title: "Installing dashboard dependencies with Yarn",
+        task: (ctx, task) =>
+          Execa("yarn", undefined, {
+            cwd: Path.join(ConfigManager.Options.rootPath, "./public/"),
+          }).catch(() => {
+            ctx.yarn = false;
+
+            task.skip(
+              "Yarn not available, you can install it via `npm install -g yarn` if needed."
+            );
+          }),
+      },
+      {
+        title: "Installing dashboard dependencies with npm",
+        enabled: (ctx) => ctx.yarn === false,
+        task: () =>
+          Execa("npm", ["install"], {
+            cwd: Path.join(ConfigManager.Options.rootPath, "./public/"),
           }),
       },
     ]).run();
