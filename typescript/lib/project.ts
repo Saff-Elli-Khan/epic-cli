@@ -257,6 +257,15 @@ export class Project {
         },
       },
       {
+        title: "Cloning dashboard to public directory",
+        task: async () =>
+          Execa("git", [
+            "clone",
+            "https://github.com/Saff-Elli-Khan/epic-dashboard",
+            "./public/",
+          ]),
+      },
+      {
         title: "Configuring your project",
         task: ({ configuration }) => {
           if (Fs.existsSync(Project.PackagePath())) {

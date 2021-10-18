@@ -143,6 +143,16 @@ class Project {
                     }),
                 },
                 {
+                    title: "Cloning dashboard to public directory",
+                    task: () => __awaiter(this, void 0, void 0, function* () {
+                        return execa_1.default("git", [
+                            "clone",
+                            "https://github.com/Saff-Elli-Khan/epic-dashboard",
+                            "./public/",
+                        ]);
+                    }),
+                },
+                {
                     title: "Configuring your project",
                     task: ({ configuration }) => {
                         if (fs_1.default.existsSync(Project.PackagePath())) {
