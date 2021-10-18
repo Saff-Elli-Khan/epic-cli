@@ -729,6 +729,16 @@ export const ProjectCommands: LooseCommandInterface[] = [
     method: Project.linkPlugin,
   },
   {
+    name: "link-plugins",
+    description: "Manually link all Epic plugins to the project.",
+    before: () => {
+      // Check Configuration File
+      if (!ConfigManager.hasConfig("main"))
+        throw new Error("Please initialize a project first!");
+    },
+    method: Project.linkPlugins,
+  },
+  {
     name: "update-plugin",
     description: "Update an Epic plugin on the project.",
     params: [

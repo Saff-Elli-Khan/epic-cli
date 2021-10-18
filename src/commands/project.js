@@ -683,6 +683,16 @@ exports.ProjectCommands = [
         method: project_1.Project.linkPlugin,
     },
     {
+        name: "link-plugins",
+        description: "Manually link all Epic plugins to the project.",
+        before: () => {
+            // Check Configuration File
+            if (!core_1.ConfigManager.hasConfig("main"))
+                throw new Error("Please initialize a project first!");
+        },
+        method: project_1.Project.linkPlugins,
+    },
+    {
         name: "update-plugin",
         description: "Update an Epic plugin on the project.",
         params: [

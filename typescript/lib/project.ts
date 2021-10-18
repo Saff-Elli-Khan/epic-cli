@@ -1172,7 +1172,7 @@ export class Project {
 
     await new Listr<{ package: any; resources?: ResourcesInterface }>([
       {
-        title: "Making sure we are ready to link plugin to the project...",
+        title: `Making sure we are ready to link plugin '${options.name}' to the project...`,
         task: (ctx) => {
           // Check If Valid Plugin
           if (
@@ -1394,6 +1394,14 @@ export class Project {
         },
       },
     ]).run();
+  }
+
+  static async linkPlugins() {
+    await Promise.all(
+      Object.keys(ConfigManager.getConfig("main").plugins).map((name) =>
+        Project.linkPlugin({ name })
+      )
+    );
   }
 
   static async updatePlugin(

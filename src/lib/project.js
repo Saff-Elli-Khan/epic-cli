@@ -602,7 +602,7 @@ class Project {
             options.name = options.name.split(/(?!^@)@/g)[0];
             yield new listr_1.default([
                 {
-                    title: "Making sure we are ready to link plugin to the project...",
+                    title: `Making sure we are ready to link plugin '${options.name}' to the project...`,
                     task: (ctx) => {
                         // Check If Valid Plugin
                         if (!fs_1.default.existsSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/epic.config.json`)))
@@ -741,6 +741,11 @@ class Project {
                     },
                 },
             ]).run();
+        });
+    }
+    static linkPlugins() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield Promise.all(Object.keys(core_1.ConfigManager.getConfig("main").plugins).map((name) => Project.linkPlugin({ name })));
         });
     }
     static updatePlugin(options, command) {
