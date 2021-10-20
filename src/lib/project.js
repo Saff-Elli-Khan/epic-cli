@@ -48,6 +48,9 @@ class Project {
     static getPackage() {
         return require(Project.PackagePath());
     }
+    static getAdminDashboardPathName() {
+        return "admin";
+    }
     static configure(Configuration) {
         // Get Package Information
         const Package = Project.getPackage();
@@ -103,7 +106,7 @@ class Project {
             ]).run();
         });
     }
-    static create() {
+    static create(options) {
         return __awaiter(this, void 0, void 0, function* () {
             // Queue the Tasks
             yield new listr_1.default([
@@ -143,12 +146,12 @@ class Project {
                     }),
                 },
                 {
-                    title: "Cloning dashboard to public directory",
+                    title: `Cloning dashboard to ${Project.getAdminDashboardPathName()} directory`,
                     task: () => __awaiter(this, void 0, void 0, function* () {
                         return execa_1.default("git", [
                             "clone",
                             "https://github.com/Saff-Elli-Khan/epic-dashboard",
-                            "./public/",
+                            `./${Project.getAdminDashboardPathName()}/`,
                         ]);
                     }),
                 },
@@ -179,6 +182,7 @@ class Project {
                         ctx.yarn = false;
                         task.skip("Yarn not available, install it via `npm install -g yarn`");
                     }),
+                    skip: () => !options.installation,
                 },
                 {
                     title: "Installing application dependencies with npm",
@@ -190,22 +194,25 @@ class Project {
                             return _;
                         });
                     }),
+                    skip: () => !options.installation,
                 },
                 {
                     title: "Installing dashboard dependencies with Yarn",
                     task: (ctx, task) => execa_1.default("yarn", undefined, {
-                        cwd: path_1.default.join(core_1.ConfigManager.Options.rootPath, "./public/"),
+                        cwd: path_1.default.join(core_1.ConfigManager.Options.rootPath, `./${Project.getAdminDashboardPathName()}/`),
                     }).catch(() => {
                         ctx.yarn = false;
                         task.skip("Yarn not available, you can install it via `npm install -g yarn` if needed.");
                     }),
+                    skip: () => !options.installation,
                 },
                 {
                     title: "Installing dashboard dependencies with npm",
                     enabled: (ctx) => ctx.yarn === false,
                     task: () => execa_1.default("npm", ["install"], {
-                        cwd: path_1.default.join(core_1.ConfigManager.Options.rootPath, "./public/"),
+                        cwd: path_1.default.join(core_1.ConfigManager.Options.rootPath, `./${Project.getAdminDashboardPathName()}/`),
                     }),
+                    skip: () => !options.installation,
                 },
             ]).run();
         });

@@ -186,6 +186,15 @@ exports.ProjectCommands = [
     {
         name: "create",
         description: "Create a new Epic project.",
+        params: [
+            {
+                type: "confirm",
+                name: "installation",
+                description: "Install dependencies automatically.",
+                alias: ["-i"],
+                message: "Do you want to install dependencies automatically?",
+            },
+        ],
         method: project_1.Project.create,
     },
     {

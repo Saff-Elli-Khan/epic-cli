@@ -8,6 +8,9 @@ export interface InitializationOptions {
     brandCountry: string;
     brandAddress: string;
 }
+export interface CreateOptions {
+    installation: boolean;
+}
 export interface CreateControllerOptions {
     name: string;
     description: string;
@@ -74,9 +77,10 @@ export declare class Project {
     static SchemasPath(): string;
     static MiddlewaresPath(): string;
     static getPackage(): any;
+    static getAdminDashboardPathName(): string;
     static configure(Configuration: ConfigurationInterface): void;
     static initialize(options: InitializationOptions): Promise<void>;
-    static create(): Promise<void>;
+    static create(options: CreateOptions): Promise<void>;
     static createController(options: CreateControllerOptions, command: CommandInterface): Promise<void>;
     static deleteController: (options: DeleteControllerOptions) => Promise<void>;
     static createSchema(options: CreateSchemaOptions, command: CommandInterface): Promise<void>;
