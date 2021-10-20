@@ -198,6 +198,15 @@ export const ProjectCommands: LooseCommandInterface[] = [
   {
     name: "create",
     description: "Create a new Epic project.",
+    params: [
+      {
+        type: "confirm",
+        name: "installation",
+        description: "Install dependencies automatically.",
+        alias: ["-i"],
+        message: "Do you want to install dependencies automatically?",
+      },
+    ],
     method: Project.create,
   },
   {
