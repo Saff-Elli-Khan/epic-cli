@@ -201,6 +201,12 @@ export const ProjectCommands: LooseCommandInterface[] = [
     params: [
       {
         type: "confirm",
+        name: "admin",
+        description: "Add an Admin Dashboard to the project.",
+        alias: ["--admin"],
+      },
+      {
+        type: "confirm",
         name: "installation",
         description: "Install dependencies automatically.",
         alias: ["-i"],
@@ -208,6 +214,9 @@ export const ProjectCommands: LooseCommandInterface[] = [
       },
     ],
     method: Project.create,
+    default: {
+      admin: false,
+    },
   },
   {
     name: "create-controller",

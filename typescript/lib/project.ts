@@ -25,6 +25,7 @@ export interface InitializationOptions {
 
 export interface CreateOptions {
   installation: boolean;
+  admin: boolean;
 }
 
 export interface CreateControllerOptions {
@@ -272,6 +273,7 @@ export class Project {
             "https://github.com/Saff-Elli-Khan/epic-dashboard",
             `./${Project.getAdminDashboardPathName()}/`,
           ]),
+        skip: () => !options.admin,
       },
       {
         title: "Configuring your project",
@@ -329,7 +331,7 @@ export class Project {
         skip: () => !options.installation,
       },
       {
-        title: "Installing dashboard dependencies with Yarn",
+        title: "Installing admin dashboard dependencies with Yarn",
         task: (ctx, task) =>
           Execa("yarn", undefined, {
             cwd: Path.join(
@@ -343,10 +345,10 @@ export class Project {
               "Yarn not available, you can install it via `npm install -g yarn` if needed."
             );
           }),
-        skip: () => !options.installation,
+        skip: () => !options.installation || !options.admin,
       },
       {
-        title: "Installing dashboard dependencies with npm",
+        title: "Installing admin dashboard dependencies with npm",
         enabled: (ctx) => ctx.yarn === false,
         task: () =>
           Execa("npm", ["install"], {
@@ -355,7 +357,7 @@ export class Project {
               `./${Project.getAdminDashboardPathName()}/`
             ),
           }),
-        skip: () => !options.installation,
+        skip: () => !options.installation || !options.admin,
       },
     ]).run();
   }
