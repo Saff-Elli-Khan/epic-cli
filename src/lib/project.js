@@ -146,7 +146,7 @@ class Project {
                     }),
                 },
                 {
-                    title: `Cloning dashboard to ${Project.getAdminDashboardPathName()} directory`,
+                    title: `Cloning dashboard to the ${Project.getAdminDashboardPathName()} directory`,
                     task: () => __awaiter(this, void 0, void 0, function* () {
                         return execa_1.default("git", [
                             "clone",
@@ -154,6 +154,7 @@ class Project {
                             `./${Project.getAdminDashboardPathName()}/`,
                         ]);
                     }),
+                    skip: () => !options.admin,
                 },
                 {
                     title: "Configuring your project",
@@ -197,22 +198,22 @@ class Project {
                     skip: () => !options.installation,
                 },
                 {
-                    title: "Installing dashboard dependencies with Yarn",
+                    title: "Installing admin dashboard dependencies with Yarn",
                     task: (ctx, task) => execa_1.default("yarn", undefined, {
                         cwd: path_1.default.join(core_1.ConfigManager.Options.rootPath, `./${Project.getAdminDashboardPathName()}/`),
                     }).catch(() => {
                         ctx.yarn = false;
                         task.skip("Yarn not available, you can install it via `npm install -g yarn` if needed.");
                     }),
-                    skip: () => !options.installation,
+                    skip: () => !options.installation || !options.admin,
                 },
                 {
-                    title: "Installing dashboard dependencies with npm",
+                    title: "Installing admin dashboard dependencies with npm",
                     enabled: (ctx) => ctx.yarn === false,
                     task: () => execa_1.default("npm", ["install"], {
                         cwd: path_1.default.join(core_1.ConfigManager.Options.rootPath, `./${Project.getAdminDashboardPathName()}/`),
                     }),
-                    skip: () => !options.installation,
+                    skip: () => !options.installation || !options.admin,
                 },
             ]).run();
         });

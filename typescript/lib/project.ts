@@ -224,7 +224,6 @@ export class Project {
   }
 
   static async create(options: CreateOptions) {
-    console.log("Create Options:", options);
     // Queue the Tasks
     await new Listr([
       {

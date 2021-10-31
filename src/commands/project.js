@@ -189,6 +189,12 @@ exports.ProjectCommands = [
         params: [
             {
                 type: "confirm",
+                name: "admin",
+                description: "Add an Admin Dashboard to the project.",
+                alias: ["--admin"],
+            },
+            {
+                type: "confirm",
                 name: "installation",
                 description: "Install dependencies automatically.",
                 alias: ["-i"],
@@ -196,6 +202,9 @@ exports.ProjectCommands = [
             },
         ],
         method: project_1.Project.create,
+        default: {
+            admin: false,
+        },
     },
     {
         name: "create-controller",

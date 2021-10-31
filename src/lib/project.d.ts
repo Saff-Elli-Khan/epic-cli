@@ -10,6 +10,7 @@ export interface InitializationOptions {
 }
 export interface CreateOptions {
     installation: boolean;
+    admin: boolean;
 }
 export interface CreateControllerOptions {
     name: string;
