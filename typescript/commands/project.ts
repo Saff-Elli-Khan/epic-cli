@@ -204,6 +204,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         name: "admin",
         description: "Add an Admin Dashboard to the project.",
         alias: ["--admin"],
+        default: false,
       },
       {
         type: "confirm",
@@ -214,9 +215,6 @@ export const ProjectCommands: LooseCommandInterface[] = [
       },
     ],
     method: Project.create,
-    default: {
-      admin: false,
-    },
   },
   {
     name: "create-controller",

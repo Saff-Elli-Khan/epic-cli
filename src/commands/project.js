@@ -192,6 +192,7 @@ exports.ProjectCommands = [
                 name: "admin",
                 description: "Add an Admin Dashboard to the project.",
                 alias: ["--admin"],
+                default: false,
             },
             {
                 type: "confirm",
@@ -202,9 +203,6 @@ exports.ProjectCommands = [
             },
         ],
         method: project_1.Project.create,
-        default: {
-            admin: false,
-        },
     },
     {
         name: "create-controller",
