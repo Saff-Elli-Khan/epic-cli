@@ -224,6 +224,7 @@ export class Project {
   }
 
   static async create(options: CreateOptions) {
+    console.log("Create Options:", options);
     // Queue the Tasks
     await new Listr([
       {
@@ -266,7 +267,7 @@ export class Project {
         },
       },
       {
-        title: `Cloning dashboard to ${Project.getAdminDashboardPathName()} directory`,
+        title: `Cloning dashboard to the ${Project.getAdminDashboardPathName()} directory`,
         task: async () =>
           Execa("git", [
             "clone",
