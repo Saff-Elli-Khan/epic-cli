@@ -1424,15 +1424,29 @@ export class Project {
     );
   }
 
-  static async updatePlugin(
-    options: AddPluginOptions,
-    command: CommandInterface
-  ) {
-    // Remove Plugin
-    await Project.removePlugin(options, command);
+  static async updatePlugin(options: AddPluginOptions) {
+    // Unlink Plugin
+    await Project.unlinkPlugin(options);
 
-    // Add Plugin
-    await Project.addPlugin(options, command);
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Updating Plugin...",
+        task: () => {
+          // Get Configuration
+          const Configuration = ConfigManager.getConfig("main");
+
+          // Install Plugin
+          if (Configuration.packageManager === "npm")
+            return Execa("npm", ["update", options.name]);
+          else if (Configuration.packageManager === "yarn")
+            Execa("yarn", ["upgrade", options.name]);
+        },
+      },
+    ]).run();
+
+    // Link Plugin
+    await Project.linkPlugin(options);
   }
 
   static async removePlugin(

@@ -756,12 +756,27 @@ class Project {
             yield Promise.all(Object.keys(core_1.ConfigManager.getConfig("main").plugins).map((name) => Project.linkPlugin({ name })));
         });
     }
-    static updatePlugin(options, command) {
+    static updatePlugin(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Remove Plugin
-            yield Project.removePlugin(options, command);
-            // Add Plugin
-            yield Project.addPlugin(options, command);
+            // Unlink Plugin
+            yield Project.unlinkPlugin(options);
+            // Queue the Tasks
+            yield new listr_1.default([
+                {
+                    title: "Updating Plugin...",
+                    task: () => {
+                        // Get Configuration
+                        const Configuration = core_1.ConfigManager.getConfig("main");
+                        // Install Plugin
+                        if (Configuration.packageManager === "npm")
+                            return execa_1.default("npm", ["update", options.name]);
+                        else if (Configuration.packageManager === "yarn")
+                            execa_1.default("yarn", ["upgrade", options.name]);
+                    },
+                },
+            ]).run();
+            // Link Plugin
+            yield Project.linkPlugin(options);
         });
     }
     static removePlugin(options, command) {
