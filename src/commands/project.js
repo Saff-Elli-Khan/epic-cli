@@ -226,48 +226,48 @@ exports.ProjectCommands = [
         method: project_1.Project.deleteController,
     },
     {
-        name: "create-schema",
-        description: "Create a database schema.",
+        name: "create-model",
+        description: "Create a database model.",
         params: [
             {
                 type: "input",
                 name: "name",
-                description: "Name of the schema.",
+                description: "Name of the model.",
                 alias: ["--name", "-n"],
-                message: "Please provide a schema name:",
+                message: "Please provide a model name:",
                 validator: (value) => {
                     if (!/^[A-Z]\w+$/.test(value))
-                        throw new Error(`Please provide a valid schema name!`);
+                        throw new Error(`Please provide a valid model name!`);
                 },
             },
             {
                 type: "input",
                 name: "description",
-                description: "Description for the schema.",
+                description: "Description for the model.",
                 alias: ["--description", "-d"],
-                message: "Please provide a schema description:",
+                message: "Please provide a model description:",
                 default: "N/A",
             },
             {
                 type: "input",
                 name: "templateDir",
-                description: "Schema templates container directory.",
+                description: "Model templates container directory.",
                 alias: ["--templateDir", "-td"],
                 skip: true,
             },
             {
                 type: "list",
                 name: "template",
-                description: "Template of the Schema",
-                message: "Please provide a schema template:",
+                description: "Template of the Model",
+                message: "Please provide a model template:",
                 choices: (options) => {
-                    // Schema Path
-                    const SchemaDir = options.templateDir ||
-                        path_1.default.join(core_1.ConfigManager.getConfig("main").paths.templates, "./schema/");
+                    // Model Path
+                    const ModelDir = options.templateDir ||
+                        path_1.default.join(core_1.ConfigManager.getConfig("main").paths.templates, "./model/");
                     // Resolve Directory
-                    fs_1.default.mkdirSync(SchemaDir, { recursive: true });
+                    fs_1.default.mkdirSync(ModelDir, { recursive: true });
                     // Templates List
-                    return fs_1.default.readdirSync(SchemaDir)
+                    return fs_1.default.readdirSync(ModelDir)
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, ""));
                 },
@@ -278,24 +278,24 @@ exports.ProjectCommands = [
             if (!core_1.ConfigManager.hasConfig("main"))
                 throw new Error("Please initialize a project first!");
         },
-        method: project_1.Project.createSchema,
+        method: project_1.Project.createModel,
     },
     {
-        name: "delete-schema",
-        description: "Remove schema from project.",
+        name: "delete-model",
+        description: "Remove model from project.",
         params: [
             {
                 type: "list",
                 name: "name",
                 alias: ["--name", "-n"],
-                description: "Name of the schema.",
-                message: "Please provide a schema name:",
+                description: "Name of the model.",
+                message: "Please provide a model name:",
                 choices: () => {
-                    const SchemasPath = core_1.ConfigManager.getConfig("main").paths.schemas;
+                    const ModelsPath = core_1.ConfigManager.getConfig("main").paths.models;
                     // Resolve Directory
-                    fs_1.default.mkdirSync(SchemasPath, { recursive: true });
-                    // Schemas List
-                    return fs_1.default.readdirSync(SchemasPath)
+                    fs_1.default.mkdirSync(ModelsPath, { recursive: true });
+                    // Models List
+                    return fs_1.default.readdirSync(ModelsPath)
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, ""));
                 },
@@ -306,7 +306,7 @@ exports.ProjectCommands = [
             if (!core_1.ConfigManager.hasConfig("main"))
                 throw new Error("Please initialize a project first!");
         },
-        method: project_1.Project.deleteSchema,
+        method: project_1.Project.deleteModel,
     },
     {
         name: "create-module",

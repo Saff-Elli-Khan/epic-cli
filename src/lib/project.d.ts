@@ -23,34 +23,13 @@ export interface CreateControllerOptions {
 export interface DeleteControllerOptions {
     name: string;
 }
-export interface CreateSchemaOptions {
+export interface CreateModelOptions {
     name: string;
     description: string;
     template: string;
     templateDir?: string;
 }
-export interface DeleteSchemaOptions {
-    name: string;
-}
-export interface CreateSchemaColumnOptions {
-    schema: string;
-    type: "String" | "Number" | "Boolean" | "Enum" | "Record" | "Array" | "Relation" | "Any";
-    choices?: string[];
-    arrayof?: "String" | "Number" | "Boolean" | "Record" | "Relation" | "Any";
-    recordType?: string;
-    length?: number;
-    relation?: string;
-    mapping?: string[];
-    name: string;
-    nullable?: boolean;
-    defaultValue?: string;
-    public?: boolean;
-    collation?: string;
-    index?: ("FULLTEXT" | "UNIQUE" | "INDEX" | "SPATIAL")[];
-    onUpdate?: string;
-}
-export interface DeleteSchemaColumnOptions {
-    schema: string;
+export interface DeleteModelOptions {
     name: string;
 }
 export interface CreateMiddlewareOptions {
@@ -75,7 +54,7 @@ export declare class Project {
     static AppCore(): string;
     static SamplesPath(): string;
     static ControllersPath(): string;
-    static SchemasPath(): string;
+    static ModelsPath(): string;
     static MiddlewaresPath(): string;
     static getPackage(): any;
     static getAdminDashboardPathName(): string;
@@ -84,8 +63,8 @@ export declare class Project {
     static create(options: CreateOptions): Promise<void>;
     static createController(options: CreateControllerOptions, command: CommandInterface): Promise<void>;
     static deleteController: (options: DeleteControllerOptions) => Promise<void>;
-    static createSchema(options: CreateSchemaOptions, command: CommandInterface): Promise<void>;
-    static deleteSchema(options: DeleteSchemaOptions): Promise<void>;
+    static createModel(options: CreateModelOptions, command: CommandInterface): Promise<void>;
+    static deleteModel(options: DeleteModelOptions): Promise<void>;
     static createModule(options: CreateControllerOptions, command: CommandInterface): Promise<void>;
     static deleteModule(options: DeleteControllerOptions): Promise<void>;
     static createMiddleware: (options: CreateMiddlewareOptions, command: CommandInterface) => Promise<void>;

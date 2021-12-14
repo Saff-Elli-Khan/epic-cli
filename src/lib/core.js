@@ -47,7 +47,7 @@ exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
             templates: "./src/templates/",
             contollers: "./src/controllers/",
             middlewares: "./src/middlewares/",
-            schemas: "./src/schemas/",
+            models: "./src/models/",
         },
     },
     transactions: {

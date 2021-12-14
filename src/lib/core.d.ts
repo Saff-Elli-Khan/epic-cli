@@ -1,7 +1,7 @@
 import { EpicConfigManager } from "@saffellikhan/epic-config-manager";
 export declare type FrameworkType = "Express";
 export declare type ProjectType = "Application" | "Plugin";
-export declare type ResourceType = "controller" | "schema" | "middleware";
+export declare type ResourceType = "controller" | "model" | "middleware";
 export declare type PackageManagerType = "npm" | "yarn";
 export interface ConfigurationInterface {
     version: number;
@@ -24,7 +24,7 @@ export interface ConfigurationInterface {
 export interface PathsInterface {
     templates?: string;
     contollers?: string;
-    schemas?: string;
+    models?: string;
     middlewares?: string;
 }
 export interface BrandInterface {

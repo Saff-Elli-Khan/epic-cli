@@ -39,8 +39,8 @@ class Project {
     static ControllersPath() {
         return path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.contollers);
     }
-    static SchemasPath() {
-        return path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.schemas);
+    static ModelsPath() {
+        return path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.models);
     }
     static MiddlewaresPath() {
         return path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.middlewares);
@@ -238,11 +238,11 @@ class Project {
                                 .injections({
                                 ControllerPrefix: options.prefix,
                             });
-                            // Push Database Schema
+                            // Push Database Model
                             if (options.template === "default")
-                                Parsed.push("ImportsContainer", "ImportsTemplate", options.name + "SchemaImport", {
+                                Parsed.push("ImportsContainer", "ImportsTemplate", options.name + "ModelImport", {
                                     modules: [options.name],
-                                    location: path_1.default.relative(Project.ControllersPath(), path_1.default.join(Project.SchemasPath(), options.name)).replace(/\\/g, "/"),
+                                    location: path_1.default.relative(Project.ControllersPath(), path_1.default.join(Project.ModelsPath(), options.name)).replace(/\\/g, "/"),
                                 });
                             // Render Controller Content
                             Parsed.render((_) => _.replace(/Sample/g, options.name));
@@ -306,20 +306,20 @@ class Project {
             ]).run();
         });
     }
-    static createSchema(options, command) {
+    static createModel(options, command) {
         return __awaiter(this, void 0, void 0, function* () {
             // Queue the Tasks
             yield new listr_1.default([
                 {
-                    title: "Creating new Schema",
+                    title: "Creating new Model",
                     task: () => {
-                        if (!fs_1.default.existsSync(path_1.default.join(Project.SchemasPath(), `./${options.name}.ts`)))
+                        if (!fs_1.default.existsSync(path_1.default.join(Project.ModelsPath(), `./${options.name}.ts`)))
                             // Parse Template
                             new epic_parser_1.TemplateParser({
                                 inDir: options.templateDir ||
-                                    path_1.default.join(Project.SamplesPath(), "./schema/"),
+                                    path_1.default.join(Project.SamplesPath(), "./model/"),
                                 inFile: `./${options.template}.ts`,
-                                outDir: Project.SchemasPath(),
+                                outDir: Project.ModelsPath(),
                                 outFile: `./${options.name}.ts`,
                             })
                                 .parse()
@@ -337,24 +337,24 @@ class Project {
                                 outFile: `./core/database.ts`,
                             })
                                 .parse()
-                                .push("ImportsContainer", "ImportsTemplate", options.name + "SchemaImport", {
+                                .push("ImportsContainer", "ImportsTemplate", options.name + "ModelImport", {
                                 modules: [options.name],
-                                location: `./${path_1.default.relative(Project.AppCore(), path_1.default.join(Project.SchemasPath(), options.name)).replace(/\\/g, "/")}`,
+                                location: `./${path_1.default.relative(Project.AppCore(), path_1.default.join(Project.ModelsPath(), options.name)).replace(/\\/g, "/")}`,
                             })
-                                .push("SchemaListContainer", "SchemaListTemplate", options.name + "Schema", {
-                                schema: options.name,
+                                .push("ModelListContainer", "ModelListTemplate", options.name + "Model", {
+                                model: options.name,
                             })
                                 .render();
                         }
                         catch (error) {
-                            console.warn("We are unable to parse core/database properly! Please add the schema to the list manually.", error);
+                            console.warn("We are unable to parse core/database properly! Please add the model to the list manually.", error);
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("transactions", (_) => {
                             // Update Last Access
-                            _.lastAccess.schema = options.name;
+                            _.lastAccess.model = options.name;
                             // Remove Duplicate Transaction
-                            _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-schema" &&
+                            _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-model" &&
                                 transaction.params.name === options.name));
                             // Add New Transaction
                             _.transactions.push({
@@ -364,10 +364,10 @@ class Project {
                             return _;
                         }).setConfig("resources", (_) => {
                             // Remove Duplicate Resource
-                            _.resources = _.resources.filter((resource) => !(resource.type === "schema" && resource.name === options.name));
+                            _.resources = _.resources.filter((resource) => !(resource.type === "model" && resource.name === options.name));
                             // Add New Resource
                             _.resources.push({
-                                type: "schema",
+                                type: "model",
                                 name: options.name,
                             });
                             return _;
@@ -377,15 +377,15 @@ class Project {
             ]).run();
         });
     }
-    static deleteSchema(options) {
+    static deleteModel(options) {
         return __awaiter(this, void 0, void 0, function* () {
             // Queue the Tasks
             yield new listr_1.default([
                 {
-                    title: "Deleting the Schema",
+                    title: "Deleting the Model",
                     task: () => __awaiter(this, void 0, void 0, function* () {
-                        // Delete Schema
-                        fs_1.default.unlinkSync(path_1.default.join(Project.SchemasPath(), `./${options.name}.ts`));
+                        // Delete Model
+                        fs_1.default.unlinkSync(path_1.default.join(Project.ModelsPath(), `./${options.name}.ts`));
                     }),
                 },
                 {
@@ -399,23 +399,23 @@ class Project {
                                 outFile: `./core/database.ts`,
                             })
                                 .parse()
-                                .pop("ImportsContainer", options.name + "SchemaImport")
-                                .pop("SchemaListContainer", options.name + "Schema")
+                                .pop("ImportsContainer", options.name + "ModelImport")
+                                .pop("ModelListContainer", options.name + "Model")
                                 .render();
                         }
                         catch (error) {
-                            console.warn(`We are unable to parse core/database properly! Please remove the schema from core/database manually.`, error);
+                            console.warn(`We are unable to parse core/database properly! Please remove the model from core/database manually.`, error);
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("transactions", (_) => {
                             // Update Last Access
-                            delete _.lastAccess.schema;
+                            delete _.lastAccess.model;
                             // Remove Transaction
-                            _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-schema" &&
+                            _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-model" &&
                                 transaction.params.name === options.name));
                             return _;
                         }).setConfig("resources", (_) => {
-                            _.resources = _.resources.filter((resource) => !(resource.type === "schema" && resource.name === options.name));
+                            _.resources = _.resources.filter((resource) => !(resource.type === "model" && resource.name === options.name));
                             return _;
                         });
                     },
@@ -430,15 +430,15 @@ class Project {
             // Create New Controller
             yield Project.createController(options, command);
             // Update Temporary Command Name
-            command.name = "create-schema";
-            // Create New Schema
-            yield Project.createSchema(options, command);
+            command.name = "create-model";
+            // Create New Model
+            yield Project.createModel(options, command);
         });
     }
     static deleteModule(options) {
         return __awaiter(this, void 0, void 0, function* () {
             yield Project.deleteController(options);
-            yield Project.deleteSchema(options);
+            yield Project.deleteModel(options);
         });
     }
     static deleteMiddleware(options) {
@@ -468,7 +468,7 @@ class Project {
                                 .render();
                         }
                         catch (error) {
-                            console.warn(`We are unable to parse core/middlewares properly! Please remove the schema from core/middlewares manually.`, error);
+                            console.warn(`We are unable to parse core/middlewares properly! Please remove the middleware from core/middlewares manually.`, error);
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("transactions", (_) => {
@@ -577,7 +577,7 @@ class Project {
                                 // Link Plugin File
                                 const TargetFile = resource.type === "controller"
                                     ? `./core/controllers.ts`
-                                    : resource.type === "schema"
+                                    : resource.type === "model"
                                         ? `./core/database.ts`
                                         : `./core/middlewares.ts`;
                                 // Parse Template
@@ -589,7 +589,7 @@ class Project {
                                     .parse()
                                     .push("ImportsContainer", "ImportsTemplate", `${options.name}-${resource.type}-${resource.name}-import`, {
                                     modules: [
-                                        resource.type === "schema"
+                                        resource.type === "model"
                                             ? resource.name
                                             : resource.name +
                                                 (resource.type === "controller"
@@ -601,18 +601,18 @@ class Project {
                                 })
                                     .push(resource.type === "controller"
                                     ? "ControllerChildsContainer"
-                                    : resource.type === "schema"
-                                        ? "SchemaListContainer"
+                                    : resource.type === "model"
+                                        ? "ModelListContainer"
                                         : "MiddlewaresContainer", resource.type === "controller"
                                     ? "ControllerChildTemplate"
-                                    : resource.type === "schema"
-                                        ? "SchemaListTemplate"
+                                    : resource.type === "model"
+                                        ? "ModelListTemplate"
                                         : "MiddlewareTemplate", `${options.name}-${resource.type}-${resource.name}-resource`, {
                                     [resource.type === "controller"
                                         ? "child"
-                                        : resource.type === "schema"
-                                            ? "schema"
-                                            : "middleware"]: resource.type === "schema"
+                                        : resource.type === "model"
+                                            ? "model"
+                                            : "middleware"]: resource.type === "model"
                                         ? resource.name
                                         : resource.name +
                                             (resource.type === "controller"
@@ -758,7 +758,7 @@ class Project {
                             ctx.resources.resources.forEach((resource) => {
                                 const TargetFile = resource.type === "controller"
                                     ? `./core/controllers.ts`
-                                    : resource.type === "schema"
+                                    : resource.type === "model"
                                         ? `./core/database.ts`
                                         : `./core/middlewares.ts`;
                                 // Parse Template
@@ -771,8 +771,8 @@ class Project {
                                     .pop("ImportsContainer", `${options.name}-${resource.type}-${resource.name}-import`)
                                     .pop(resource.type === "controller"
                                     ? "ControllerChildsContainer"
-                                    : resource.type === "schema"
-                                        ? "SchemaListContainer"
+                                    : resource.type === "model"
+                                        ? "ModelListContainer"
                                         : "MiddlewaresContainer", `${options.name}-${resource.type}-${resource.name}-resource`)
                                     .render();
                             });
