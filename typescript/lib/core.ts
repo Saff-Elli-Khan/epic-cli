@@ -6,7 +6,7 @@ export type FrameworkType = "Express";
 
 export type ProjectType = "Application" | "Plugin";
 
-export type ResourceType = "controller" | "schema" | "middleware";
+export type ResourceType = "controller" | "model" | "middleware";
 
 export type PackageManagerType = "npm" | "yarn";
 
@@ -32,7 +32,7 @@ export interface ConfigurationInterface {
 export interface PathsInterface {
   templates?: string;
   contollers?: string;
-  schemas?: string;
+  models?: string;
   middlewares?: string;
 }
 
@@ -104,7 +104,7 @@ export const ConfigManager = new EpicConfigManager({
         templates: "./src/templates/",
         contollers: "./src/controllers/",
         middlewares: "./src/middlewares/",
-        schemas: "./src/schemas/",
+        models: "./src/models/",
       },
     },
     transactions: {

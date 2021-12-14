@@ -239,54 +239,54 @@ export const ProjectCommands: LooseCommandInterface[] = [
     method: Project.deleteController,
   },
   {
-    name: "create-schema",
-    description: "Create a database schema.",
+    name: "create-model",
+    description: "Create a database model.",
     params: [
       {
         type: "input",
         name: "name",
-        description: "Name of the schema.",
+        description: "Name of the model.",
         alias: ["--name", "-n"],
-        message: "Please provide a schema name:",
+        message: "Please provide a model name:",
         validator: (value) => {
           if (!/^[A-Z]\w+$/.test(value))
-            throw new Error(`Please provide a valid schema name!`);
+            throw new Error(`Please provide a valid model name!`);
         },
       },
       {
         type: "input",
         name: "description",
-        description: "Description for the schema.",
+        description: "Description for the model.",
         alias: ["--description", "-d"],
-        message: "Please provide a schema description:",
+        message: "Please provide a model description:",
         default: "N/A",
       },
       {
         type: "input",
         name: "templateDir",
-        description: "Schema templates container directory.",
+        description: "Model templates container directory.",
         alias: ["--templateDir", "-td"],
         skip: true,
       },
       {
         type: "list",
         name: "template",
-        description: "Template of the Schema",
-        message: "Please provide a schema template:",
+        description: "Template of the Model",
+        message: "Please provide a model template:",
         choices: (options) => {
-          // Schema Path
-          const SchemaDir =
+          // Model Path
+          const ModelDir =
             options.templateDir ||
             Path.join(
               ConfigManager.getConfig("main").paths!.templates!,
-              "./schema/"
+              "./model/"
             );
 
           // Resolve Directory
-          Fs.mkdirSync(SchemaDir, { recursive: true });
+          Fs.mkdirSync(ModelDir, { recursive: true });
 
           // Templates List
-          return Fs.readdirSync(SchemaDir)
+          return Fs.readdirSync(ModelDir)
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
         },
@@ -297,26 +297,26 @@ export const ProjectCommands: LooseCommandInterface[] = [
       if (!ConfigManager.hasConfig("main"))
         throw new Error("Please initialize a project first!");
     },
-    method: Project.createSchema,
+    method: Project.createModel,
   },
   {
-    name: "delete-schema",
-    description: "Remove schema from project.",
+    name: "delete-model",
+    description: "Remove model from project.",
     params: [
       {
         type: "list",
         name: "name",
         alias: ["--name", "-n"],
-        description: "Name of the schema.",
-        message: "Please provide a schema name:",
+        description: "Name of the model.",
+        message: "Please provide a model name:",
         choices: () => {
-          const SchemasPath = ConfigManager.getConfig("main").paths!.schemas!;
+          const ModelsPath = ConfigManager.getConfig("main").paths!.models!;
 
           // Resolve Directory
-          Fs.mkdirSync(SchemasPath, { recursive: true });
+          Fs.mkdirSync(ModelsPath, { recursive: true });
 
-          // Schemas List
-          return Fs.readdirSync(SchemasPath)
+          // Models List
+          return Fs.readdirSync(ModelsPath)
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
         },
@@ -327,7 +327,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
       if (!ConfigManager.hasConfig("main"))
         throw new Error("Please initialize a project first!");
     },
-    method: Project.deleteSchema,
+    method: Project.deleteModel,
   },
   {
     name: "create-module",

@@ -41,45 +41,14 @@ export interface DeleteControllerOptions {
   name: string;
 }
 
-export interface CreateSchemaOptions {
+export interface CreateModelOptions {
   name: string;
   description: string;
   template: string;
   templateDir?: string;
 }
 
-export interface DeleteSchemaOptions {
-  name: string;
-}
-
-export interface CreateSchemaColumnOptions {
-  schema: string;
-  type:
-    | "String"
-    | "Number"
-    | "Boolean"
-    | "Enum"
-    | "Record"
-    | "Array"
-    | "Relation"
-    | "Any";
-  choices?: string[];
-  arrayof?: "String" | "Number" | "Boolean" | "Record" | "Relation" | "Any";
-  recordType?: string;
-  length?: number;
-  relation?: string;
-  mapping?: string[];
-  name: string;
-  nullable?: boolean;
-  defaultValue?: string;
-  public?: boolean;
-  collation?: string;
-  index?: ("FULLTEXT" | "UNIQUE" | "INDEX" | "SPATIAL")[];
-  onUpdate?: string;
-}
-
-export interface DeleteSchemaColumnOptions {
-  schema: string;
+export interface DeleteModelOptions {
   name: string;
 }
 
@@ -133,10 +102,10 @@ export class Project {
     );
   }
 
-  static SchemasPath() {
+  static ModelsPath() {
     return Path.join(
       ConfigManager.Options.rootPath,
-      ConfigManager.getConfig("main").paths!.schemas!
+      ConfigManager.getConfig("main").paths!.models!
     );
   }
 
@@ -390,17 +359,17 @@ export class Project {
                 ControllerPrefix: options.prefix,
               });
 
-            // Push Database Schema
+            // Push Database Model
             if (options.template === "default")
               Parsed.push(
                 "ImportsContainer",
                 "ImportsTemplate",
-                options.name + "SchemaImport",
+                options.name + "ModelImport",
                 {
                   modules: [options.name],
                   location: Path.relative(
                     Project.ControllersPath(),
-                    Path.join(Project.SchemasPath(), options.name)
+                    Path.join(Project.ModelsPath(), options.name)
                   ).replace(/\\/g, "/"),
                 }
               );
@@ -598,27 +567,27 @@ export class Project {
     ]).run();
   };
 
-  static async createSchema(
-    options: CreateSchemaOptions,
+  static async createModel(
+    options: CreateModelOptions,
     command: CommandInterface
   ) {
     // Queue the Tasks
     await new Listr([
       {
-        title: "Creating new Schema",
+        title: "Creating new Model",
         task: () => {
           if (
             !Fs.existsSync(
-              Path.join(Project.SchemasPath(), `./${options.name}.ts`)
+              Path.join(Project.ModelsPath(), `./${options.name}.ts`)
             )
           )
             // Parse Template
             new TemplateParser({
               inDir:
                 options.templateDir ||
-                Path.join(Project.SamplesPath(), "./schema/"),
+                Path.join(Project.SamplesPath(), "./model/"),
               inFile: `./${options.template}.ts`,
-              outDir: Project.SchemasPath(),
+              outDir: Project.ModelsPath(),
               outFile: `./${options.name}.ts`,
             })
               .parse()
@@ -639,27 +608,27 @@ export class Project {
               .push(
                 "ImportsContainer",
                 "ImportsTemplate",
-                options.name + "SchemaImport",
+                options.name + "ModelImport",
                 {
                   modules: [options.name],
                   location: `./${Path.relative(
                     Project.AppCore(),
-                    Path.join(Project.SchemasPath(), options.name)
+                    Path.join(Project.ModelsPath(), options.name)
                   ).replace(/\\/g, "/")}`,
                 }
               )
               .push(
-                "SchemaListContainer",
-                "SchemaListTemplate",
-                options.name + "Schema",
+                "ModelListContainer",
+                "ModelListTemplate",
+                options.name + "Model",
                 {
-                  schema: options.name,
+                  model: options.name,
                 }
               )
               .render();
           } catch (error) {
             console.warn(
-              "We are unable to parse core/database properly! Please add the schema to the list manually.",
+              "We are unable to parse core/database properly! Please add the model to the list manually.",
               error
             );
           }
@@ -667,13 +636,13 @@ export class Project {
           // Update Configuration & Transactions
           ConfigManager.setConfig("transactions", (_) => {
             // Update Last Access
-            _.lastAccess!.schema = options.name;
+            _.lastAccess!.model = options.name;
 
             // Remove Duplicate Transaction
             _.transactions = _.transactions.filter(
               (transaction) =>
                 !(
-                  transaction.command === "create-schema" &&
+                  transaction.command === "create-model" &&
                   transaction.params.name === options.name
                 )
             );
@@ -689,12 +658,12 @@ export class Project {
             // Remove Duplicate Resource
             _.resources = _.resources.filter(
               (resource) =>
-                !(resource.type === "schema" && resource.name === options.name)
+                !(resource.type === "model" && resource.name === options.name)
             );
 
             // Add New Resource
             _.resources.push({
-              type: "schema",
+              type: "model",
               name: options.name,
             });
 
@@ -705,15 +674,15 @@ export class Project {
     ]).run();
   }
 
-  static async deleteSchema(options: DeleteSchemaOptions) {
+  static async deleteModel(options: DeleteModelOptions) {
     // Queue the Tasks
     await new Listr([
       {
-        title: "Deleting the Schema",
+        title: "Deleting the Model",
         task: async () => {
-          // Delete Schema
+          // Delete Model
           Fs.unlinkSync(
-            Path.join(Project.SchemasPath(), `./${options.name}.ts`)
+            Path.join(Project.ModelsPath(), `./${options.name}.ts`)
           );
         },
       },
@@ -728,12 +697,12 @@ export class Project {
               outFile: `./core/database.ts`,
             })
               .parse()
-              .pop("ImportsContainer", options.name + "SchemaImport")
-              .pop("SchemaListContainer", options.name + "Schema")
+              .pop("ImportsContainer", options.name + "ModelImport")
+              .pop("ModelListContainer", options.name + "Model")
               .render();
           } catch (error) {
             console.warn(
-              `We are unable to parse core/database properly! Please remove the schema from core/database manually.`,
+              `We are unable to parse core/database properly! Please remove the model from core/database manually.`,
               error
             );
           }
@@ -741,13 +710,13 @@ export class Project {
           // Update Configuration & Transactions
           ConfigManager.setConfig("transactions", (_) => {
             // Update Last Access
-            delete _.lastAccess!.schema;
+            delete _.lastAccess!.model;
 
             // Remove Transaction
             _.transactions = _.transactions.filter(
               (transaction) =>
                 !(
-                  transaction.command === "create-schema" &&
+                  transaction.command === "create-model" &&
                   transaction.params.name === options.name
                 )
             );
@@ -756,7 +725,7 @@ export class Project {
           }).setConfig("resources", (_) => {
             _.resources = _.resources.filter(
               (resource) =>
-                !(resource.type === "schema" && resource.name === options.name)
+                !(resource.type === "model" && resource.name === options.name)
             );
 
             return _;
@@ -777,15 +746,15 @@ export class Project {
     await Project.createController(options, command);
 
     // Update Temporary Command Name
-    command.name = "create-schema";
+    command.name = "create-model";
 
-    // Create New Schema
-    await Project.createSchema(options, command);
+    // Create New Model
+    await Project.createModel(options, command);
   }
 
   static async deleteModule(options: DeleteControllerOptions) {
     await Project.deleteController(options);
-    await Project.deleteSchema(options);
+    await Project.deleteModel(options);
   }
 
   static createMiddleware = async (
@@ -926,7 +895,7 @@ export class Project {
               .render();
           } catch (error) {
             console.warn(
-              `We are unable to parse core/middlewares properly! Please remove the schema from core/middlewares manually.`,
+              `We are unable to parse core/middlewares properly! Please remove the middleware from core/middlewares manually.`,
               error
             );
           }
@@ -1105,7 +1074,7 @@ export class Project {
               const TargetFile =
                 resource.type === "controller"
                   ? `./core/controllers.ts`
-                  : resource.type === "schema"
+                  : resource.type === "model"
                   ? `./core/database.ts`
                   : `./core/middlewares.ts`;
 
@@ -1122,7 +1091,7 @@ export class Project {
                   `${options.name}-${resource.type}-${resource.name}-import`,
                   {
                     modules: [
-                      resource.type === "schema"
+                      resource.type === "model"
                         ? resource.name
                         : resource.name +
                           (resource.type === "controller"
@@ -1137,22 +1106,22 @@ export class Project {
                 .push(
                   resource.type === "controller"
                     ? "ControllerChildsContainer"
-                    : resource.type === "schema"
-                    ? "SchemaListContainer"
+                    : resource.type === "model"
+                    ? "ModelListContainer"
                     : "MiddlewaresContainer",
                   resource.type === "controller"
                     ? "ControllerChildTemplate"
-                    : resource.type === "schema"
-                    ? "SchemaListTemplate"
+                    : resource.type === "model"
+                    ? "ModelListTemplate"
                     : "MiddlewareTemplate",
                   `${options.name}-${resource.type}-${resource.name}-resource`,
                   {
                     [resource.type === "controller"
                       ? "child"
-                      : resource.type === "schema"
-                      ? "schema"
+                      : resource.type === "model"
+                      ? "model"
                       : "middleware"]:
-                      resource.type === "schema"
+                      resource.type === "model"
                         ? resource.name
                         : resource.name +
                           (resource.type === "controller"
@@ -1346,7 +1315,7 @@ export class Project {
               const TargetFile =
                 resource.type === "controller"
                   ? `./core/controllers.ts`
-                  : resource.type === "schema"
+                  : resource.type === "model"
                   ? `./core/database.ts`
                   : `./core/middlewares.ts`;
 
@@ -1364,8 +1333,8 @@ export class Project {
                 .pop(
                   resource.type === "controller"
                     ? "ControllerChildsContainer"
-                    : resource.type === "schema"
-                    ? "SchemaListContainer"
+                    : resource.type === "model"
+                    ? "ModelListContainer"
                     : "MiddlewaresContainer",
                   `${options.name}-${resource.type}-${resource.name}-resource`
                 )
