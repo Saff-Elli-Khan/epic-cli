@@ -3,6 +3,14 @@ export declare type FrameworkType = "Express";
 export declare type ProjectType = "Application" | "Plugin";
 export declare type ResourceType = "controller" | "model" | "middleware";
 export declare type PackageManagerType = "npm" | "yarn";
+export interface DatabaseConnectionDetails {
+    host: string;
+    port: number;
+    user: string;
+    password: string;
+    dbname: string;
+    limit?: number;
+}
 export interface ConfigurationInterface {
     version: number;
     framework: FrameworkType;
@@ -11,13 +19,7 @@ export interface ConfigurationInterface {
     name: string;
     description: string;
     brand: BrandInterface;
-    database: {
-        host: string;
-        port: number;
-        user: string;
-        password: string;
-        dbname: string;
-    };
+    database: DatabaseConnectionDetails;
     plugins: Record<string, string>;
     paths: PathsInterface;
 }
