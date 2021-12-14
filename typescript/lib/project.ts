@@ -788,184 +788,6 @@ export class Project {
     await Project.deleteSchema(options);
   }
 
-  static async createSchemaColumn(
-    options: CreateSchemaColumnOptions,
-    command: CommandInterface
-  ) {
-    // Queue the Tasks
-    await new Listr([
-      {
-        title: "Creating the Schema Column",
-        task: () => {
-          // Parse Template
-          const Parsed = new TemplateParser({
-            inDir: Project.SchemasPath(),
-            inFile: `./${options.schema}.ts`,
-            outFile: `./${options.schema}.ts`,
-          }).parse();
-
-          // Push Relation Import
-          if (options.relation)
-            Parsed.push(
-              "ImportsContainer",
-              "ImportsTemplate",
-              options.relation + "SchemaImport",
-              {
-                modules: [options.relation],
-                location: `./${options.relation}`,
-              }
-            );
-
-          // Push Column
-          Parsed.push(
-            "ColumnsContainer",
-            options.relation
-              ? options.arrayof === "Relation"
-                ? "ManyRelationTemplate"
-                : "OneRelationTemplate"
-              : "ColumnTemplate",
-            options.name + "Column",
-            {
-              name: options.name,
-              datatype:
-                options.type === "Array"
-                  ? `Array<${
-                      options.arrayof === "Record"
-                        ? `Record<string, ${options.recordType || "any"}>`
-                        : options.arrayof?.toLowerCase()
-                    }>`
-                  : options.type === "Enum"
-                  ? `"${options.choices?.join('" | "')}"`
-                  : options.type === "Record"
-                  ? `Record<string, ${options.recordType || "any"}>`
-                  : options.type.toLowerCase(),
-              options: `{${
-                options.length !== undefined && options.length !== 50
-                  ? `\nlength: ${options.length || null},`
-                  : ""
-              }${options.public === false ? `\npublic: false,` : ""}${
-                options.collation !== undefined &&
-                options.collation !== "utf8mb4_unicode_ci"
-                  ? `\ncollation: "${options.collation}",`
-                  : ""
-              }${
-                options.choices
-                  ? `\nchoices: ["${options.choices.join('", "')}"],`
-                  : ""
-              }${options.nullable ? `\nnullable: true,` : ""}${
-                options.index?.length
-                  ? `\nindex: ["${options.index.join('", "')}"],`
-                  : ""
-              }${
-                options.defaultValue
-                  ? `\ndefaultValue: ${options.defaultValue},`
-                  : ""
-              }${
-                options.onUpdate ? `\nonUpdate: ${options.onUpdate},` : ""
-              }\n}`,
-              schema: options.schema,
-              relation: options.relation,
-              mapping: JSON.stringify(options.mapping),
-            }
-          ).render();
-        },
-      },
-      {
-        title: "Configuring your project",
-        task: () => {
-          // Update Configuration & Transactions
-          ConfigManager.setConfig("transactions", (_) => {
-            // Update Last Access
-            _.lastAccess!.schema = options.schema;
-
-            // Remove Duplicate Transaction
-            _.transactions = _.transactions.filter(
-              (transaction) =>
-                !(
-                  transaction.command === "create-schema-column" &&
-                  transaction.params.schema === options.schema &&
-                  transaction.params.name === options.name
-                )
-            );
-
-            // Add New Transaction
-            _.transactions.push({
-              command: command.name,
-              params: options,
-            });
-
-            return _;
-          });
-        },
-      },
-    ]).run();
-  }
-
-  static deleteSchemaColumn = async (options: DeleteSchemaColumnOptions) => {
-    // Queue the Tasks
-    await new Listr([
-      {
-        title: "Deleting the Column",
-        task: async () => {
-          // Parse Template
-          const Parsed = new TemplateParser({
-            inDir: Project.SchemasPath(),
-            inFile: `./${options.schema}.ts`,
-            outFile: `./${options.schema}.ts`,
-          })
-            .parse()
-            .pop("ColumnsContainer", options.name + "Column");
-
-          // Find & Undo (create-schema) Transaction related to this Schema
-          const Transaction = ConfigManager.getConfig(
-            "transactions"
-          ).transactions.reduce<TransactionInterface | null>(
-            (result, transaction) =>
-              result
-                ? result
-                : transaction.command === "create-schema-column" &&
-                  transaction.params.schema === options.schema &&
-                  transaction.params.name === options.name
-                ? transaction
-                : null,
-            null
-          );
-
-          // Pop Relation Import
-          if (Transaction && typeof Transaction.params.relation === "string")
-            Parsed.pop(
-              "ImportsContainer",
-              Transaction.params.relation + "SchemaImport"
-            );
-
-          Parsed.render();
-        },
-      },
-      {
-        title: "Configuring your project",
-        task: () => {
-          // Update Configuration & Transactions
-          ConfigManager.setConfig("transactions", (_) => {
-            // Update Last Access
-            _.lastAccess!.schema = options.name;
-
-            // Remove Transaction
-            _.transactions = _.transactions.filter(
-              (transaction) =>
-                !(
-                  transaction.command === "create-schema-column" &&
-                  transaction.params.schema === options.schema &&
-                  transaction.params.name === options.name
-                )
-            );
-
-            return _;
-          });
-        },
-      },
-    ]).run();
-  };
-
   static createMiddleware = async (
     options: CreateMiddlewareOptions,
     command: CommandInterface
@@ -1248,8 +1070,8 @@ export class Project {
             // Check Resource Version
             if (ctx.resources && ctx.resources!.version === 1) {
               // Filter Conflicting Resources
-              const Conflictions: Array<ResourceInterface> = ctx.resources.resources.filter(
-                (resource) =>
+              const Conflictions: Array<ResourceInterface> =
+                ctx.resources.resources.filter((resource) =>
                   Resources.reduce<boolean>(
                     (conflicts, pluginResource) =>
                       !conflicts
@@ -1258,7 +1080,7 @@ export class Project {
                         : conflicts,
                     false
                   )
-              );
+                );
 
               if (Conflictions.length) {
                 console.log("Conflicting Resources:", Conflictions);

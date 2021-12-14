@@ -441,83 +441,6 @@ class Project {
             yield Project.deleteSchema(options);
         });
     }
-    static createSchemaColumn(options, command) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Queue the Tasks
-            yield new listr_1.default([
-                {
-                    title: "Creating the Schema Column",
-                    task: () => {
-                        var _a, _b, _c;
-                        // Parse Template
-                        const Parsed = new epic_parser_1.TemplateParser({
-                            inDir: Project.SchemasPath(),
-                            inFile: `./${options.schema}.ts`,
-                            outFile: `./${options.schema}.ts`,
-                        }).parse();
-                        // Push Relation Import
-                        if (options.relation)
-                            Parsed.push("ImportsContainer", "ImportsTemplate", options.relation + "SchemaImport", {
-                                modules: [options.relation],
-                                location: `./${options.relation}`,
-                            });
-                        // Push Column
-                        Parsed.push("ColumnsContainer", options.relation
-                            ? options.arrayof === "Relation"
-                                ? "ManyRelationTemplate"
-                                : "OneRelationTemplate"
-                            : "ColumnTemplate", options.name + "Column", {
-                            name: options.name,
-                            datatype: options.type === "Array"
-                                ? `Array<${options.arrayof === "Record"
-                                    ? `Record<string, ${options.recordType || "any"}>`
-                                    : (_a = options.arrayof) === null || _a === void 0 ? void 0 : _a.toLowerCase()}>`
-                                : options.type === "Enum"
-                                    ? `"${(_b = options.choices) === null || _b === void 0 ? void 0 : _b.join('" | "')}"`
-                                    : options.type === "Record"
-                                        ? `Record<string, ${options.recordType || "any"}>`
-                                        : options.type.toLowerCase(),
-                            options: `{${options.length !== undefined && options.length !== 50
-                                ? `\nlength: ${options.length || null},`
-                                : ""}${options.public === false ? `\npublic: false,` : ""}${options.collation !== undefined &&
-                                options.collation !== "utf8mb4_unicode_ci"
-                                ? `\ncollation: "${options.collation}",`
-                                : ""}${options.choices
-                                ? `\nchoices: ["${options.choices.join('", "')}"],`
-                                : ""}${options.nullable ? `\nnullable: true,` : ""}${((_c = options.index) === null || _c === void 0 ? void 0 : _c.length)
-                                ? `\nindex: ["${options.index.join('", "')}"],`
-                                : ""}${options.defaultValue
-                                ? `\ndefaultValue: ${options.defaultValue},`
-                                : ""}${options.onUpdate ? `\nonUpdate: ${options.onUpdate},` : ""}\n}`,
-                            schema: options.schema,
-                            relation: options.relation,
-                            mapping: JSON.stringify(options.mapping),
-                        }).render();
-                    },
-                },
-                {
-                    title: "Configuring your project",
-                    task: () => {
-                        // Update Configuration & Transactions
-                        core_1.ConfigManager.setConfig("transactions", (_) => {
-                            // Update Last Access
-                            _.lastAccess.schema = options.schema;
-                            // Remove Duplicate Transaction
-                            _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-schema-column" &&
-                                transaction.params.schema === options.schema &&
-                                transaction.params.name === options.name));
-                            // Add New Transaction
-                            _.transactions.push({
-                                command: command.name,
-                                params: options,
-                            });
-                            return _;
-                        });
-                    },
-                },
-            ]).run();
-        });
-    }
     static deleteMiddleware(options) {
         return __awaiter(this, void 0, void 0, function* () {
             // Queue the Tasks
@@ -940,51 +863,6 @@ Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, functi
                 }).setConfig("resources", (_) => {
                     _.resources = _.resources.filter((resource) => !(resource.type === "controller" &&
                         resource.name === options.name));
-                    return _;
-                });
-            },
-        },
-    ]).run();
-});
-Project.deleteSchemaColumn = (options) => __awaiter(void 0, void 0, void 0, function* () {
-    // Queue the Tasks
-    yield new listr_1.default([
-        {
-            title: "Deleting the Column",
-            task: () => __awaiter(void 0, void 0, void 0, function* () {
-                // Parse Template
-                const Parsed = new epic_parser_1.TemplateParser({
-                    inDir: Project.SchemasPath(),
-                    inFile: `./${options.schema}.ts`,
-                    outFile: `./${options.schema}.ts`,
-                })
-                    .parse()
-                    .pop("ColumnsContainer", options.name + "Column");
-                // Find & Undo (create-schema) Transaction related to this Schema
-                const Transaction = core_1.ConfigManager.getConfig("transactions").transactions.reduce((result, transaction) => result
-                    ? result
-                    : transaction.command === "create-schema-column" &&
-                        transaction.params.schema === options.schema &&
-                        transaction.params.name === options.name
-                        ? transaction
-                        : null, null);
-                // Pop Relation Import
-                if (Transaction && typeof Transaction.params.relation === "string")
-                    Parsed.pop("ImportsContainer", Transaction.params.relation + "SchemaImport");
-                Parsed.render();
-            }),
-        },
-        {
-            title: "Configuring your project",
-            task: () => {
-                // Update Configuration & Transactions
-                core_1.ConfigManager.setConfig("transactions", (_) => {
-                    // Update Last Access
-                    _.lastAccess.schema = options.name;
-                    // Remove Transaction
-                    _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-schema-column" &&
-                        transaction.params.schema === options.schema &&
-                        transaction.params.name === options.name));
                     return _;
                 });
             },

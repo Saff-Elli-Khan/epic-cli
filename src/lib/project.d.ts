@@ -88,8 +88,6 @@ export declare class Project {
     static deleteSchema(options: DeleteSchemaOptions): Promise<void>;
     static createModule(options: CreateControllerOptions, command: CommandInterface): Promise<void>;
     static deleteModule(options: DeleteControllerOptions): Promise<void>;
-    static createSchemaColumn(options: CreateSchemaColumnOptions, command: CommandInterface): Promise<void>;
-    static deleteSchemaColumn: (options: DeleteSchemaColumnOptions) => Promise<void>;
     static createMiddleware: (options: CreateMiddlewareOptions, command: CommandInterface) => Promise<void>;
     static deleteMiddleware(options: DeleteMiddlewareOptions): Promise<void>;
     static addPlugin(options: AddPluginOptions, command: CommandInterface): Promise<void>;
