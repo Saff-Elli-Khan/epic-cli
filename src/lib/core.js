@@ -49,6 +49,7 @@ exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
             middlewares: "./src/middlewares/",
             models: "./src/models/",
         },
+        other: {},
     },
     transactions: {
         version: 1,

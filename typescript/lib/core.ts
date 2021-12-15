@@ -19,6 +19,15 @@ export interface DatabaseConnectionDetails {
   limit?: number;
 }
 
+export interface OtherOptions {
+  postman?: {
+    apiKey: string;
+    collectionId: string;
+    disabled?: boolean;
+  };
+  [Key: string]: any;
+}
+
 export interface ConfigurationInterface {
   version: number;
   framework: FrameworkType;
@@ -30,6 +39,7 @@ export interface ConfigurationInterface {
   database: DatabaseConnectionDetails;
   plugins: Record<string, string>;
   paths: PathsInterface;
+  other: OtherOptions;
 }
 
 export interface PathsInterface {
@@ -109,6 +119,7 @@ export const ConfigManager = new EpicConfigManager({
         middlewares: "./src/middlewares/",
         models: "./src/models/",
       },
+      other: {},
     },
     transactions: {
       version: 1,

@@ -11,6 +11,14 @@ export interface DatabaseConnectionDetails {
     dbname: string;
     limit?: number;
 }
+export interface OtherOptions {
+    postman?: {
+        apiKey: string;
+        collectionId: string;
+        disabled?: boolean;
+    };
+    [Key: string]: any;
+}
 export interface ConfigurationInterface {
     version: number;
     framework: FrameworkType;
@@ -22,6 +30,7 @@ export interface ConfigurationInterface {
     database: DatabaseConnectionDetails;
     plugins: Record<string, string>;
     paths: PathsInterface;
+    other: OtherOptions;
 }
 export interface PathsInterface {
     templates?: string;
