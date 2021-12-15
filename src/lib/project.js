@@ -330,11 +330,11 @@ class Project {
                     title: "Configuring your project",
                     task: () => {
                         try {
-                            // Parse Template core/database.ts
+                            // Parse Template core/models.ts
                             new epic_parser_1.TemplateParser({
                                 inDir: Project.AppPath(),
-                                inFile: `./core/database.ts`,
-                                outFile: `./core/database.ts`,
+                                inFile: `./core/models.ts`,
+                                outFile: `./core/models.ts`,
                             })
                                 .parse()
                                 .push("ImportsContainer", "ImportsTemplate", options.name + "ModelImport", {
@@ -347,7 +347,7 @@ class Project {
                                 .render();
                         }
                         catch (error) {
-                            console.warn("We are unable to parse core/database properly! Please add the model to the list manually.", error);
+                            console.warn("We are unable to parse core/models properly! Please add the model to the list manually.", error);
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("transactions", (_) => {
@@ -395,8 +395,8 @@ class Project {
                             // Parse Template
                             new epic_parser_1.TemplateParser({
                                 inDir: Project.AppPath(),
-                                inFile: `./core/database.ts`,
-                                outFile: `./core/database.ts`,
+                                inFile: `./core/models.ts`,
+                                outFile: `./core/models.ts`,
                             })
                                 .parse()
                                 .pop("ImportsContainer", options.name + "ModelImport")
@@ -404,7 +404,7 @@ class Project {
                                 .render();
                         }
                         catch (error) {
-                            console.warn(`We are unable to parse core/database properly! Please remove the model from core/database manually.`, error);
+                            console.warn(`We are unable to parse core/models properly! Please remove the model from core/models manually.`, error);
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("transactions", (_) => {
@@ -578,7 +578,7 @@ class Project {
                                 const TargetFile = resource.type === "controller"
                                     ? `./core/controllers.ts`
                                     : resource.type === "model"
-                                        ? `./core/database.ts`
+                                        ? `./core/models.ts`
                                         : `./core/middlewares.ts`;
                                 // Parse Template
                                 new epic_parser_1.TemplateParser({
@@ -759,7 +759,7 @@ class Project {
                                 const TargetFile = resource.type === "controller"
                                     ? `./core/controllers.ts`
                                     : resource.type === "model"
-                                        ? `./core/database.ts`
+                                        ? `./core/models.ts`
                                         : `./core/middlewares.ts`;
                                 // Parse Template
                                 new epic_parser_1.TemplateParser({

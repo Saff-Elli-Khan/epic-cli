@@ -598,11 +598,11 @@ export class Project {
         title: "Configuring your project",
         task: () => {
           try {
-            // Parse Template core/database.ts
+            // Parse Template core/models.ts
             new TemplateParser({
               inDir: Project.AppPath(),
-              inFile: `./core/database.ts`,
-              outFile: `./core/database.ts`,
+              inFile: `./core/models.ts`,
+              outFile: `./core/models.ts`,
             })
               .parse()
               .push(
@@ -628,7 +628,7 @@ export class Project {
               .render();
           } catch (error) {
             console.warn(
-              "We are unable to parse core/database properly! Please add the model to the list manually.",
+              "We are unable to parse core/models properly! Please add the model to the list manually.",
               error
             );
           }
@@ -693,8 +693,8 @@ export class Project {
             // Parse Template
             new TemplateParser({
               inDir: Project.AppPath(),
-              inFile: `./core/database.ts`,
-              outFile: `./core/database.ts`,
+              inFile: `./core/models.ts`,
+              outFile: `./core/models.ts`,
             })
               .parse()
               .pop("ImportsContainer", options.name + "ModelImport")
@@ -702,7 +702,7 @@ export class Project {
               .render();
           } catch (error) {
             console.warn(
-              `We are unable to parse core/database properly! Please remove the model from core/database manually.`,
+              `We are unable to parse core/models properly! Please remove the model from core/models manually.`,
               error
             );
           }
@@ -1075,7 +1075,7 @@ export class Project {
                 resource.type === "controller"
                   ? `./core/controllers.ts`
                   : resource.type === "model"
-                  ? `./core/database.ts`
+                  ? `./core/models.ts`
                   : `./core/middlewares.ts`;
 
               // Parse Template
@@ -1316,7 +1316,7 @@ export class Project {
                 resource.type === "controller"
                   ? `./core/controllers.ts`
                   : resource.type === "model"
-                  ? `./core/database.ts`
+                  ? `./core/models.ts`
                   : `./core/middlewares.ts`;
 
               // Parse Template
