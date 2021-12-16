@@ -191,7 +191,6 @@ export class Project {
   }
 
   static async create(options: CreateOptions) {
-    console.log("Create Options:", options);
     // Queue the Tasks
     await new Listr([
       {
@@ -289,7 +288,7 @@ export class Project {
       },
       {
         title: "Installing application dependencies with npm",
-        enabled: (ctx) => ctx.yarn === false,
+        enabled: (ctx) => ctx.yarn === false || options.npm,
         task: () =>
           Execa("npm", ["install"]).then(() => {
             ConfigManager.setConfig("main", (_) => {

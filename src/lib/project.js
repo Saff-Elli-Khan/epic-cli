@@ -107,7 +107,6 @@ class Project {
     }
     static create(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("Create Options:", options);
             // Queue the Tasks
             yield new listr_1.default([
                 {
@@ -189,7 +188,7 @@ class Project {
                 },
                 {
                     title: "Installing application dependencies with npm",
-                    enabled: (ctx) => ctx.yarn === false,
+                    enabled: (ctx) => ctx.yarn === false || options.npm,
                     task: () => execa_1.default("npm", ["install"]).then(() => {
                         core_1.ConfigManager.setConfig("main", (_) => {
                             // Set Package Manager
