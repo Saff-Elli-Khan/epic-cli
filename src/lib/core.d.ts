@@ -11,12 +11,14 @@ export interface DatabaseConnectionDetails {
     dbname: string;
     limit?: number;
 }
+export interface PostmanOptions {
+    apiKey: string;
+    collectionId: string;
+    collectionName?: string;
+    disabled?: boolean;
+}
 export interface OtherOptions {
-    postman?: {
-        apiKey: string;
-        collectionId: string;
-        disabled?: boolean;
-    };
+    postman?: PostmanOptions;
     [Key: string]: any;
 }
 export interface ConfigurationInterface {

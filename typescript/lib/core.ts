@@ -20,12 +20,15 @@ export interface DatabaseConnectionDetails {
   limit?: number;
 }
 
+export interface PostmanOptions {
+  apiKey: string;
+  collectionId: string;
+  collectionName?: string;
+  disabled?: boolean;
+}
+
 export interface OtherOptions {
-  postman?: {
-    apiKey: string;
-    collectionId: string;
-    disabled?: boolean;
-  };
+  postman?: PostmanOptions;
   [Key: string]: any;
 }
 
