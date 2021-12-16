@@ -9,8 +9,9 @@ export interface InitializationOptions {
     brandAddress: string;
 }
 export interface CreateOptions {
-    installation: boolean;
     admin: boolean;
+    installation: boolean;
+    npm: boolean;
 }
 export interface CreateControllerOptions {
     name: string;

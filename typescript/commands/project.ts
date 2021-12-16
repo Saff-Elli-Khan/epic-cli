@@ -213,6 +213,13 @@ export const ProjectCommands: LooseCommandInterface[] = [
         alias: ["-i"],
         message: "Do you want to install dependencies automatically?",
       },
+      {
+        type: "confirm",
+        name: "npm",
+        description: "Install dependencies with NPM.",
+        alias: ["--npm"],
+        default: false,
+      },
     ],
     method: Project.create,
   },

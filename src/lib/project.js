@@ -183,7 +183,7 @@ class Project {
                         ctx.yarn = false;
                         task.skip("Yarn not available, install it via `npm install -g yarn`");
                     }),
-                    skip: () => !options.installation,
+                    skip: () => !options.installation || options.npm,
                 },
                 {
                     title: "Installing application dependencies with npm",

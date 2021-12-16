@@ -24,8 +24,9 @@ export interface InitializationOptions {
 }
 
 export interface CreateOptions {
-  installation: boolean;
   admin: boolean;
+  installation: boolean;
+  npm: boolean;
 }
 
 export interface CreateControllerOptions {
@@ -283,7 +284,7 @@ export class Project {
                 "Yarn not available, install it via `npm install -g yarn`"
               );
             }),
-        skip: () => !options.installation,
+        skip: () => !options.installation || options.npm,
       },
       {
         title: "Installing application dependencies with npm",
