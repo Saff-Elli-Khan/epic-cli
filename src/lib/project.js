@@ -107,6 +107,7 @@ class Project {
     }
     static create(options) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("Create Options:", options);
             // Queue the Tasks
             yield new listr_1.default([
                 {
@@ -125,6 +126,8 @@ class Project {
                     title: "Cloning repository to current directory",
                     task: ({ configuration }) => __awaiter(this, void 0, void 0, function* () {
                         try {
+                            // Remove .git folder
+                            yield execa_1.default("npx", ["rimraf", "./.git"]);
                             // Clone Repository
                             yield execa_1.default("git", [
                                 "clone",
@@ -204,7 +207,7 @@ class Project {
                         ctx.yarn = false;
                         task.skip("Yarn not available, you can install it via `npm install -g yarn` if needed.");
                     }),
-                    skip: () => !options.installation || !options.admin,
+                    skip: () => !options.installation || !options.admin || options.npm,
                 },
                 {
                     title: "Installing admin dashboard dependencies with npm",

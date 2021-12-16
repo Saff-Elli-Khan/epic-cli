@@ -191,6 +191,7 @@ export class Project {
   }
 
   static async create(options: CreateOptions) {
+    console.log("Create Options:", options);
     // Queue the Tasks
     await new Listr([
       {
@@ -211,6 +212,9 @@ export class Project {
         title: "Cloning repository to current directory",
         task: async ({ configuration }) => {
           try {
+            // Remove .git folder
+            await Execa("npx", ["rimraf", "./.git"]);
+
             // Clone Repository
             await Execa("git", [
               "clone",
@@ -312,7 +316,7 @@ export class Project {
               "Yarn not available, you can install it via `npm install -g yarn` if needed."
             );
           }),
-        skip: () => !options.installation || !options.admin,
+        skip: () => !options.installation || !options.admin || options.npm,
       },
       {
         title: "Installing admin dashboard dependencies with npm",
