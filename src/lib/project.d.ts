@@ -57,7 +57,7 @@ export declare class Project {
     static ControllersPath(): string;
     static ModelsPath(): string;
     static MiddlewaresPath(): string;
-    static getPackage(): any;
+    static getPackage(silent?: boolean): any;
     static getAdminDashboardPathName(): string;
     static configure(Configuration: ConfigurationInterface): void;
     static initialize(options: InitializationOptions): Promise<void>;

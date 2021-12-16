@@ -45,7 +45,12 @@ class Project {
     static MiddlewaresPath() {
         return path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.middlewares);
     }
-    static getPackage() {
+    static getPackage(silent = false) {
+        if (fs_1.default.existsSync(Project.PackagePath()))
+            if (!silent)
+                throw new Error(`package.json has not been found!`);
+            else
+                return null;
         return require(Project.PackagePath());
     }
     static getAdminDashboardPathName() {
@@ -53,27 +58,25 @@ class Project {
     }
     static configure(Configuration) {
         // Get Package Information
-        const Package = Project.getPackage();
-        // Update Package Information
-        Package.name = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.name) || Package.name;
-        Package.description = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.description) || Package.description;
-        Package.private = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.type) === "Application";
-        if ((Configuration === null || Configuration === void 0 ? void 0 : Configuration.type) === "Plugin") {
-            // Dependencies to Development
-            Package.devDependencies = Object.assign(Object.assign({}, Package.dependencies), Package.devDependencies);
-            // Empty Dependencies
-            Package.dependencies = {};
-            // Update Tags
-            Package.keywords = ["epic", "plugin"];
+        const Package = Project.getPackage(true);
+        if (Package !== null) {
+            // Update Package Information
+            Package.name = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.name) || Package.name;
+            Package.description = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.description) || Package.description;
+            Package.private = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.type) === "Application";
+            if ((Configuration === null || Configuration === void 0 ? void 0 : Configuration.type) === "Plugin") {
+                // Dependencies to Development
+                Package.devDependencies = Object.assign(Object.assign({}, Package.dependencies), Package.devDependencies);
+                // Empty Dependencies
+                Package.dependencies = {};
+                // Update Tags
+                Package.keywords = ["epic", "plugin"];
+            }
+            // Put Package Data
+            fs_1.default.writeFileSync(Project.PackagePath(), JSON.stringify(Package, undefined, 2));
         }
-        // Put Package Data
-        fs_1.default.writeFileSync(Project.PackagePath(), JSON.stringify(Package, undefined, 2));
         // Re-Create Configuration
         core_1.ConfigManager.setConfig("main", Configuration);
-        // Create Environment Directory
-        fs_1.default.mkdirSync(Project.EnvironmentsPath(), {
-            recursive: true,
-        });
     }
     static initialize(options) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -97,11 +100,7 @@ class Project {
                 },
                 {
                     title: "Configuring your project",
-                    task: () => {
-                        if (fs_1.default.existsSync(Project.PackagePath()))
-                            // Configure Project
-                            Project.configure(core_1.ConfigManager.getConfig("main"));
-                    },
+                    task: () => Project.configure(core_1.ConfigManager.getConfig("main")),
                 },
             ]).run();
         });
@@ -159,14 +158,14 @@ class Project {
                 {
                     title: "Configuring your project",
                     task: ({ configuration }) => {
-                        if (fs_1.default.existsSync(Project.PackagePath())) {
-                            // Configure Project
-                            Project.configure(configuration);
-                            // Create Environment Files
-                            ["development", "production"].forEach((env) => fs_1.default.writeFileSync(path_1.default.join(Project.EnvironmentsPath(), `./.${env}.env`), `ENCRYPTION_KEY=${utils_1.generateRandomKey(32)}`));
-                        }
-                        else
-                            throw new Error(`We did not found a 'package.json' in the project!`);
+                        // Configure Project
+                        Project.configure(configuration);
+                        // Create Environment Directory
+                        fs_1.default.mkdirSync(Project.EnvironmentsPath(), {
+                            recursive: true,
+                        });
+                        // Create Environment Files
+                        ["development", "production"].forEach((env) => fs_1.default.writeFileSync(path_1.default.join(Project.EnvironmentsPath(), `./.${env}.env`), `ENCRYPTION_KEY=${utils_1.generateRandomKey(32)}`));
                     },
                 },
                 {

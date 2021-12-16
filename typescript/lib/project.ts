@@ -117,7 +117,11 @@ export class Project {
     );
   }
 
-  static getPackage() {
+  static getPackage(silent = false) {
+    if (Fs.existsSync(Project.PackagePath()))
+      if (!silent) throw new Error(`package.json has not been found!`);
+      else return null;
+
     return require(Project.PackagePath());
   }
 
@@ -127,40 +131,37 @@ export class Project {
 
   static configure(Configuration: ConfigurationInterface) {
     // Get Package Information
-    const Package = Project.getPackage();
+    const Package = Project.getPackage(true);
 
-    // Update Package Information
-    Package.name = Configuration?.name || Package.name;
-    Package.description = Configuration?.description || Package.description;
-    Package.private = Configuration?.type === "Application";
+    if (Package !== null) {
+      // Update Package Information
+      Package.name = Configuration?.name || Package.name;
+      Package.description = Configuration?.description || Package.description;
+      Package.private = Configuration?.type === "Application";
 
-    if (Configuration?.type === "Plugin") {
-      // Dependencies to Development
-      Package.devDependencies = {
-        ...Package.dependencies,
-        ...Package.devDependencies,
-      };
+      if (Configuration?.type === "Plugin") {
+        // Dependencies to Development
+        Package.devDependencies = {
+          ...Package.dependencies,
+          ...Package.devDependencies,
+        };
 
-      // Empty Dependencies
-      Package.dependencies = {};
+        // Empty Dependencies
+        Package.dependencies = {};
 
-      // Update Tags
-      Package.keywords = ["epic", "plugin"];
+        // Update Tags
+        Package.keywords = ["epic", "plugin"];
+      }
+
+      // Put Package Data
+      Fs.writeFileSync(
+        Project.PackagePath(),
+        JSON.stringify(Package, undefined, 2)
+      );
     }
-
-    // Put Package Data
-    Fs.writeFileSync(
-      Project.PackagePath(),
-      JSON.stringify(Package, undefined, 2)
-    );
 
     // Re-Create Configuration
     ConfigManager.setConfig("main", Configuration);
-
-    // Create Environment Directory
-    Fs.mkdirSync(Project.EnvironmentsPath(), {
-      recursive: true,
-    });
   }
 
   static async initialize(options: InitializationOptions) {
@@ -184,11 +185,7 @@ export class Project {
       },
       {
         title: "Configuring your project",
-        task: () => {
-          if (Fs.existsSync(Project.PackagePath()))
-            // Configure Project
-            Project.configure(ConfigManager.getConfig("main"));
-        },
+        task: () => Project.configure(ConfigManager.getConfig("main")),
       },
     ]).run();
   }
@@ -248,21 +245,21 @@ export class Project {
       {
         title: "Configuring your project",
         task: ({ configuration }) => {
-          if (Fs.existsSync(Project.PackagePath())) {
-            // Configure Project
-            Project.configure(configuration);
+          // Configure Project
+          Project.configure(configuration);
 
-            // Create Environment Files
-            ["development", "production"].forEach((env) =>
-              Fs.writeFileSync(
-                Path.join(Project.EnvironmentsPath(), `./.${env}.env`),
-                `ENCRYPTION_KEY=${generateRandomKey(32)}`
-              )
-            );
-          } else
-            throw new Error(
-              `We did not found a 'package.json' in the project!`
-            );
+          // Create Environment Directory
+          Fs.mkdirSync(Project.EnvironmentsPath(), {
+            recursive: true,
+          });
+
+          // Create Environment Files
+          ["development", "production"].forEach((env) =>
+            Fs.writeFileSync(
+              Path.join(Project.EnvironmentsPath(), `./.${env}.env`),
+              `ENCRYPTION_KEY=${generateRandomKey(32)}`
+            )
+          );
         },
       },
       {
