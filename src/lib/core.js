@@ -114,7 +114,17 @@ class Core {
     }
     static update() {
         return __awaiter(this, void 0, void 0, function* () {
-            return execa_1.default("npm", ["install", "-g", require("../../package.json").name]);
+            // Queue the Tasks
+            yield new listr_1.default([
+                {
+                    title: "Preparing to update the CLI...",
+                    task: () => execa_1.default("npm", ["r", "-g", require("../../package.json").name]),
+                },
+                {
+                    title: "Updating the CLI...",
+                    task: () => execa_1.default("npm", ["i", "-g", require("../../package.json").name]),
+                },
+            ]).run();
         });
     }
 }

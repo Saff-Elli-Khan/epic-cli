@@ -197,6 +197,18 @@ export class Core {
   }
 
   static async update() {
-    return Execa("npm", ["install", "-g", require("../../package.json").name]);
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Preparing to update the CLI...",
+        task: () =>
+          Execa("npm", ["r", "-g", require("../../package.json").name]),
+      },
+      {
+        title: "Updating the CLI...",
+        task: () =>
+          Execa("npm", ["i", "-g", require("../../package.json").name]),
+      },
+    ]).run();
   }
 }
