@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Core = exports.ConfigManager = void 0;
 const listr_1 = __importDefault(require("listr"));
+const execa_1 = __importDefault(require("execa"));
 const epic_config_manager_1 = require("@saffellikhan/epic-config-manager");
 exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
     configFileNames: {
@@ -109,6 +110,11 @@ class Core {
                     }),
                 },
             ]).run();
+        });
+    }
+    static update() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return execa_1.default("npm", ["install", "-g", require("../../package.json").name]);
         });
     }
 }

@@ -8,4 +8,9 @@ exports.CoreCommands = [
         description: "Install configuration commands.",
         method: core_1.Core.install,
     },
+    {
+        name: "update",
+        description: "Update Epic CLI.",
+        method: core_1.Core.update,
+    },
 ];

@@ -1,3 +1,4 @@
+import Execa from "execa";
 import { EpicConfigManager } from "@saffellikhan/epic-config-manager";
 export declare type FrameworkType = "Express";
 export declare type ProjectType = "Application" | "Plugin";
@@ -71,4 +72,5 @@ export declare const ConfigManager: EpicConfigManager<Required<{
 }>>;
 export declare class Core {
     static install(): Promise<void>;
+    static update(): Promise<Execa.ExecaReturnValue<string>>;
 }

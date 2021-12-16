@@ -7,4 +7,9 @@ export const CoreCommands: LooseCommandInterface[] = [
     description: "Install configuration commands.",
     method: Core.install,
   },
+  {
+    name: "update",
+    description: "Update Epic CLI.",
+    method: Core.update,
+  },
 ];

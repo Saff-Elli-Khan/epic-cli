@@ -1,4 +1,5 @@
 import Listr from "listr";
+import Execa from "execa";
 import { EpicConfigManager } from "@saffellikhan/epic-config-manager";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 
@@ -193,5 +194,9 @@ export class Core {
         },
       },
     ]).run();
+  }
+
+  static async update() {
+    return Execa("npm", ["install", "-g", require("../../package.json").name]);
   }
 }
