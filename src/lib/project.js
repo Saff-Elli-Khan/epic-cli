@@ -46,7 +46,7 @@ class Project {
         return path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.middlewares);
     }
     static getPackage(silent = false) {
-        if (fs_1.default.existsSync(Project.PackagePath()))
+        if (!fs_1.default.existsSync(Project.PackagePath()))
             if (!silent)
                 throw new Error(`package.json has not been found!`);
             else
@@ -83,7 +83,7 @@ class Project {
             // Queue the Tasks
             yield new listr_1.default([
                 {
-                    title: "Creating or Updating configuration...",
+                    title: "Creating/Updating configuration...",
                     task: () => {
                         // Set New Configuration
                         core_1.ConfigManager.setConfig("main", {

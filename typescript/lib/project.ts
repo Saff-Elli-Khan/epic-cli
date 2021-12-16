@@ -118,7 +118,7 @@ export class Project {
   }
 
   static getPackage(silent = false) {
-    if (Fs.existsSync(Project.PackagePath()))
+    if (!Fs.existsSync(Project.PackagePath()))
       if (!silent) throw new Error(`package.json has not been found!`);
       else return null;
 
@@ -168,7 +168,7 @@ export class Project {
     // Queue the Tasks
     await new Listr([
       {
-        title: "Creating or Updating configuration...",
+        title: "Creating/Updating configuration...",
         task: () => {
           // Set New Configuration
           ConfigManager.setConfig("main", {
