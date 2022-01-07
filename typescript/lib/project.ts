@@ -137,9 +137,9 @@ export class Project {
       // Update Package Information
       Package.name = Configuration?.name || Package.name;
       Package.description = Configuration?.description || Package.description;
-      Package.private = Configuration?.type === "Application";
+      Package.private = Configuration?.type === "application";
 
-      if (Configuration?.type === "Plugin") {
+      if (Configuration?.type === "plugin") {
         // Dependencies to Development
         Package.devDependencies = {
           ...Package.dependencies,
@@ -1005,12 +1005,21 @@ export class Project {
             `./node_modules/${options.name}/epic.config.json`
           ));
 
-          if (Configuration.type !== "Plugin")
+          if (Configuration.type !== "plugin")
             throw new Error(
-              `Subject is not a plugin! Cannot link to the project.`
+              `${options.name} is not a plugin! Cannot link to the project.`
             );
 
-          // Check If Resources Exist
+          // Verify Database Engine Support
+          if (
+            !Configuration.supportedDBEngines.includes(
+              ConfigManager.getConfig("main").database.engine
+            )
+          )
+            throw new Error(
+              `Your project does not support the database engine used in this plugin!`
+            );
+
           if (
             !Object.keys(ConfigManager.getConfig("main").plugins).includes(
               options.name
@@ -1022,6 +1031,7 @@ export class Project {
               )
             )
           ) {
+            // Check If Resources Exist
             // Get Package
             ctx.package = require(Path.join(
               ConfigManager.Options.rootPath,

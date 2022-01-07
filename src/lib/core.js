@@ -26,8 +26,8 @@ exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
     .init({
     main: {
         version: 1,
-        framework: "Express",
-        type: "Application",
+        framework: "express",
+        type: "application",
         packageManager: "npm",
         name: "my-project",
         description: "This is my project.",
@@ -37,12 +37,10 @@ exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
             address: "House #22, Multan",
         },
         database: {
-            host: "localhost",
-            port: 3306,
-            user: "root",
-            password: "",
-            dbname: "test",
+            engine: "mongodb",
+            uri: "mongodb://localhost:27017/test",
         },
+        supportedDBEngines: ["mongodb"],
         plugins: {},
         paths: {
             templates: "./src/templates/",

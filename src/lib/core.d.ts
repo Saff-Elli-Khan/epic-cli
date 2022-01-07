@@ -1,15 +1,15 @@
 import { EpicConfigManager } from "@saffellikhan/epic-config-manager";
-export declare type FrameworkType = "Express";
-export declare type ProjectType = "Application" | "Plugin";
+export declare type FrameworkType = "express";
+export declare type ProjectType = "application" | "plugin";
 export declare type ResourceType = "controller" | "model" | "middleware";
 export declare type PackageManagerType = "npm" | "yarn";
-export interface DatabaseConnectionDetails {
-    host: string;
-    port: number;
-    user: string;
-    password: string;
-    dbname: string;
-    limit?: number;
+export declare type DatabaseEngine = "mongodb" | "mysql";
+export interface DatabaseConfiguration {
+    engine: DatabaseEngine;
+    uri: string;
+    options?: Record<string, any>;
+    logs?: boolean;
+    sync?: boolean;
 }
 export interface PostmanOptions {
     apiKey: string;
@@ -29,7 +29,8 @@ export interface ConfigurationInterface {
     name: string;
     description: string;
     brand: BrandInterface;
-    database: DatabaseConnectionDetails;
+    database: DatabaseConfiguration;
+    supportedDBEngines: DatabaseEngine[];
     plugins: Record<string, string>;
     paths: PathsInterface;
     other: OtherOptions;

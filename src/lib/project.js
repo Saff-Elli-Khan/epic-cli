@@ -63,8 +63,8 @@ class Project {
             // Update Package Information
             Package.name = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.name) || Package.name;
             Package.description = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.description) || Package.description;
-            Package.private = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.type) === "Application";
-            if ((Configuration === null || Configuration === void 0 ? void 0 : Configuration.type) === "Plugin") {
+            Package.private = (Configuration === null || Configuration === void 0 ? void 0 : Configuration.type) === "application";
+            if ((Configuration === null || Configuration === void 0 ? void 0 : Configuration.type) === "plugin") {
                 // Dependencies to Development
                 Package.devDependencies = Object.assign(Object.assign({}, Package.dependencies), Package.devDependencies);
                 // Empty Dependencies
@@ -541,11 +541,14 @@ class Project {
                             throw new Error(`We didn't found Configuration file on the plugin directory!`);
                         // Validate Plugin
                         const Configuration = require(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/epic.config.json`));
-                        if (Configuration.type !== "Plugin")
-                            throw new Error(`Subject is not a plugin! Cannot link to the project.`);
-                        // Check If Resources Exist
+                        if (Configuration.type !== "plugin")
+                            throw new Error(`${options.name} is not a plugin! Cannot link to the project.`);
+                        // Verify Database Engine Support
+                        if (!Configuration.supportedDBEngines.includes(core_1.ConfigManager.getConfig("main").database.engine))
+                            throw new Error(`Your project does not support the database engine used in this plugin!`);
                         if (!Object.keys(core_1.ConfigManager.getConfig("main").plugins).includes(options.name) &&
                             fs_1.default.existsSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/epic.resources.json`))) {
+                            // Check If Resources Exist
                             // Get Package
                             ctx.package = require(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/package.json`));
                             // Get Plugin Resources

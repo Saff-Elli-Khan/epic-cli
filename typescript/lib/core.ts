@@ -3,21 +3,22 @@ import Execa from "execa";
 import { EpicConfigManager } from "@saffellikhan/epic-config-manager";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 
-export type FrameworkType = "Express";
+export type FrameworkType = "express";
 
-export type ProjectType = "Application" | "Plugin";
+export type ProjectType = "application" | "plugin";
 
 export type ResourceType = "controller" | "model" | "middleware";
 
 export type PackageManagerType = "npm" | "yarn";
 
-export interface DatabaseConnectionDetails {
-  host: string;
-  port: number;
-  user: string;
-  password: string;
-  dbname: string;
-  limit?: number;
+export type DatabaseEngine = "mongodb" | "mysql";
+
+export interface DatabaseConfiguration {
+  engine: DatabaseEngine;
+  uri: string;
+  options?: Record<string, any>;
+  logs?: boolean;
+  sync?: boolean;
 }
 
 export interface PostmanOptions {
@@ -40,7 +41,8 @@ export interface ConfigurationInterface {
   name: string;
   description: string;
   brand: BrandInterface;
-  database: DatabaseConnectionDetails;
+  database: DatabaseConfiguration;
+  supportedDBEngines: DatabaseEngine[];
   plugins: Record<string, string>;
   paths: PathsInterface;
   other: OtherOptions;
@@ -99,8 +101,8 @@ export const ConfigManager = new EpicConfigManager({
   }>({
     main: {
       version: 1,
-      framework: "Express",
-      type: "Application",
+      framework: "express",
+      type: "application",
       packageManager: "npm",
       name: "my-project",
       description: "This is my project.",
@@ -110,12 +112,10 @@ export const ConfigManager = new EpicConfigManager({
         address: "House #22, Multan",
       },
       database: {
-        host: "localhost",
-        port: 3306,
-        user: "root",
-        password: "",
-        dbname: "test",
+        engine: "mongodb",
+        uri: "mongodb://localhost:27017/test",
       },
+      supportedDBEngines: ["mongodb"],
       plugins: {},
       paths: {
         templates: "./src/templates/",
