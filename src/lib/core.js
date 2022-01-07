@@ -38,6 +38,7 @@ exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
         },
         database: {
             engine: "mongodb",
+            type: "simple",
             uri: "mongodb://localhost:27017/test",
         },
         supportedDBEngines: ["mongodb"],

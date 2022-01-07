@@ -15,10 +15,11 @@ export type DatabaseEngine = "mongodb" | "mysql";
 
 export interface DatabaseConfiguration {
   engine: DatabaseEngine;
+  type: "simple" | "pool";
   uri: string;
-  options?: Record<string, any>;
   logs?: boolean;
   sync?: boolean;
+  options?: Record<string, any>;
 }
 
 export interface PostmanOptions {
@@ -113,6 +114,7 @@ export const ConfigManager = new EpicConfigManager({
       },
       database: {
         engine: "mongodb",
+        type: "simple",
         uri: "mongodb://localhost:27017/test",
       },
       supportedDBEngines: ["mongodb"],

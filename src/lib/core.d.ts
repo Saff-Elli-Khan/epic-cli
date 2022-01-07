@@ -6,10 +6,11 @@ export declare type PackageManagerType = "npm" | "yarn";
 export declare type DatabaseEngine = "mongodb" | "mysql";
 export interface DatabaseConfiguration {
     engine: DatabaseEngine;
+    type: "simple" | "pool";
     uri: string;
-    options?: Record<string, any>;
     logs?: boolean;
     sync?: boolean;
+    options?: Record<string, any>;
 }
 export interface PostmanOptions {
     apiKey: string;
