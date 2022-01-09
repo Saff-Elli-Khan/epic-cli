@@ -1192,9 +1192,35 @@ export class Project {
                   for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
               };
               Object.defineProperty(exports, "__esModule", { value: true });
-              __exportStar(require("./core/globals"), exports);
-              __exportStar(require("./core/typings"), exports);
+              __exportStar(require(require("path").join(process.cwd(), "./src/core/globals")), exports);
+              __exportStar(require(require("path").join(process.cwd(), "./src/core/typings")), exports);
               `
+            );
+          }
+
+          try {
+            // Path To TSConfig
+            const TSConfigPath = Path.join(
+              ConfigManager.Options.rootPath,
+              `./tsconfig.json`
+            );
+
+            // Import Typings
+            const TSConfig = require(TSConfigPath);
+            if (TSConfig?.compilerOptions?.typeRoots instanceof Array)
+              TSConfig.compilerOptions.typeRoots.push(
+                `./node_modules/${options.name}/typings`
+              );
+
+            // Save TSConfig
+            Fs.writeFileSync(
+              TSConfigPath,
+              JSON.stringify(TSConfig || {}, undefined, 2)
+            );
+          } catch (error) {
+            console.log(
+              "We are unable to add plugin typings to the tsconfig.json file!",
+              error
             );
           }
         },
@@ -1374,6 +1400,33 @@ export class Project {
                 )
                 .render();
             });
+
+          try {
+            // Path To TSConfig
+            const TSConfigPath = Path.join(
+              ConfigManager.Options.rootPath,
+              `./tsconfig.json`
+            );
+
+            // Import Typings
+            const TSConfig = require(TSConfigPath);
+            if (TSConfig?.compilerOptions?.typeRoots instanceof Array)
+              TSConfig.compilerOptions.typeRoots.filter(
+                (item: string) =>
+                  item !== `./node_modules/${options.name}/typings`
+              );
+
+            // Save TSConfig
+            Fs.writeFileSync(
+              TSConfigPath,
+              JSON.stringify(TSConfig || {}, undefined, 2)
+            );
+          } catch (error) {
+            console.log(
+              "We are unable to add plugin typings to the tsconfig.json file!",
+              error
+            );
+          }
         },
       },
       {
