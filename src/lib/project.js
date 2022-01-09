@@ -577,7 +577,6 @@ class Project {
                 {
                     title: "Linking the plugin...",
                     task: (ctx) => {
-                        var _a;
                         // Import Settings
                         core_1.ConfigManager.setConfig("main", (_) => {
                             _.other[ctx.package.name] =
@@ -661,19 +660,8 @@ class Project {
               __exportStar(require(require("path").join(process.cwd(), "./src/core/typings")), exports);
               `);
                         }
-                        try {
-                            // Path To TSConfig
-                            const TSConfigPath = path_1.default.join(core_1.ConfigManager.Options.rootPath, `./tsconfig.json`);
-                            // Import Typings
-                            const TSConfig = require(TSConfigPath);
-                            if (((_a = TSConfig === null || TSConfig === void 0 ? void 0 : TSConfig.compilerOptions) === null || _a === void 0 ? void 0 : _a.typeRoots) instanceof Array)
-                                TSConfig.compilerOptions.typeRoots.push(`./node_modules/${options.name}/typings`);
-                            // Save TSConfig
-                            fs_1.default.writeFileSync(TSConfigPath, JSON.stringify(TSConfig || {}, undefined, 2));
-                        }
-                        catch (error) {
-                            console.log("We are unable to add plugin typings to the tsconfig.json file!", error);
-                        }
+                        // Copy typings to the main project
+                        utils_1.copyFolderRecursiveSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/typings/`), path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}/`));
                     },
                 },
                 {
@@ -786,7 +774,6 @@ class Project {
                 {
                     title: "Unlinking the plugin...",
                     task: (ctx) => {
-                        var _a;
                         if (typeof ctx.resources === "object")
                             // Add All Resources
                             ctx.resources.resources.forEach((resource) => {
@@ -810,19 +797,8 @@ class Project {
                                         : "MiddlewaresContainer", `${options.name}-${resource.type}-${resource.name}-resource`)
                                     .render();
                             });
-                        try {
-                            // Path To TSConfig
-                            const TSConfigPath = path_1.default.join(core_1.ConfigManager.Options.rootPath, `./tsconfig.json`);
-                            // Import Typings
-                            const TSConfig = require(TSConfigPath);
-                            if (((_a = TSConfig === null || TSConfig === void 0 ? void 0 : TSConfig.compilerOptions) === null || _a === void 0 ? void 0 : _a.typeRoots) instanceof Array)
-                                TSConfig.compilerOptions.typeRoots.filter((item) => item !== `./node_modules/${options.name}/typings`);
-                            // Save TSConfig
-                            fs_1.default.writeFileSync(TSConfigPath, JSON.stringify(TSConfig || {}, undefined, 2));
-                        }
-                        catch (error) {
-                            console.log("We are unable to add plugin typings to the tsconfig.json file!", error);
-                        }
+                        // Remove Typings
+                        utils_1.removeFolderRecursiveSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}`));
                     },
                 },
                 {

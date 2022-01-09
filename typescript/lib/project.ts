@@ -10,7 +10,11 @@ import {
   ResourcesInterface,
   ResourceInterface,
 } from "./core";
-import { generateRandomKey } from "./utils";
+import {
+  copyFolderRecursiveSync,
+  generateRandomKey,
+  removeFolderRecursiveSync,
+} from "./utils";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 import { TemplateParser } from "@saffellikhan/epic-parser";
 
@@ -1198,31 +1202,17 @@ export class Project {
             );
           }
 
-          try {
-            // Path To TSConfig
-            const TSConfigPath = Path.join(
+          // Copy typings to the main project
+          copyFolderRecursiveSync(
+            Path.join(
               ConfigManager.Options.rootPath,
-              `./tsconfig.json`
-            );
-
-            // Import Typings
-            const TSConfig = require(TSConfigPath);
-            if (TSConfig?.compilerOptions?.typeRoots instanceof Array)
-              TSConfig.compilerOptions.typeRoots.push(
-                `./node_modules/${options.name}/typings`
-              );
-
-            // Save TSConfig
-            Fs.writeFileSync(
-              TSConfigPath,
-              JSON.stringify(TSConfig || {}, undefined, 2)
-            );
-          } catch (error) {
-            console.log(
-              "We are unable to add plugin typings to the tsconfig.json file!",
-              error
-            );
-          }
+              `./node_modules/${options.name}/typings/`
+            ),
+            Path.join(
+              ConfigManager.Options.rootPath,
+              `./typings/${options.name}/`
+            )
+          );
         },
       },
       {
@@ -1401,32 +1391,13 @@ export class Project {
                 .render();
             });
 
-          try {
-            // Path To TSConfig
-            const TSConfigPath = Path.join(
+          // Remove Typings
+          removeFolderRecursiveSync(
+            Path.join(
               ConfigManager.Options.rootPath,
-              `./tsconfig.json`
-            );
-
-            // Import Typings
-            const TSConfig = require(TSConfigPath);
-            if (TSConfig?.compilerOptions?.typeRoots instanceof Array)
-              TSConfig.compilerOptions.typeRoots.filter(
-                (item: string) =>
-                  item !== `./node_modules/${options.name}/typings`
-              );
-
-            // Save TSConfig
-            Fs.writeFileSync(
-              TSConfigPath,
-              JSON.stringify(TSConfig || {}, undefined, 2)
-            );
-          } catch (error) {
-            console.log(
-              "We are unable to add plugin typings to the tsconfig.json file!",
-              error
-            );
-          }
+              `./typings/${options.name}`
+            )
+          );
         },
       },
       {
