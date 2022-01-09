@@ -993,17 +993,16 @@ export class Project {
       {
         title: `Making sure we are ready to link plugin '${options.name}' to the project...`,
         task: (ctx) => {
+          // Create Path to Plugin
+          const PluginPath = Path.join(
+            ConfigManager.Options.rootPath,
+            `./node_modules/${options.name}/epic.config.json`
+          );
+
           // Check If Valid Plugin
-          if (
-            !Fs.existsSync(
-              Path.join(
-                ConfigManager.Options.rootPath,
-                `./node_modules/${options.name}/epic.config.json`
-              )
-            )
-          )
+          if (!Fs.existsSync(PluginPath))
             throw new Error(
-              `We didn't found Configuration file on the plugin directory!`
+              `We didn't found Configuration file on the plugin directory on path '${PluginPath}'!`
             );
 
           // Validate Plugin

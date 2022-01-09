@@ -536,9 +536,11 @@ class Project {
                 {
                     title: `Making sure we are ready to link plugin '${options.name}' to the project...`,
                     task: (ctx) => {
+                        // Create Path to Plugin
+                        const PluginPath = path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/epic.config.json`);
                         // Check If Valid Plugin
-                        if (!fs_1.default.existsSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/epic.config.json`)))
-                            throw new Error(`We didn't found Configuration file on the plugin directory!`);
+                        if (!fs_1.default.existsSync(PluginPath))
+                            throw new Error(`We didn't found Configuration file on the plugin directory on path '${PluginPath}'!`);
                         // Validate Plugin
                         ctx.configuration = require(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/epic.config.json`));
                         if (ctx.configuration.type !== "plugin")
