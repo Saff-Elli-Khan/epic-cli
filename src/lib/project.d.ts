@@ -11,7 +11,7 @@ export interface InitializationOptions {
 export interface CreateOptions {
     admin: boolean;
     installation: boolean;
-    npm: boolean;
+    yarn: boolean;
 }
 export interface CreateControllerOptions {
     name: string;

@@ -130,8 +130,8 @@ export const ProjectCommands: LooseCommandInterface[] = [
         description: "Type of the project.",
         alias: ["--type", "-t"],
         message: "Please provide a project type:",
-        choices: ["Application", "Plugin"],
-        default: "Application",
+        choices: ["application", "plugin"],
+        default: "application",
       },
       {
         type: "input",
@@ -215,9 +215,9 @@ export const ProjectCommands: LooseCommandInterface[] = [
       },
       {
         type: "confirm",
-        name: "npm",
-        description: "Install dependencies with NPM.",
-        alias: ["--npm"],
+        name: "yarn",
+        description: "Install dependencies with Yarn.",
+        alias: ["--yarn"],
         default: false,
       },
     ],

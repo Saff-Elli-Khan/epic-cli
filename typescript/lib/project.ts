@@ -26,7 +26,7 @@ export interface InitializationOptions {
 export interface CreateOptions {
   admin: boolean;
   installation: boolean;
-  npm: boolean;
+  yarn: boolean;
 }
 
 export interface CreateControllerOptions {
@@ -284,11 +284,10 @@ export class Project {
                 "Yarn not available, install it via `npm install -g yarn`"
               );
             }),
-        skip: () => !options.installation || options.npm,
+        skip: () => !options.installation || !options.yarn,
       },
       {
         title: "Installing application dependencies with npm",
-        enabled: (ctx) => ctx.yarn === false || options.npm,
         task: () =>
           Execa("npm", ["install"]).then(() => {
             ConfigManager.setConfig("main", (_) => {
@@ -298,6 +297,7 @@ export class Project {
               return _;
             });
           }),
+        enabled: (ctx) => ctx.yarn === false || !options.yarn,
         skip: () => !options.installation,
       },
       {
@@ -315,11 +315,10 @@ export class Project {
               "Yarn not available, you can install it via `npm install -g yarn` if needed."
             );
           }),
-        skip: () => !options.installation || !options.admin || options.npm,
+        skip: () => !options.installation || !options.admin || !options.yarn,
       },
       {
         title: "Installing admin dashboard dependencies with npm",
-        enabled: (ctx) => ctx.yarn === false,
         task: () =>
           Execa("npm", ["install"], {
             cwd: Path.join(
@@ -327,6 +326,7 @@ export class Project {
               `./${Project.getAdminDashboardPathName()}/`
             ),
           }),
+        enabled: (ctx) => ctx.yarn === false || !options.yarn,
         skip: () => !options.installation || !options.admin,
       },
     ]).run();

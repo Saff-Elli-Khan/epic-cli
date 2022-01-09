@@ -184,11 +184,10 @@ class Project {
                         ctx.yarn = false;
                         task.skip("Yarn not available, install it via `npm install -g yarn`");
                     }),
-                    skip: () => !options.installation || options.npm,
+                    skip: () => !options.installation || !options.yarn,
                 },
                 {
                     title: "Installing application dependencies with npm",
-                    enabled: (ctx) => ctx.yarn === false || options.npm,
                     task: () => execa_1.default("npm", ["install"]).then(() => {
                         core_1.ConfigManager.setConfig("main", (_) => {
                             // Set Package Manager
@@ -196,6 +195,7 @@ class Project {
                             return _;
                         });
                     }),
+                    enabled: (ctx) => ctx.yarn === false || !options.yarn,
                     skip: () => !options.installation,
                 },
                 {
@@ -206,14 +206,14 @@ class Project {
                         ctx.yarn = false;
                         task.skip("Yarn not available, you can install it via `npm install -g yarn` if needed.");
                     }),
-                    skip: () => !options.installation || !options.admin || options.npm,
+                    skip: () => !options.installation || !options.admin || !options.yarn,
                 },
                 {
                     title: "Installing admin dashboard dependencies with npm",
-                    enabled: (ctx) => ctx.yarn === false,
                     task: () => execa_1.default("npm", ["install"], {
                         cwd: path_1.default.join(core_1.ConfigManager.Options.rootPath, `./${Project.getAdminDashboardPathName()}/`),
                     }),
+                    enabled: (ctx) => ctx.yarn === false || !options.yarn,
                     skip: () => !options.installation || !options.admin,
                 },
             ]).run();
