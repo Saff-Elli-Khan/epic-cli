@@ -525,10 +525,10 @@ class Project {
             ]).run();
             // Link Plugin
             if (command.source === "Cli")
-                yield Project.linkPlugin(options);
+                yield Project.linkPlugin(options, command);
         });
     }
-    static linkPlugin(options) {
+    static linkPlugin(options, command) {
         return __awaiter(this, void 0, void 0, function* () {
             // Resolve Plugin Name
             options.name = options.name.split(/(?!^@)@/g)[0];
@@ -540,11 +540,11 @@ class Project {
                         if (!fs_1.default.existsSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/epic.config.json`)))
                             throw new Error(`We didn't found Configuration file on the plugin directory!`);
                         // Validate Plugin
-                        const Configuration = require(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/epic.config.json`));
-                        if (Configuration.type !== "plugin")
+                        ctx.configuration = require(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/epic.config.json`));
+                        if (ctx.configuration.type !== "plugin")
                             throw new Error(`${options.name} is not a plugin! Cannot link to the project.`);
                         // Verify Database Engine Support
-                        if (!Configuration.supportedDBEngines.includes(core_1.ConfigManager.getConfig("main").database.engine))
+                        if (!ctx.configuration.supportedDBEngines.includes(core_1.ConfigManager.getConfig("main").database.engine))
                             throw new Error(`Your project does not support the database engine used in this plugin!`);
                         if (!Object.keys(core_1.ConfigManager.getConfig("main").plugins).includes(options.name) &&
                             fs_1.default.existsSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/epic.resources.json`))) {
@@ -575,8 +575,14 @@ class Project {
                 {
                     title: "Linking the plugin...",
                     task: (ctx) => {
+                        // Import Settings
+                        core_1.ConfigManager.setConfig("main", (_) => {
+                            _.other[ctx.package.name] =
+                                ctx.configuration.other[ctx.package.name];
+                            return _;
+                        });
+                        // Add All Resources If Exists
                         if (typeof ctx.resources === "object") {
-                            // Add All Resources
                             ctx.resources.resources.forEach((resource) => {
                                 // Link Plugin File
                                 const TargetFile = resource.type === "controller"
@@ -655,6 +661,13 @@ class Project {
                     },
                 },
                 {
+                    title: "Installing Dependencies...",
+                    task: (ctx) => __awaiter(this, void 0, void 0, function* () {
+                        for (const name in ctx.configuration.plugins)
+                            yield Project.addPlugin({ name }, command);
+                    }),
+                },
+                {
                     title: "Configuring your project",
                     task: (ctx) => {
                         if (typeof ctx.resources === "object")
@@ -678,12 +691,12 @@ class Project {
             ]).run();
         });
     }
-    static linkPlugins() {
+    static linkPlugins(_, command) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield Promise.all(Object.keys(core_1.ConfigManager.getConfig("main").plugins).map((name) => Project.linkPlugin({ name })));
+            yield Promise.all(Object.keys(core_1.ConfigManager.getConfig("main").plugins).map((name) => Project.linkPlugin({ name }, command)));
         });
     }
-    static updatePlugin(options) {
+    static updatePlugin(options, command) {
         return __awaiter(this, void 0, void 0, function* () {
             // Unlink Plugin
             yield Project.unlinkPlugin(options);
@@ -703,7 +716,7 @@ class Project {
                 },
             ]).run();
             // Link Plugin
-            yield Project.linkPlugin(options);
+            yield Project.linkPlugin(options, command);
         });
     }
     static removePlugin(options, command) {

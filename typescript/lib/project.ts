@@ -975,14 +975,21 @@ export class Project {
     ]).run();
 
     // Link Plugin
-    if (command.source === "Cli") await Project.linkPlugin(options);
+    if (command.source === "Cli") await Project.linkPlugin(options, command);
   }
 
-  static async linkPlugin(options: AddPluginOptions) {
+  static async linkPlugin(
+    options: AddPluginOptions,
+    command: CommandInterface
+  ) {
     // Resolve Plugin Name
     options.name = options.name.split(/(?!^@)@/g)[0];
 
-    await new Listr<{ package: any; resources?: ResourcesInterface }>([
+    await new Listr<{
+      configuration: ConfigurationInterface;
+      package: any;
+      resources?: ResourcesInterface;
+    }>([
       {
         title: `Making sure we are ready to link plugin '${options.name}' to the project...`,
         task: (ctx) => {
@@ -1000,19 +1007,19 @@ export class Project {
             );
 
           // Validate Plugin
-          const Configuration: ConfigurationInterface = require(Path.join(
+          ctx.configuration = require(Path.join(
             ConfigManager.Options.rootPath,
             `./node_modules/${options.name}/epic.config.json`
           ));
 
-          if (Configuration.type !== "plugin")
+          if (ctx.configuration.type !== "plugin")
             throw new Error(
               `${options.name} is not a plugin! Cannot link to the project.`
             );
 
           // Verify Database Engine Support
           if (
-            !Configuration.supportedDBEngines.includes(
+            !ctx.configuration.supportedDBEngines.includes(
               ConfigManager.getConfig("main").database.engine
             )
           )
@@ -1078,8 +1085,15 @@ export class Project {
       {
         title: "Linking the plugin...",
         task: (ctx) => {
+          // Import Settings
+          ConfigManager.setConfig("main", (_) => {
+            _.other[ctx.package.name] =
+              ctx.configuration.other[ctx.package.name];
+            return _;
+          });
+
+          // Add All Resources If Exists
           if (typeof ctx.resources === "object") {
-            // Add All Resources
             ctx.resources.resources.forEach((resource) => {
               // Link Plugin File
               const TargetFile =
@@ -1187,6 +1201,13 @@ export class Project {
         },
       },
       {
+        title: "Installing Dependencies...",
+        task: async (ctx) => {
+          for (const name in ctx.configuration.plugins)
+            await Project.addPlugin({ name }, command);
+        },
+      },
+      {
         title: "Configuring your project",
         task: (ctx) => {
           if (typeof ctx.resources === "object")
@@ -1218,15 +1239,18 @@ export class Project {
     ]).run();
   }
 
-  static async linkPlugins() {
+  static async linkPlugins(_: any, command: CommandInterface) {
     await Promise.all(
       Object.keys(ConfigManager.getConfig("main").plugins).map((name) =>
-        Project.linkPlugin({ name })
+        Project.linkPlugin({ name }, command)
       )
     );
   }
 
-  static async updatePlugin(options: AddPluginOptions) {
+  static async updatePlugin(
+    options: AddPluginOptions,
+    command: CommandInterface
+  ) {
     // Unlink Plugin
     await Project.unlinkPlugin(options);
 
@@ -1248,7 +1272,7 @@ export class Project {
     ]).run();
 
     // Link Plugin
-    await Project.linkPlugin(options);
+    await Project.linkPlugin(options, command);
   }
 
   static async removePlugin(
