@@ -238,6 +238,7 @@ class Project {
                                 .parse()
                                 .injections({
                                 ControllerPrefix: options.prefix,
+                                AppName: core_1.ConfigManager.getConfig("main").name,
                             });
                             // Push Database Model
                             if (options.template === "default")

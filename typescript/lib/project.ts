@@ -362,6 +362,7 @@ export class Project {
               .parse()
               .injections({
                 ControllerPrefix: options.prefix,
+                AppName: ConfigManager.getConfig("main").name,
               });
 
             // Push Database Model
