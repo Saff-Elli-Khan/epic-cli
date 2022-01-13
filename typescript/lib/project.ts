@@ -1190,8 +1190,9 @@ export class Project {
               Fs.readFileSync(ExportsPath)
                 .toString()
                 .replace(
-                  /__exportStar\(require\(\".\//g,
-                  `__exportStar(require(require("path").join(process.cwd(), "./src/`
+                  /__exportStar\(require\("(.*)"\),\s*exports\)/g,
+                  (_, path: string) =>
+                    `__exportStar(require(require("path").join(process.cwd(), "./src", "${path}")), exports)`
                 )
             );
           }
