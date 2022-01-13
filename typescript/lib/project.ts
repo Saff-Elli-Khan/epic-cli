@@ -1178,28 +1178,21 @@ export class Project {
               });
             });
 
+            // Get Exports File Path
+            const ExportsPath = Path.join(
+              ConfigManager.Options.rootPath,
+              `./node_modules/${options.name}/build/exports.js`
+            );
+
             // Add Exports Resolver File
             Fs.writeFileSync(
-              Path.join(
-                ConfigManager.Options.rootPath,
-                `./node_modules/${options.name}/build/exports.js`
-              ),
-              `
-              "use strict";
-              var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-                  if (k2 === undefined) k2 = k;
-                  Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-              }) : (function(o, m, k, k2) {
-                  if (k2 === undefined) k2 = k;
-                  o[k2] = m[k];
-              }));
-              var __exportStar = (this && this.__exportStar) || function(m, exports) {
-                  for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-              };
-              Object.defineProperty(exports, "__esModule", { value: true });
-              __exportStar(require(require("path").join(process.cwd(), "./src/core/globals")), exports);
-              __exportStar(require(require("path").join(process.cwd(), "./src/core/typings")), exports);
-              `
+              ExportsPath,
+              Fs.readFileSync(ExportsPath)
+                .toString()
+                .replace(
+                  `__exportStar(require("./`,
+                  `__exportStar(require(require("path").join(process.cwd(), "./src/`
+                )
             );
           }
 
