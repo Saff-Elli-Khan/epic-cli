@@ -648,7 +648,7 @@ class Project {
                             // Add Exports Resolver File
                             fs_1.default.writeFileSync(ExportsPath, fs_1.default.readFileSync(ExportsPath)
                                 .toString()
-                                .replace(`__exportStar(require("./`, `__exportStar(require(require("path").join(process.cwd(), "./src/`));
+                                .replace(/__exportStar\(require\(\".\//g, `__exportStar(require(require("path").join(process.cwd(), "./src/`));
                         }
                         // Copy typings to the main project
                         utils_1.copyFolderRecursiveSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/typings/`), path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}/`));
