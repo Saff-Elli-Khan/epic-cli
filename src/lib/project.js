@@ -703,9 +703,9 @@ class Project {
                         const Configuration = core_1.ConfigManager.getConfig("main");
                         // Install Plugin
                         if (Configuration.packageManager === "npm")
-                            return execa_1.default("npm", ["update", options.name]);
+                            return execa_1.default("npm", ["uninstall", options.name]).then(() => execa_1.default("npm", ["install", options.name]));
                         else if (Configuration.packageManager === "yarn")
-                            execa_1.default("yarn", ["upgrade", options.name]);
+                            execa_1.default("yarn", ["remove", options.name]).then(() => execa_1.default("yarn", ["add", options.name]));
                     },
                 },
             ]).run();

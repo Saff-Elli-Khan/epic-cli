@@ -1273,9 +1273,13 @@ export class Project {
 
           // Install Plugin
           if (Configuration.packageManager === "npm")
-            return Execa("npm", ["update", options.name]);
+            return Execa("npm", ["uninstall", options.name]).then(() =>
+              Execa("npm", ["install", options.name])
+            );
           else if (Configuration.packageManager === "yarn")
-            Execa("yarn", ["upgrade", options.name]);
+            Execa("yarn", ["remove", options.name]).then(() =>
+              Execa("yarn", ["add", options.name])
+            );
         },
       },
     ]).run();
