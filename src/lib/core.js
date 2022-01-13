@@ -49,7 +49,14 @@ exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
             middlewares: "./src/middlewares/",
             models: "./src/models/",
         },
-        other: {},
+        other: {
+            postman: {
+                disabled: true,
+                apiKey: "{{ POSTMAN_API_KEY }}",
+                collectionId: "{{ POSTMAN_COLLECTION_ID }}",
+                collectionName: "{{ POSTMAN_COLLECTION_NAME }}",
+            },
+        },
     },
     transactions: {
         version: 1,
