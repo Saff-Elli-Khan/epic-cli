@@ -587,6 +587,22 @@ class Project {
                                 ctx.configuration.other[ctx.package.name];
                             return _;
                         });
+                        // // Copy typings to the main project
+                        // copyFolderRecursiveSync(
+                        //   Path.join(
+                        //     ConfigManager.Options.rootPath,
+                        //     `./node_modules/${options.name}/typings/`
+                        //   ),
+                        //   Path.join(
+                        //     ConfigManager.Options.rootPath,
+                        //     `./typings/${options.name}/`
+                        //   )
+                        // );
+                        // Get Typings Path
+                        const TypingsPath = path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}/`);
+                        if (!fs_1.default.existsSync(TypingsPath))
+                            // Create Symlink to the Typings
+                            fs_1.default.symlinkSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/typings/`), TypingsPath, "dir");
                         // Add All Resources If Exists
                         if (typeof ctx.resources === "object") {
                             ctx.resources.resources.forEach((resource) => {
@@ -674,25 +690,6 @@ class Project {
                             fs_1.default.writeFileSync(ExportsPath, fs_1.default.readFileSync(ExportsPath)
                                 .toString()
                                 .replace(/__exportStar\(require\("(.*)"\),\s*exports\)/g, (_, path) => `__exportStar(require(require("path").join(process.cwd(), "./src", "${path}")), exports)`));
-                        }
-                        // // Copy typings to the main project
-                        // copyFolderRecursiveSync(
-                        //   Path.join(
-                        //     ConfigManager.Options.rootPath,
-                        //     `./node_modules/${options.name}/typings/`
-                        //   ),
-                        //   Path.join(
-                        //     ConfigManager.Options.rootPath,
-                        //     `./typings/${options.name}/`
-                        //   )
-                        // );
-                        // Get Typings Path
-                        const TypingsPath = path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}/`);
-                        if (!fs_1.default.existsSync(TypingsPath)) {
-                            // Create Directory Sync
-                            fs_1.default.mkdirSync(TypingsPath, { recursive: true });
-                            // Create Symlink to the Typings
-                            fs_1.default.symlinkSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/typings/`), TypingsPath, "dir");
                         }
                     },
                 },
