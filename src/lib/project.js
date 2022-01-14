@@ -17,6 +17,7 @@ const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const execa_1 = __importDefault(require("execa"));
 const listr_1 = __importDefault(require("listr"));
+const symlink_dir_1 = __importDefault(require("symlink-dir"));
 const core_1 = require("./core");
 const utils_1 = require("./utils");
 const epic_parser_1 = require("@saffellikhan/epic-parser");
@@ -580,7 +581,7 @@ class Project {
                 },
                 {
                     title: "Linking the plugin...",
-                    task: (ctx) => {
+                    task: (ctx) => __awaiter(this, void 0, void 0, function* () {
                         // Import Settings
                         core_1.ConfigManager.setConfig("main", (_) => {
                             _.other[ctx.package.name] =
@@ -602,7 +603,7 @@ class Project {
                         const TypingsPath = path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}/`);
                         if (!fs_1.default.existsSync(TypingsPath))
                             // Create Symlink to the Typings
-                            fs_1.default.symlinkSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/typings/`), TypingsPath, "dir");
+                            yield symlink_dir_1.default(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/typings/`), TypingsPath);
                         // Add All Resources If Exists
                         if (typeof ctx.resources === "object") {
                             ctx.resources.resources.forEach((resource) => {
@@ -691,7 +692,7 @@ class Project {
                                 .toString()
                                 .replace(/__exportStar\(require\("(.*)"\),\s*exports\)/g, (_, path) => `__exportStar(require(require("path").join(process.cwd(), "./src", "${path}")), exports)`));
                         }
-                    },
+                    }),
                 },
                 {
                     title: "Installing Dependencies...",

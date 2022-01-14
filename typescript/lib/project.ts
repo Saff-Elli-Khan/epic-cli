@@ -2,6 +2,7 @@ import Path from "path";
 import Fs from "fs";
 import Execa from "execa";
 import Listr from "listr";
+import SymlinkDir from "symlink-dir";
 import {
   ProjectType,
   ConfigManager,
@@ -10,11 +11,7 @@ import {
   ResourcesInterface,
   ResourceInterface,
 } from "./core";
-import {
-  copyFolderRecursiveSync,
-  generateRandomKey,
-  removeFolderRecursiveSync,
-} from "./utils";
+import { generateRandomKey } from "./utils";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 import { TemplateParser } from "@saffellikhan/epic-parser";
 
@@ -1106,7 +1103,7 @@ export class Project {
       },
       {
         title: "Linking the plugin...",
-        task: (ctx) => {
+        task: async (ctx) => {
           // Import Settings
           ConfigManager.setConfig("main", (_) => {
             _.other[ctx.package.name] =
@@ -1134,13 +1131,12 @@ export class Project {
 
           if (!Fs.existsSync(TypingsPath))
             // Create Symlink to the Typings
-            Fs.symlinkSync(
+            await SymlinkDir(
               Path.join(
                 ConfigManager.Options.rootPath,
                 `./node_modules/${options.name}/typings/`
               ),
-              TypingsPath,
-              "dir"
+              TypingsPath
             );
 
           // Add All Resources If Exists
