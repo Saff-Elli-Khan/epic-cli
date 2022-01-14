@@ -1445,13 +1445,22 @@ export class Project {
                 .render();
             });
 
-          // Remove Typings
-          removeFolderRecursiveSync(
-            Path.join(
-              ConfigManager.Options.rootPath,
-              `./typings/${options.name}`
-            )
+          // // Remove Typings
+          // removeFolderRecursiveSync(
+          //   Path.join(
+          //     ConfigManager.Options.rootPath,
+          //     `./typings/${options.name}`
+          //   )
+          // );
+
+          // Get Typings Path
+          const TypingsPath = Path.join(
+            ConfigManager.Options.rootPath,
+            `./typings/${options.name}`
           );
+
+          // Remove Typings Link
+          if (Fs.existsSync(TypingsPath)) Fs.unlinkSync(TypingsPath);
         },
       },
       {

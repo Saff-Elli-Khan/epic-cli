@@ -823,8 +823,18 @@ class Project {
                                         : "MiddlewaresContainer", `${options.name}-${resource.type}-${resource.name}-resource`)
                                     .render();
                             });
-                        // Remove Typings
-                        utils_1.removeFolderRecursiveSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}`));
+                        // // Remove Typings
+                        // removeFolderRecursiveSync(
+                        //   Path.join(
+                        //     ConfigManager.Options.rootPath,
+                        //     `./typings/${options.name}`
+                        //   )
+                        // );
+                        // Get Typings Path
+                        const TypingsPath = path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}`);
+                        // Remove Typings Link
+                        if (fs_1.default.existsSync(TypingsPath))
+                            fs_1.default.unlinkSync(TypingsPath);
                     },
                 },
                 {
