@@ -125,6 +125,7 @@ export const ConfigManager = new EpicConfigManager({
         contollers: "./src/controllers/",
         middlewares: "./src/middlewares/",
         models: "./src/models/",
+        jobs: "./src/jobs/",
       },
       other: {
         postman: {

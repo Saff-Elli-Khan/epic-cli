@@ -48,6 +48,7 @@ exports.ConfigManager = new epic_config_manager_1.EpicConfigManager({
             contollers: "./src/controllers/",
             middlewares: "./src/middlewares/",
             models: "./src/models/",
+            jobs: "./src/jobs/",
         },
         other: {
             postman: {
