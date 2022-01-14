@@ -45,6 +45,9 @@ class Project {
     static MiddlewaresPath() {
         return path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.middlewares);
     }
+    static JobsPath() {
+        return path_1.default.join(core_1.ConfigManager.Options.rootPath, core_1.ConfigManager.getConfig("main").paths.jobs);
+    }
     static getPackage(silent = false) {
         if (!fs_1.default.existsSync(Project.PackagePath()))
             if (!silent)
@@ -276,7 +279,7 @@ class Project {
                                 .render();
                         }
                         catch (error) {
-                            console.warn("We are unable to parse core/controllers properly! Please add the child controller manually.", error);
+                            console.warn("We are unable to parse core/controllers properly! Please add the controller manually.", error);
                         }
                         // Update Configuration & Transactions
                         core_1.ConfigManager.setConfig("transactions", (_) => {
@@ -819,6 +822,123 @@ class Project {
             ]).run();
         });
     }
+    static createJob(options, command) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Queue the Tasks
+            yield new listr_1.default([
+                {
+                    title: "Creating new Cron Job...",
+                    task: () => {
+                        if (!fs_1.default.existsSync(path_1.default.join(Project.JobsPath(), `./${options.name}.ts`)))
+                            // Parse Template
+                            new epic_parser_1.TemplateParser({
+                                inDir: options.templateDir ||
+                                    path_1.default.join(Project.SamplesPath(), "./jobs/"),
+                                inFile: `./${options.template}.ts`,
+                                outDir: Project.JobsPath(),
+                                outFile: `./${options.name}.ts`,
+                            })
+                                .parse()
+                                .render((_) => _.replace(/Sample/g, options.name));
+                    },
+                },
+                {
+                    title: "Configuring your project",
+                    task: () => {
+                        try {
+                            // Parse Template
+                            new epic_parser_1.TemplateParser({
+                                inDir: Project.AppPath(),
+                                inFile: `./core/crons.ts`,
+                                outFile: `./core/crons.ts`,
+                            })
+                                .parse()
+                                .push("ImportsContainer", "ImportsTemplate", options.name + "JobImport", {
+                                modules: [options.name + "Job"],
+                                location: `./${path_1.default.relative(Project.AppCore(), path_1.default.join(Project.JobsPath(), options.name)).replace(/\\/g, "/")}`,
+                            })
+                                .push("JobsContainer", "JobTemplate", options.name + "Job", {
+                                job: options.name + "Job",
+                            })
+                                .render();
+                        }
+                        catch (error) {
+                            console.warn("We are unable to parse core/crons properly! Please add the job manually.", error);
+                        }
+                        // Update Configuration & Transactions
+                        core_1.ConfigManager.setConfig("transactions", (_) => {
+                            // Update Last Access
+                            _.lastAccess.job = options.name;
+                            // Remove Duplicate Transaction
+                            _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-job" &&
+                                transaction.params.name === options.name));
+                            // Add New Transaction
+                            _.transactions.push({
+                                command: command.name,
+                                params: options,
+                            });
+                            return _;
+                        }).setConfig("resources", (_) => {
+                            // Remove Duplicate Resource
+                            _.resources = _.resources.filter((resource) => !(resource.type === "job" && resource.name === options.name));
+                            // Add New Resource
+                            _.resources.push({
+                                type: "job",
+                                name: options.name,
+                            });
+                            return _;
+                        });
+                    },
+                },
+            ]).run();
+        });
+    }
+    static deleteJob(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Queue the Tasks
+            yield new listr_1.default([
+                {
+                    title: "Deleting the Job...",
+                    task: () => __awaiter(this, void 0, void 0, function* () {
+                        // Delete Job
+                        fs_1.default.unlinkSync(path_1.default.join(Project.JobsPath(), `./${options.name}.ts`));
+                    }),
+                },
+                {
+                    title: "Configuring your project",
+                    task: () => {
+                        try {
+                            // Parse Template
+                            new epic_parser_1.TemplateParser({
+                                inDir: Project.AppPath(),
+                                inFile: `./core/crons.ts`,
+                                outFile: `./core/crons.ts`,
+                            })
+                                .parse()
+                                .pop("ImportsContainer", options.name + "JobImport")
+                                .pop("JobsContainer", options.name + "Job")
+                                .render();
+                        }
+                        catch (error) {
+                            console.warn(`We are unable to parse core/crons properly! Please remove the job from core/crons manually.`, error);
+                        }
+                        // Update Configuration & Transactions
+                        core_1.ConfigManager.setConfig("transactions", (_) => {
+                            // Update Last Access
+                            delete _.lastAccess.job;
+                            // Remove Transaction
+                            _.transactions = _.transactions.filter((transaction) => !(transaction.command === "create-job" &&
+                                transaction.params.name === options.name));
+                            return _;
+                        }).setConfig("resources", (_) => {
+                            _.resources = _.resources.filter((resource) => !(resource.type === "job" && resource.name === options.name));
+                            return _;
+                        });
+                    },
+                },
+            ]).run();
+        });
+    }
 }
 exports.Project = Project;
 Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, function* () {
@@ -922,7 +1042,7 @@ Project.createMiddleware = (options, command) => __awaiter(void 0, void 0, void 
                         .render();
                 }
                 catch (error) {
-                    console.warn("We are unable to parse core/middlewares properly! Please add the child controller manually.", error);
+                    console.warn("We are unable to parse core/middlewares properly! Please add the middleware manually.", error);
                 }
                 // Update Configuration & Transactions
                 core_1.ConfigManager.setConfig("transactions", (_) => {

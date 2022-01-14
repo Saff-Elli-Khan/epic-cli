@@ -7,7 +7,7 @@ export type FrameworkType = "express";
 
 export type ProjectType = "application" | "plugin";
 
-export type ResourceType = "controller" | "model" | "middleware";
+export type ResourceType = "controller" | "model" | "middleware" | "job";
 
 export type PackageManagerType = "npm" | "yarn";
 
@@ -54,6 +54,7 @@ export interface PathsInterface {
   contollers?: string;
   models?: string;
   middlewares?: string;
+  jobs?: string;
 }
 
 export interface BrandInterface {

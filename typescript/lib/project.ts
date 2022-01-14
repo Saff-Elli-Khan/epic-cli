@@ -68,6 +68,17 @@ export interface DeleteMiddlewareOptions {
   name: string;
 }
 
+export interface CreateJobOptions {
+  name: string;
+  description: string;
+  template: string;
+  templateDir?: string;
+}
+
+export interface DeleteJobOptions {
+  name: string;
+}
+
 export interface AddPluginOptions {
   name: string;
 }
@@ -118,6 +129,13 @@ export class Project {
     return Path.join(
       ConfigManager.Options.rootPath,
       ConfigManager.getConfig("main").paths!.middlewares!
+    );
+  }
+
+  static JobsPath() {
+    return Path.join(
+      ConfigManager.Options.rootPath,
+      ConfigManager.getConfig("main").paths!.jobs!
     );
   }
 
@@ -428,7 +446,7 @@ export class Project {
               .render();
           } catch (error) {
             console.warn(
-              "We are unable to parse core/controllers properly! Please add the child controller manually.",
+              "We are unable to parse core/controllers properly! Please add the controller manually.",
               error
             );
           }
@@ -824,7 +842,7 @@ export class Project {
               .render();
           } catch (error) {
             console.warn(
-              "We are unable to parse core/middlewares properly! Please add the child controller manually.",
+              "We are unable to parse core/middlewares properly! Please add the middleware manually.",
               error
             );
           }
@@ -1435,6 +1453,164 @@ export class Project {
 
                 return _;
               });
+        },
+      },
+    ]).run();
+  }
+
+  static async createJob(options: CreateJobOptions, command: CommandInterface) {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Creating new Cron Job...",
+        task: () => {
+          if (
+            !Fs.existsSync(
+              Path.join(Project.JobsPath(), `./${options.name}.ts`)
+            )
+          )
+            // Parse Template
+            new TemplateParser({
+              inDir:
+                options.templateDir ||
+                Path.join(Project.SamplesPath(), "./jobs/"),
+              inFile: `./${options.template}.ts`,
+              outDir: Project.JobsPath(),
+              outFile: `./${options.name}.ts`,
+            })
+              .parse()
+              .render((_) => _.replace(/Sample/g, options.name));
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          try {
+            // Parse Template
+            new TemplateParser({
+              inDir: Project.AppPath(),
+              inFile: `./core/crons.ts`,
+              outFile: `./core/crons.ts`,
+            })
+              .parse()
+              .push(
+                "ImportsContainer",
+                "ImportsTemplate",
+                options.name + "JobImport",
+                {
+                  modules: [options.name + "Job"],
+                  location: `./${Path.relative(
+                    Project.AppCore(),
+                    Path.join(Project.JobsPath(), options.name)
+                  ).replace(/\\/g, "/")}`,
+                }
+              )
+              .push("JobsContainer", "JobTemplate", options.name + "Job", {
+                job: options.name + "Job",
+              })
+              .render();
+          } catch (error) {
+            console.warn(
+              "We are unable to parse core/crons properly! Please add the job manually.",
+              error
+            );
+          }
+
+          // Update Configuration & Transactions
+          ConfigManager.setConfig("transactions", (_) => {
+            // Update Last Access
+            _.lastAccess!.job = options.name;
+
+            // Remove Duplicate Transaction
+            _.transactions = _.transactions.filter(
+              (transaction) =>
+                !(
+                  transaction.command === "create-job" &&
+                  transaction.params.name === options.name
+                )
+            );
+
+            // Add New Transaction
+            _.transactions.push({
+              command: command.name,
+              params: options,
+            });
+
+            return _;
+          }).setConfig("resources", (_) => {
+            // Remove Duplicate Resource
+            _.resources = _.resources.filter(
+              (resource) =>
+                !(resource.type === "job" && resource.name === options.name)
+            );
+
+            // Add New Resource
+            _.resources.push({
+              type: "job",
+              name: options.name,
+            });
+
+            return _;
+          });
+        },
+      },
+    ]).run();
+  }
+
+  static async deleteJob(options: DeleteJobOptions) {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Deleting the Job...",
+        task: async () => {
+          // Delete Job
+          Fs.unlinkSync(Path.join(Project.JobsPath(), `./${options.name}.ts`));
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          try {
+            // Parse Template
+            new TemplateParser({
+              inDir: Project.AppPath(),
+              inFile: `./core/crons.ts`,
+              outFile: `./core/crons.ts`,
+            })
+              .parse()
+              .pop("ImportsContainer", options.name + "JobImport")
+              .pop("JobsContainer", options.name + "Job")
+              .render();
+          } catch (error) {
+            console.warn(
+              `We are unable to parse core/crons properly! Please remove the job from core/crons manually.`,
+              error
+            );
+          }
+
+          // Update Configuration & Transactions
+          ConfigManager.setConfig("transactions", (_) => {
+            // Update Last Access
+            delete _.lastAccess!.job;
+
+            // Remove Transaction
+            _.transactions = _.transactions.filter(
+              (transaction) =>
+                !(
+                  transaction.command === "create-job" &&
+                  transaction.params.name === options.name
+                )
+            );
+
+            return _;
+          }).setConfig("resources", (_) => {
+            _.resources = _.resources.filter(
+              (resource) =>
+                !(resource.type === "job" && resource.name === options.name)
+            );
+
+            return _;
+          });
         },
       },
     ]).run();

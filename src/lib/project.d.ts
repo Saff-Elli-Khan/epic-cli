@@ -42,6 +42,15 @@ export interface CreateMiddlewareOptions {
 export interface DeleteMiddlewareOptions {
     name: string;
 }
+export interface CreateJobOptions {
+    name: string;
+    description: string;
+    template: string;
+    templateDir?: string;
+}
+export interface DeleteJobOptions {
+    name: string;
+}
 export interface AddPluginOptions {
     name: string;
 }
@@ -57,6 +66,7 @@ export declare class Project {
     static ControllersPath(): string;
     static ModelsPath(): string;
     static MiddlewaresPath(): string;
+    static JobsPath(): string;
     static getPackage(silent?: boolean): any;
     static getAdminDashboardPathName(): string;
     static configure(Configuration: ConfigurationInterface): void;
@@ -76,4 +86,6 @@ export declare class Project {
     static updatePlugin(options: AddPluginOptions, command: CommandInterface): Promise<void>;
     static removePlugin(options: RemovePluginOptions, command: CommandInterface): Promise<void>;
     static unlinkPlugin(options: RemovePluginOptions): Promise<void>;
+    static createJob(options: CreateJobOptions, command: CommandInterface): Promise<void>;
+    static deleteJob(options: DeleteJobOptions): Promise<void>;
 }

@@ -1,7 +1,7 @@
 import { EpicConfigManager } from "@saffellikhan/epic-config-manager";
 export declare type FrameworkType = "express";
 export declare type ProjectType = "application" | "plugin";
-export declare type ResourceType = "controller" | "model" | "middleware";
+export declare type ResourceType = "controller" | "model" | "middleware" | "job";
 export declare type PackageManagerType = "npm" | "yarn";
 export declare type DatabaseEngine = "mongodb" | "mysql";
 export interface DatabaseConfiguration {
@@ -41,6 +41,7 @@ export interface PathsInterface {
     contollers?: string;
     models?: string;
     middlewares?: string;
+    jobs?: string;
 }
 export interface BrandInterface {
     name: string;
