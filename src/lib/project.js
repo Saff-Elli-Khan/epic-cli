@@ -686,8 +686,14 @@ class Project {
                         //     `./typings/${options.name}/`
                         //   )
                         // );
-                        // Create Symlink to the Typings
-                        fs_1.default.symlinkSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/typings/`), path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}/`), "dir");
+                        // Get Typings Path
+                        const TypingsPath = path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}/`);
+                        if (!fs_1.default.existsSync(TypingsPath)) {
+                            // Create Directory Sync
+                            fs_1.default.mkdirSync(TypingsPath, { recursive: true });
+                            // Create Symlink to the Typings
+                            fs_1.default.symlinkSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/typings/`), TypingsPath, "dir");
+                        }
                     },
                 },
                 {

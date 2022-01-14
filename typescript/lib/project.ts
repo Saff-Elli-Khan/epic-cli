@@ -1251,18 +1251,26 @@ export class Project {
           //   )
           // );
 
-          // Create Symlink to the Typings
-          Fs.symlinkSync(
-            Path.join(
-              ConfigManager.Options.rootPath,
-              `./node_modules/${options.name}/typings/`
-            ),
-            Path.join(
-              ConfigManager.Options.rootPath,
-              `./typings/${options.name}/`
-            ),
-            "dir"
+          // Get Typings Path
+          const TypingsPath = Path.join(
+            ConfigManager.Options.rootPath,
+            `./typings/${options.name}/`
           );
+
+          if (!Fs.existsSync(TypingsPath)) {
+            // Create Directory Sync
+            Fs.mkdirSync(TypingsPath, { recursive: true });
+
+            // Create Symlink to the Typings
+            Fs.symlinkSync(
+              Path.join(
+                ConfigManager.Options.rootPath,
+                `./node_modules/${options.name}/typings/`
+              ),
+              TypingsPath,
+              "dir"
+            );
+          }
         },
       },
       {
