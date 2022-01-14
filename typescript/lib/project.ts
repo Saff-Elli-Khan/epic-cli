@@ -1123,7 +1123,11 @@ export class Project {
                   ? `./core/controllers.ts`
                   : resource.type === "model"
                   ? `./core/models.ts`
-                  : `./core/middlewares.ts`;
+                  : resource.type === "middleware"
+                  ? `./core/middlewares.ts`
+                  : resource.type === "job"
+                  ? `./core/crons.ts`
+                  : ``;
 
               // Parse Template
               new TemplateParser({
@@ -1143,11 +1147,25 @@ export class Project {
                         : resource.name +
                           (resource.type === "controller"
                             ? "Controller"
-                            : "Middleware"),
+                            : resource.type === "middleware"
+                            ? "Middleware"
+                            : resource.type === "job"
+                            ? "Job"
+                            : ""),
                     ],
                     location:
                       options.name +
-                      `/build/${resource.type}s/${resource.name}`,
+                      `/build/${
+                        resource.type === "controller"
+                          ? `constrollers`
+                          : resource.type === "model"
+                          ? `models`
+                          : resource.type === "middleware"
+                          ? `middlewares`
+                          : resource.type === "job"
+                          ? `jobs`
+                          : ``
+                      }/${resource.name}`,
                   }
                 )
                 .push(
@@ -1155,25 +1173,31 @@ export class Project {
                     ? "ControllerChildsContainer"
                     : resource.type === "model"
                     ? "ModelListContainer"
-                    : "MiddlewaresContainer",
+                    : resource.type === "middleware"
+                    ? "MiddlewaresContainer"
+                    : resource.type === "job"
+                    ? "JobsContainer"
+                    : "",
                   resource.type === "controller"
                     ? "ControllerChildTemplate"
                     : resource.type === "model"
                     ? "ModelListTemplate"
-                    : "MiddlewareTemplate",
+                    : resource.type === "middleware"
+                    ? "MiddlewareTemplate"
+                    : resource.type === "job"
+                    ? "JobTemplate"
+                    : "",
                   `${options.name}-${resource.type}-${resource.name}-resource`,
                   {
-                    [resource.type === "controller"
-                      ? "child"
-                      : resource.type === "model"
-                      ? "model"
-                      : "middleware"]:
-                      resource.type === "model"
-                        ? resource.name
-                        : resource.name +
-                          (resource.type === "controller"
-                            ? "Controller"
-                            : "Middleware"),
+                    [resource.type === "controller" ? "child" : resource.type]:
+                      resource.name +
+                      (resource.type === "controller"
+                        ? "Controller"
+                        : resource.type === "middleware"
+                        ? "Middleware"
+                        : resource.type === "job"
+                        ? "Job"
+                        : ""),
                   }
                 )
                 .render();
@@ -1215,8 +1239,20 @@ export class Project {
             );
           }
 
-          // Copy typings to the main project
-          copyFolderRecursiveSync(
+          // // Copy typings to the main project
+          // copyFolderRecursiveSync(
+          //   Path.join(
+          //     ConfigManager.Options.rootPath,
+          //     `./node_modules/${options.name}/typings/`
+          //   ),
+          //   Path.join(
+          //     ConfigManager.Options.rootPath,
+          //     `./typings/${options.name}/`
+          //   )
+          // );
+
+          // Create Symlink to the Typings
+          Fs.symlinkSync(
             Path.join(
               ConfigManager.Options.rootPath,
               `./node_modules/${options.name}/typings/`
@@ -1224,7 +1260,8 @@ export class Project {
             Path.join(
               ConfigManager.Options.rootPath,
               `./typings/${options.name}/`
-            )
+            ),
+            "dir"
           );
         },
       },
