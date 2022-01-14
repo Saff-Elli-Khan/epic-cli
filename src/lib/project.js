@@ -833,7 +833,7 @@ class Project {
                             // Parse Template
                             new epic_parser_1.TemplateParser({
                                 inDir: options.templateDir ||
-                                    path_1.default.join(Project.SamplesPath(), "./jobs/"),
+                                    path_1.default.join(Project.SamplesPath(), "./job/"),
                                 inFile: `./${options.template}.ts`,
                                 outDir: Project.JobsPath(),
                                 outFile: `./${options.name}.ts`,

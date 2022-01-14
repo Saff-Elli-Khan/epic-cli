@@ -1473,7 +1473,7 @@ export class Project {
             new TemplateParser({
               inDir:
                 options.templateDir ||
-                Path.join(Project.SamplesPath(), "./jobs/"),
+                Path.join(Project.SamplesPath(), "./job/"),
               inFile: `./${options.template}.ts`,
               outDir: Project.JobsPath(),
               outFile: `./${options.name}.ts`,
