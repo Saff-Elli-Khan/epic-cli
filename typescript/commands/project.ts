@@ -618,7 +618,7 @@ export const ProjectCommands: LooseCommandInterface[] = [
         message: "Please provide a cron job template:",
         choices: (options) => {
           // Cron Job Path
-          const CronJobDir =
+          const JobDir =
             options.templateDir ||
             Path.join(
               ConfigManager.getConfig("main").paths!.templates!,
@@ -626,10 +626,10 @@ export const ProjectCommands: LooseCommandInterface[] = [
             );
 
           // Resolve Directory
-          Fs.mkdirSync(CronJobDir, { recursive: true });
+          Fs.mkdirSync(JobDir, { recursive: true });
 
           // Templates List
-          return Fs.readdirSync(CronJobDir)
+          return Fs.readdirSync(JobDir)
             .filter((file) => /\.ts$/g.test(file))
             .map((file) => file.replace(/\.\w*/g, ""));
         },

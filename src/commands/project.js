@@ -576,12 +576,12 @@ exports.ProjectCommands = [
                 message: "Please provide a cron job template:",
                 choices: (options) => {
                     // Cron Job Path
-                    const CronJobDir = options.templateDir ||
+                    const JobDir = options.templateDir ||
                         path_1.default.join(core_1.ConfigManager.getConfig("main").paths.templates, "./job/");
                     // Resolve Directory
-                    fs_1.default.mkdirSync(CronJobDir, { recursive: true });
+                    fs_1.default.mkdirSync(JobDir, { recursive: true });
                     // Templates List
-                    return fs_1.default.readdirSync(CronJobDir)
+                    return fs_1.default.readdirSync(JobDir)
                         .filter((file) => /\.ts$/g.test(file))
                         .map((file) => file.replace(/\.\w*/g, ""));
                 },

@@ -952,6 +952,164 @@ export class Project {
     ]).run();
   }
 
+  static async createJob(options: CreateJobOptions, command: CommandInterface) {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Creating new Cron Job...",
+        task: () => {
+          if (
+            !Fs.existsSync(
+              Path.join(Project.JobsPath(), `./${options.name}.ts`)
+            )
+          )
+            // Parse Template
+            new TemplateParser({
+              inDir:
+                options.templateDir ||
+                Path.join(Project.SamplesPath(), "./job/"),
+              inFile: `./${options.template}.ts`,
+              outDir: Project.JobsPath(),
+              outFile: `./${options.name}.ts`,
+            })
+              .parse()
+              .render((_) => _.replace(/Sample/g, options.name));
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          try {
+            // Parse Template
+            new TemplateParser({
+              inDir: Project.AppPath(),
+              inFile: `./core/jobs.ts`,
+              outFile: `./core/jobs.ts`,
+            })
+              .parse()
+              .push(
+                "ImportsContainer",
+                "ImportsTemplate",
+                options.name + "JobImport",
+                {
+                  modules: [options.name + "Job"],
+                  location: `./${Path.relative(
+                    Project.AppCore(),
+                    Path.join(Project.JobsPath(), options.name)
+                  ).replace(/\\/g, "/")}`,
+                }
+              )
+              .push("JobsContainer", "JobTemplate", options.name + "Job", {
+                job: options.name + "Job",
+              })
+              .render();
+          } catch (error) {
+            console.warn(
+              "We are unable to parse core/jobs properly! Please add the job manually.",
+              error
+            );
+          }
+
+          // Update Configuration & Transactions
+          ConfigManager.setConfig("transactions", (_) => {
+            // Update Last Access
+            _.lastAccess!.job = options.name;
+
+            // Remove Duplicate Transaction
+            _.transactions = _.transactions.filter(
+              (transaction) =>
+                !(
+                  transaction.command === "create-job" &&
+                  transaction.params.name === options.name
+                )
+            );
+
+            // Add New Transaction
+            _.transactions.push({
+              command: command.name,
+              params: options,
+            });
+
+            return _;
+          }).setConfig("resources", (_) => {
+            // Remove Duplicate Resource
+            _.resources = _.resources.filter(
+              (resource) =>
+                !(resource.type === "job" && resource.name === options.name)
+            );
+
+            // Add New Resource
+            _.resources.push({
+              type: "job",
+              name: options.name,
+            });
+
+            return _;
+          });
+        },
+      },
+    ]).run();
+  }
+
+  static async deleteJob(options: DeleteJobOptions) {
+    // Queue the Tasks
+    await new Listr([
+      {
+        title: "Deleting the Job...",
+        task: async () => {
+          // Delete Job
+          Fs.unlinkSync(Path.join(Project.JobsPath(), `./${options.name}.ts`));
+        },
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          try {
+            // Parse Template
+            new TemplateParser({
+              inDir: Project.AppPath(),
+              inFile: `./core/jobs.ts`,
+              outFile: `./core/jobs.ts`,
+            })
+              .parse()
+              .pop("ImportsContainer", options.name + "JobImport")
+              .pop("JobsContainer", options.name + "Job")
+              .render();
+          } catch (error) {
+            console.warn(
+              `We are unable to parse core/jobs properly! Please remove the job from core/jobs manually.`,
+              error
+            );
+          }
+
+          // Update Configuration & Transactions
+          ConfigManager.setConfig("transactions", (_) => {
+            // Update Last Access
+            delete _.lastAccess!.job;
+
+            // Remove Transaction
+            _.transactions = _.transactions.filter(
+              (transaction) =>
+                !(
+                  transaction.command === "create-job" &&
+                  transaction.params.name === options.name
+                )
+            );
+
+            return _;
+          }).setConfig("resources", (_) => {
+            _.resources = _.resources.filter(
+              (resource) =>
+                !(resource.type === "job" && resource.name === options.name)
+            );
+
+            return _;
+          });
+        },
+      },
+    ]).run();
+  }
+
   static async addPlugin(options: AddPluginOptions, command: CommandInterface) {
     // Queue the Tasks
     await new Listr([
@@ -1104,24 +1262,12 @@ export class Project {
       {
         title: "Linking the plugin...",
         task: async (ctx) => {
-          // Import Settings
+          // Import Plugin Settings to the Project
           ConfigManager.setConfig("main", (_) => {
             _.other[ctx.package.name] =
               ctx.configuration.other[ctx.package.name];
             return _;
           });
-
-          // // Copy typings to the main project
-          // copyFolderRecursiveSync(
-          //   Path.join(
-          //     ConfigManager.Options.rootPath,
-          //     `./node_modules/${options.name}/typings/`
-          //   ),
-          //   Path.join(
-          //     ConfigManager.Options.rootPath,
-          //     `./typings/${options.name}/`
-          //   )
-          // );
 
           // Get Typings Path
           const TypingsPath = Path.join(
@@ -1129,8 +1275,8 @@ export class Project {
             `./typings/${options.name}/`
           );
 
+          // Create Symlink to the Typings
           if (!Fs.existsSync(TypingsPath))
-            // Create Symlink to the Typings
             await SymlinkDir(
               Path.join(
                 ConfigManager.Options.rootPath,
@@ -1142,34 +1288,31 @@ export class Project {
           // Add All Resources If Exists
           if (typeof ctx.resources === "object") {
             ctx.resources.resources.forEach((resource) => {
-              // Link Plugin File
-              const TargetFile =
-                resource.type === "controller"
-                  ? `./core/controllers.ts`
-                  : resource.type === "model"
-                  ? `./core/models.ts`
-                  : resource.type === "middleware"
-                  ? `./core/middlewares.ts`
-                  : resource.type === "job"
-                  ? `./core/crons.ts`
-                  : ``;
+              if (resource.type !== "model") {
+                // Link Plugin File
+                const TargetFile =
+                  resource.type === "controller"
+                    ? `./core/controllers.ts`
+                    : resource.type === "middleware"
+                    ? `./core/middlewares.ts`
+                    : resource.type === "job"
+                    ? `./core/jobs.ts`
+                    : ``;
 
-              // Parse Template
-              new TemplateParser({
-                inDir: Project.AppPath(),
-                inFile: TargetFile,
-                outFile: TargetFile,
-              })
-                .parse()
-                .push(
-                  "ImportsContainer",
-                  "ImportsTemplate",
-                  `${options.name}-${resource.type}-${resource.name}-import`,
-                  {
-                    modules: [
-                      resource.type === "model"
-                        ? resource.name
-                        : resource.name +
+                // Parse Template
+                new TemplateParser({
+                  inDir: Project.AppPath(),
+                  inFile: TargetFile,
+                  outFile: TargetFile,
+                })
+                  .parse()
+                  .push(
+                    "ImportsContainer",
+                    "ImportsTemplate",
+                    `${options.name}-${resource.type}-${resource.name}-import`,
+                    {
+                      modules: [
+                        resource.name +
                           (resource.type === "controller"
                             ? "Controller"
                             : resource.type === "middleware"
@@ -1177,55 +1320,112 @@ export class Project {
                             : resource.type === "job"
                             ? "Job"
                             : ""),
-                    ],
-                    location:
-                      options.name +
-                      `/build/${
-                        resource.type === "controller"
-                          ? `constrollers`
-                          : resource.type === "model"
-                          ? `models`
+                      ],
+                      location:
+                        options.name +
+                        `/build/${
+                          resource.type === "controller"
+                            ? `constrollers`
+                            : resource.type === "middleware"
+                            ? `middlewares`
+                            : resource.type === "job"
+                            ? `jobs`
+                            : ``
+                        }/${resource.name}`,
+                    }
+                  )
+                  .push(
+                    resource.type === "controller"
+                      ? "ControllerChildsContainer"
+                      : resource.type === "middleware"
+                      ? "MiddlewaresContainer"
+                      : resource.type === "job"
+                      ? "JobsContainer"
+                      : "",
+                    resource.type === "controller"
+                      ? "ControllerChildTemplate"
+                      : resource.type === "middleware"
+                      ? "MiddlewareTemplate"
+                      : resource.type === "job"
+                      ? "JobTemplate"
+                      : "",
+                    `${options.name}-${resource.type}-${resource.name}-resource`,
+                    {
+                      [resource.type === "controller"
+                        ? "child"
+                        : resource.type]:
+                        resource.name +
+                        (resource.type === "controller"
+                          ? "Controller"
                           : resource.type === "middleware"
-                          ? `middlewares`
+                          ? "Middleware"
                           : resource.type === "job"
-                          ? `jobs`
-                          : ``
-                      }/${resource.name}`,
-                  }
-                )
-                .push(
-                  resource.type === "controller"
-                    ? "ControllerChildsContainer"
-                    : resource.type === "model"
-                    ? "ModelListContainer"
-                    : resource.type === "middleware"
-                    ? "MiddlewaresContainer"
-                    : resource.type === "job"
-                    ? "JobsContainer"
-                    : "",
-                  resource.type === "controller"
-                    ? "ControllerChildTemplate"
-                    : resource.type === "model"
-                    ? "ModelListTemplate"
-                    : resource.type === "middleware"
-                    ? "MiddlewareTemplate"
-                    : resource.type === "job"
-                    ? "JobTemplate"
-                    : "",
-                  `${options.name}-${resource.type}-${resource.name}-resource`,
-                  {
-                    [resource.type === "controller" ? "child" : resource.type]:
-                      resource.name +
-                      (resource.type === "controller"
-                        ? "Controller"
-                        : resource.type === "middleware"
-                        ? "Middleware"
-                        : resource.type === "job"
-                        ? "Job"
-                        : ""),
-                  }
-                )
-                .render();
+                          ? "Job"
+                          : ""),
+                    }
+                  )
+                  .render();
+              } else {
+                // Parse Template
+                new TemplateParser({
+                  inDir: Path.join(Project.SamplesPath(), "./model/"),
+                  inFile: `./blank.ts`,
+                  outDir: Project.ModelsPath(),
+                  outFile: `./${resource.name}.ts`,
+                })
+                  .parse()
+                  .push(
+                    "ImportsContainer",
+                    "ImportsTemplate",
+                    resource.name + "ModelImport",
+                    {
+                      modules: [resource.name + ` as ${resource.name}Model`],
+                      location: `${ctx.package.name}/build/models/${resource.name}`,
+                    }
+                  )
+                  .render((_) =>
+                    _.replace(/Sample/g, options.name).replace(
+                      /extends\s+BaseModel/g,
+                      "extends " + resource.name + "Model"
+                    )
+                  );
+
+                try {
+                  // Parse Template core/models.ts
+                  new TemplateParser({
+                    inDir: Project.AppPath(),
+                    inFile: `./core/models.ts`,
+                    outFile: `./core/models.ts`,
+                  })
+                    .parse()
+                    .push(
+                      "ImportsContainer",
+                      "ImportsTemplate",
+                      resource.name + "ModelImport",
+                      {
+                        modules: [resource.name],
+                        location: `./${Path.relative(
+                          Project.AppCore(),
+                          Path.join(Project.ModelsPath(), resource.name)
+                        ).replace(/\\/g, "/")}`,
+                      }
+                    )
+                    .push(
+                      "ModelListContainer",
+                      "ModelListTemplate",
+                      resource.name + "Model",
+                      {
+                        model: resource.name,
+                      }
+                    )
+                    .render();
+                } catch (error) {
+                  console.warn(
+                    "We are unable to parse core/models properly! Please add the model to the list manually.",
+                    error
+                  );
+                }
+              }
 
               // Push Resource to Record
               ConfigManager.setConfig("resources", (_) => {
@@ -1238,7 +1438,7 @@ export class Project {
                     )
                 );
 
-                // Remove Duplicate
+                // Add Resource
                 _.resources.push(resource);
 
                 return _;
@@ -1416,42 +1616,63 @@ export class Project {
           if (typeof ctx.resources === "object")
             // Add All Resources
             ctx.resources.resources.forEach((resource) => {
-              const TargetFile =
-                resource.type === "controller"
-                  ? `./core/controllers.ts`
-                  : resource.type === "model"
-                  ? `./core/models.ts`
-                  : `./core/middlewares.ts`;
-
-              // Parse Template
-              new TemplateParser({
-                inDir: Project.AppPath(),
-                inFile: TargetFile,
-                outFile: TargetFile,
-              })
-                .parse()
-                .pop(
-                  "ImportsContainer",
-                  `${options.name}-${resource.type}-${resource.name}-import`
-                )
-                .pop(
+              if (resource.type !== "model") {
+                const TargetFile =
                   resource.type === "controller"
-                    ? "ControllerChildsContainer"
-                    : resource.type === "model"
-                    ? "ModelListContainer"
-                    : "MiddlewaresContainer",
-                  `${options.name}-${resource.type}-${resource.name}-resource`
-                )
-                .render();
-            });
+                    ? `./core/controllers.ts`
+                    : resource.type === "middleware"
+                    ? `./core/middlewares.ts`
+                    : resource.type === "job"
+                    ? `./core/jobs.ts`
+                    : "";
 
-          // // Remove Typings
-          // removeFolderRecursiveSync(
-          //   Path.join(
-          //     ConfigManager.Options.rootPath,
-          //     `./typings/${options.name}`
-          //   )
-          // );
+                // Parse Template
+                new TemplateParser({
+                  inDir: Project.AppPath(),
+                  inFile: TargetFile,
+                  outFile: TargetFile,
+                })
+                  .parse()
+                  .pop(
+                    "ImportsContainer",
+                    `${options.name}-${resource.type}-${resource.name}-import`
+                  )
+                  .pop(
+                    resource.type === "controller"
+                      ? "ControllerChildsContainer"
+                      : resource.type === "middleware"
+                      ? "MiddlewaresContainer"
+                      : resource.type === "job"
+                      ? "JobsContainer"
+                      : "",
+                    `${options.name}-${resource.type}-${resource.name}-resource`
+                  )
+                  .render();
+              } else {
+                // Delete Model
+                Fs.unlinkSync(
+                  Path.join(Project.ModelsPath(), `./${resource.name}.ts`)
+                );
+
+                try {
+                  // Parse Template
+                  new TemplateParser({
+                    inDir: Project.AppPath(),
+                    inFile: `./core/models.ts`,
+                    outFile: `./core/models.ts`,
+                  })
+                    .parse()
+                    .pop("ImportsContainer", resource.name + "ModelImport")
+                    .pop("ModelListContainer", resource.name + "Model")
+                    .render();
+                } catch (error) {
+                  console.warn(
+                    `We are unable to parse core/models properly! Please remove the model from core/models manually.`,
+                    error
+                  );
+                }
+              }
+            });
 
           // Get Typings Path
           const TypingsPath = Path.join(
@@ -1499,164 +1720,6 @@ export class Project {
 
                 return _;
               });
-        },
-      },
-    ]).run();
-  }
-
-  static async createJob(options: CreateJobOptions, command: CommandInterface) {
-    // Queue the Tasks
-    await new Listr([
-      {
-        title: "Creating new Cron Job...",
-        task: () => {
-          if (
-            !Fs.existsSync(
-              Path.join(Project.JobsPath(), `./${options.name}.ts`)
-            )
-          )
-            // Parse Template
-            new TemplateParser({
-              inDir:
-                options.templateDir ||
-                Path.join(Project.SamplesPath(), "./job/"),
-              inFile: `./${options.template}.ts`,
-              outDir: Project.JobsPath(),
-              outFile: `./${options.name}.ts`,
-            })
-              .parse()
-              .render((_) => _.replace(/Sample/g, options.name));
-        },
-      },
-      {
-        title: "Configuring your project",
-        task: () => {
-          try {
-            // Parse Template
-            new TemplateParser({
-              inDir: Project.AppPath(),
-              inFile: `./core/crons.ts`,
-              outFile: `./core/crons.ts`,
-            })
-              .parse()
-              .push(
-                "ImportsContainer",
-                "ImportsTemplate",
-                options.name + "JobImport",
-                {
-                  modules: [options.name + "Job"],
-                  location: `./${Path.relative(
-                    Project.AppCore(),
-                    Path.join(Project.JobsPath(), options.name)
-                  ).replace(/\\/g, "/")}`,
-                }
-              )
-              .push("JobsContainer", "JobTemplate", options.name + "Job", {
-                job: options.name + "Job",
-              })
-              .render();
-          } catch (error) {
-            console.warn(
-              "We are unable to parse core/crons properly! Please add the job manually.",
-              error
-            );
-          }
-
-          // Update Configuration & Transactions
-          ConfigManager.setConfig("transactions", (_) => {
-            // Update Last Access
-            _.lastAccess!.job = options.name;
-
-            // Remove Duplicate Transaction
-            _.transactions = _.transactions.filter(
-              (transaction) =>
-                !(
-                  transaction.command === "create-job" &&
-                  transaction.params.name === options.name
-                )
-            );
-
-            // Add New Transaction
-            _.transactions.push({
-              command: command.name,
-              params: options,
-            });
-
-            return _;
-          }).setConfig("resources", (_) => {
-            // Remove Duplicate Resource
-            _.resources = _.resources.filter(
-              (resource) =>
-                !(resource.type === "job" && resource.name === options.name)
-            );
-
-            // Add New Resource
-            _.resources.push({
-              type: "job",
-              name: options.name,
-            });
-
-            return _;
-          });
-        },
-      },
-    ]).run();
-  }
-
-  static async deleteJob(options: DeleteJobOptions) {
-    // Queue the Tasks
-    await new Listr([
-      {
-        title: "Deleting the Job...",
-        task: async () => {
-          // Delete Job
-          Fs.unlinkSync(Path.join(Project.JobsPath(), `./${options.name}.ts`));
-        },
-      },
-      {
-        title: "Configuring your project",
-        task: () => {
-          try {
-            // Parse Template
-            new TemplateParser({
-              inDir: Project.AppPath(),
-              inFile: `./core/crons.ts`,
-              outFile: `./core/crons.ts`,
-            })
-              .parse()
-              .pop("ImportsContainer", options.name + "JobImport")
-              .pop("JobsContainer", options.name + "Job")
-              .render();
-          } catch (error) {
-            console.warn(
-              `We are unable to parse core/crons properly! Please remove the job from core/crons manually.`,
-              error
-            );
-          }
-
-          // Update Configuration & Transactions
-          ConfigManager.setConfig("transactions", (_) => {
-            // Update Last Access
-            delete _.lastAccess!.job;
-
-            // Remove Transaction
-            _.transactions = _.transactions.filter(
-              (transaction) =>
-                !(
-                  transaction.command === "create-job" &&
-                  transaction.params.name === options.name
-                )
-            );
-
-            return _;
-          }).setConfig("resources", (_) => {
-            _.resources = _.resources.filter(
-              (resource) =>
-                !(resource.type === "job" && resource.name === options.name)
-            );
-
-            return _;
-          });
         },
       },
     ]).run();
