@@ -68,6 +68,7 @@ export interface ResourceInterface {
     type: ResourceType;
     name: string;
     parent?: string;
+    path?: string;
 }
 export declare const ConfigManager: EpicConfigManager<Required<{
     main: ConfigurationInterface;

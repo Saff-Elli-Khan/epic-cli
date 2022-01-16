@@ -646,10 +646,10 @@ class Project {
             ]).run();
             // Link Plugin
             if (command.source === "Cli")
-                yield Project.linkPlugin(options, command);
+                yield Project.linkPlugin(options);
         });
     }
-    static linkPlugin(options, command) {
+    static linkPlugin(options) {
         return __awaiter(this, void 0, void 0, function* () {
             // Resolve Plugin Name
             options.name = options.name.split(/(?!^@)@/g)[0];
@@ -681,13 +681,18 @@ class Project {
                             // Check Resource Version
                             if (ctx.resources && ctx.resources.version === 1) {
                                 // Filter Conflicting Resources
-                                const Conflictions = ctx.resources.resources.filter((resource) => Resources.reduce((conflicts, pluginResource) => !conflicts
-                                    ? resource.type === pluginResource.type &&
-                                        resource.name === pluginResource.name
+                                const Conflictions = ctx.resources.resources
+                                    .filter((resource) => !resource.parent || resource.parent === "None")
+                                    .filter((resource) => Resources.reduce((conflicts, Resource) => !conflicts
+                                    ? resource.type === Resource.type &&
+                                        resource.name === Resource.name
                                     : conflicts, false));
                                 if (Conflictions.length) {
                                     console.log("Conflicting Resources:", Conflictions);
-                                    throw new Error(`We have found some conflictions with the plugin!`);
+                                    ctx.resources.resources = ctx.resources.resources.filter((resource) => !Conflictions.reduce((result, item) => !result
+                                        ? resource.type === item.type &&
+                                            resource.name === item.name
+                                        : result, false));
                                 }
                             }
                             else
@@ -712,15 +717,24 @@ class Project {
                         // Add All Resources If Exists
                         if (typeof ctx.resources === "object") {
                             ctx.resources.resources.forEach((resource) => {
-                                if (resource.type !== "model") {
-                                    // Link Plugin File
-                                    const TargetFile = resource.type === "controller"
-                                        ? `./core/controllers.ts`
+                                // Link Plugin File
+                                const TargetFile = resource.type === "controller"
+                                    ? `./core/controllers.ts`
+                                    : resource.type === "middleware"
+                                        ? `./core/middlewares.ts`
+                                        : resource.type === "job"
+                                            ? `./core/jobs.ts`
+                                            : ``;
+                                // Get Resource Path
+                                const TargetResource = options.name +
+                                    `/build/${resource.type === "controller"
+                                        ? `controllers`
                                         : resource.type === "middleware"
-                                            ? `./core/middlewares.ts`
+                                            ? `middlewares`
                                             : resource.type === "job"
-                                                ? `./core/jobs.ts`
-                                                : ``;
+                                                ? `jobs`
+                                                : ``}/${resource.name}`;
+                                if (resource.type !== "model") {
                                     // Parse Template
                                     new epic_parser_1.TemplateParser({
                                         inDir: Project.AppPath(),
@@ -739,14 +753,7 @@ class Project {
                                                             ? "Job"
                                                             : ""),
                                         ],
-                                        location: options.name +
-                                            `/build/${resource.type === "controller"
-                                                ? `controllers`
-                                                : resource.type === "middleware"
-                                                    ? `middlewares`
-                                                    : resource.type === "job"
-                                                        ? `jobs`
-                                                        : ``}/${resource.name}`,
+                                        location: resource.path || TargetResource,
                                     })
                                         .push(resource.type === "controller"
                                         ? "ControllerChildsContainer"
@@ -814,19 +821,14 @@ class Project {
                                     // Remove Duplicate Resource
                                     _.resources = _.resources.filter((oldResource) => !(oldResource.type === resource.type &&
                                         oldResource.name === resource.name));
+                                    if (resource.type === "controller")
+                                        resource.path = TargetResource;
                                     // Add Resource
                                     _.resources.push(resource);
                                     return _;
                                 });
                             });
                         }
-                    }),
-                },
-                {
-                    title: "Installing Dependencies...",
-                    task: (ctx) => __awaiter(this, void 0, void 0, function* () {
-                        for (const name in ctx.configuration.plugins)
-                            yield Project.addPlugin({ name }, command);
                     }),
                 },
                 {
@@ -853,9 +855,9 @@ class Project {
             ]).run();
         });
     }
-    static linkPlugins(_, command) {
+    static linkPlugins() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield Promise.all(Object.keys(core_1.ConfigManager.getConfig("main").plugins).map((name) => Project.linkPlugin({ name }, command)));
+            yield Promise.all(Object.keys(core_1.ConfigManager.getConfig("main").plugins).map((name) => Project.linkPlugin({ name })));
         });
     }
     static updatePlugin(options, command) {
@@ -878,7 +880,7 @@ class Project {
                 },
             ]).run();
             // Link Plugin
-            yield Project.linkPlugin(options, command);
+            yield Project.linkPlugin(options);
         });
     }
     static removePlugin(options, command) {

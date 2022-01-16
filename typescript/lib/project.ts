@@ -1157,13 +1157,10 @@ export class Project {
     ]).run();
 
     // Link Plugin
-    if (command.source === "Cli") await Project.linkPlugin(options, command);
+    if (command.source === "Cli") await Project.linkPlugin(options);
   }
 
-  static async linkPlugin(
-    options: AddPluginOptions,
-    command: CommandInterface
-  ) {
+  static async linkPlugin(options: AddPluginOptions) {
     // Resolve Plugin Name
     options.name = options.name.split(/(?!^@)@/g)[0];
 
@@ -1239,21 +1236,33 @@ export class Project {
             if (ctx.resources && ctx.resources!.version === 1) {
               // Filter Conflicting Resources
               const Conflictions: Array<ResourceInterface> =
-                ctx.resources.resources.filter((resource) =>
-                  Resources.reduce<boolean>(
-                    (conflicts, pluginResource) =>
-                      !conflicts
-                        ? resource.type === pluginResource.type &&
-                          resource.name === pluginResource.name
-                        : conflicts,
-                    false
+                ctx.resources.resources
+                  .filter(
+                    (resource) => !resource.parent || resource.parent === "None"
                   )
-                );
+                  .filter((resource) =>
+                    Resources.reduce<boolean>(
+                      (conflicts, Resource) =>
+                        !conflicts
+                          ? resource.type === Resource.type &&
+                            resource.name === Resource.name
+                          : conflicts,
+                      false
+                    )
+                  );
 
               if (Conflictions.length) {
                 console.log("Conflicting Resources:", Conflictions);
-                throw new Error(
-                  `We have found some conflictions with the plugin!`
+                ctx.resources.resources = ctx.resources.resources.filter(
+                  (resource) =>
+                    !Conflictions.reduce(
+                      (result, item) =>
+                        !result
+                          ? resource.type === item.type &&
+                            resource.name === item.name
+                          : result,
+                      false
+                    )
                 );
               }
             } else
@@ -1292,17 +1301,30 @@ export class Project {
           // Add All Resources If Exists
           if (typeof ctx.resources === "object") {
             ctx.resources.resources.forEach((resource) => {
-              if (resource.type !== "model") {
-                // Link Plugin File
-                const TargetFile =
-                  resource.type === "controller"
-                    ? `./core/controllers.ts`
-                    : resource.type === "middleware"
-                    ? `./core/middlewares.ts`
-                    : resource.type === "job"
-                    ? `./core/jobs.ts`
-                    : ``;
+              // Link Plugin File
+              const TargetFile =
+                resource.type === "controller"
+                  ? `./core/controllers.ts`
+                  : resource.type === "middleware"
+                  ? `./core/middlewares.ts`
+                  : resource.type === "job"
+                  ? `./core/jobs.ts`
+                  : ``;
 
+              // Get Resource Path
+              const TargetResource =
+                options.name +
+                `/build/${
+                  resource.type === "controller"
+                    ? `controllers`
+                    : resource.type === "middleware"
+                    ? `middlewares`
+                    : resource.type === "job"
+                    ? `jobs`
+                    : ``
+                }/${resource.name}`;
+
+              if (resource.type !== "model") {
                 // Parse Template
                 new TemplateParser({
                   inDir: Project.AppPath(),
@@ -1325,17 +1347,7 @@ export class Project {
                             ? "Job"
                             : ""),
                       ],
-                      location:
-                        options.name +
-                        `/build/${
-                          resource.type === "controller"
-                            ? `controllers`
-                            : resource.type === "middleware"
-                            ? `middlewares`
-                            : resource.type === "job"
-                            ? `jobs`
-                            : ``
-                        }/${resource.name}`,
+                      location: resource.path || TargetResource,
                     }
                   )
                   .push(
@@ -1442,6 +1454,9 @@ export class Project {
                     )
                 );
 
+                if (resource.type === "controller")
+                  resource.path = TargetResource;
+
                 // Add Resource
                 _.resources.push(resource);
 
@@ -1449,13 +1464,6 @@ export class Project {
               });
             });
           }
-        },
-      },
-      {
-        title: "Installing Dependencies...",
-        task: async (ctx) => {
-          for (const name in ctx.configuration.plugins)
-            await Project.addPlugin({ name }, command);
         },
       },
       {
@@ -1490,10 +1498,10 @@ export class Project {
     ]).run();
   }
 
-  static async linkPlugins(_: any, command: CommandInterface) {
+  static async linkPlugins() {
     await Promise.all(
       Object.keys(ConfigManager.getConfig("main").plugins).map((name) =>
-        Project.linkPlugin({ name }, command)
+        Project.linkPlugin({ name })
       )
     );
   }
@@ -1527,7 +1535,7 @@ export class Project {
     ]).run();
 
     // Link Plugin
-    await Project.linkPlugin(options, command);
+    await Project.linkPlugin(options);
   }
 
   static async removePlugin(

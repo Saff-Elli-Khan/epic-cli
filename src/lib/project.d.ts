@@ -83,8 +83,8 @@ export declare class Project {
     static createJob(options: CreateJobOptions, command: CommandInterface): Promise<void>;
     static deleteJob(options: DeleteJobOptions): Promise<void>;
     static addPlugin(options: AddPluginOptions, command: CommandInterface): Promise<void>;
-    static linkPlugin(options: AddPluginOptions, command: CommandInterface): Promise<void>;
-    static linkPlugins(_: any, command: CommandInterface): Promise<void>;
+    static linkPlugin(options: AddPluginOptions): Promise<void>;
+    static linkPlugins(): Promise<void>;
     static updatePlugin(options: AddPluginOptions, command: CommandInterface): Promise<void>;
     static removePlugin(options: RemovePluginOptions, command: CommandInterface): Promise<void>;
     static unlinkPlugin(options: RemovePluginOptions): Promise<void>;

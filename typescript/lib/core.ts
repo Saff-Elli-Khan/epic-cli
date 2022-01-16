@@ -87,6 +87,7 @@ export interface ResourceInterface {
   type: ResourceType;
   name: string;
   parent?: string;
+  path?: string;
 }
 
 export const ConfigManager = new EpicConfigManager({
