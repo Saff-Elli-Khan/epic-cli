@@ -1724,7 +1724,7 @@ export class Project {
         title: "Building the project",
         task: () =>
           Execa(
-            "npx -y shx rm -rf tsconfig.tsbuildinfo build && ttsc -p tsconfig.json && npx shx rm -rf ./build/templates && npx shx cp -R ./src/templates/ ./build/templates/"
+            "npx -y shx rm -rf tsconfig.tsbuildinfo build && npx -y ttsc -p tsconfig.json && npx shx rm -rf ./build/templates && npx shx cp -R ./src/templates/ ./build/templates/"
           ),
       },
       {

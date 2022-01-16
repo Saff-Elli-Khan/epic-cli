@@ -1027,7 +1027,7 @@ class Project {
                 },
                 {
                     title: "Building the project",
-                    task: () => execa_1.default("npx -y shx rm -rf tsconfig.tsbuildinfo build && ttsc -p tsconfig.json && npx shx rm -rf ./build/templates && npx shx cp -R ./src/templates/ ./build/templates/"),
+                    task: () => execa_1.default("npx -y shx rm -rf tsconfig.tsbuildinfo build && npx -y ttsc -p tsconfig.json && npx shx rm -rf ./build/templates && npx shx cp -R ./src/templates/ ./build/templates/"),
                 },
                 {
                     title: "Configuring your project",
