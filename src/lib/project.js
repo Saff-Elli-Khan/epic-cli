@@ -821,7 +821,7 @@ class Project {
                                     // Remove Duplicate Resource
                                     _.resources = _.resources.filter((oldResource) => !(oldResource.type === resource.type &&
                                         oldResource.name === resource.name));
-                                    if (resource.type === "controller")
+                                    if (resource.type !== "model")
                                         resource.path = TargetResource;
                                     // Add Resource
                                     _.resources.push(resource);

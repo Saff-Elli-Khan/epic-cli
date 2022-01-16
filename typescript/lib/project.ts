@@ -1454,8 +1454,7 @@ export class Project {
                     )
                 );
 
-                if (resource.type === "controller")
-                  resource.path = TargetResource;
+                if (resource.type !== "model") resource.path = TargetResource;
 
                 // Add Resource
                 _.resources.push(resource);
