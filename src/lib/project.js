@@ -742,7 +742,7 @@ class Project {
                                         ],
                                         location: options.name +
                                             `/build/${resource.type === "controller"
-                                                ? `constrollers`
+                                                ? `controllers`
                                                 : resource.type === "middleware"
                                                     ? `middlewares`
                                                     : resource.type === "job"
@@ -788,7 +788,7 @@ class Project {
                                         modules: [resource.name + ` as ${resource.name}Model`],
                                         location: `${ctx.package.name}/build/models/${resource.name}`,
                                     })
-                                        .render((_) => _.replace(/Sample/g, options.name).replace(/extends\s+BaseModel/g, "extends " + resource.name + "Model"));
+                                        .render((_) => _.replace(/Sample/g, resource.name).replace(/extends\s+BaseModel/g, "extends " + resource.name + "Model"));
                                     try {
                                         // Parse Template core/models.ts
                                         new epic_parser_1.TemplateParser({

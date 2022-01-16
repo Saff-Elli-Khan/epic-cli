@@ -1325,7 +1325,7 @@ export class Project {
                         options.name +
                         `/build/${
                           resource.type === "controller"
-                            ? `constrollers`
+                            ? `controllers`
                             : resource.type === "middleware"
                             ? `middlewares`
                             : resource.type === "job"
@@ -1384,7 +1384,7 @@ export class Project {
                     }
                   )
                   .render((_) =>
-                    _.replace(/Sample/g, options.name).replace(
+                    _.replace(/Sample/g, resource.name).replace(
                       /extends\s+BaseModel/g,
                       "extends " + resource.name + "Model"
                     )
