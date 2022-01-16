@@ -705,8 +705,7 @@ class Project {
                     task: (ctx) => __awaiter(this, void 0, void 0, function* () {
                         // Import Plugin Settings to the Project
                         core_1.ConfigManager.setConfig("main", (_) => {
-                            _.other[ctx.package.name] =
-                                ctx.configuration.other[ctx.package.name];
+                            _.other = Object.assign(Object.assign({}, ctx.configuration.other), _.other);
                             return _;
                         });
                         // Get Typings Path
@@ -822,7 +821,7 @@ class Project {
                                     _.resources = _.resources.filter((oldResource) => !(oldResource.type === resource.type &&
                                         oldResource.name === resource.name));
                                     if (resource.type !== "model")
-                                        resource.path = TargetResource;
+                                        resource.path = resource.path || TargetResource;
                                     // Add Resource
                                     _.resources.push(resource);
                                     return _;

@@ -1277,8 +1277,10 @@ export class Project {
         task: async (ctx) => {
           // Import Plugin Settings to the Project
           ConfigManager.setConfig("main", (_) => {
-            _.other[ctx.package.name] =
-              ctx.configuration.other[ctx.package.name];
+            _.other = {
+              ...ctx.configuration.other,
+              ..._.other,
+            };
             return _;
           });
 
@@ -1454,7 +1456,8 @@ export class Project {
                     )
                 );
 
-                if (resource.type !== "model") resource.path = TargetResource;
+                if (resource.type !== "model")
+                  resource.path = resource.path || TargetResource;
 
                 // Add Resource
                 _.resources.push(resource);
