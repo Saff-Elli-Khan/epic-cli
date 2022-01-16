@@ -451,6 +451,97 @@ export const ProjectCommands: LooseCommandInterface[] = [
     method: Project.deleteMiddleware,
   },
   {
+    name: "create-job",
+    description: "Create a new cron job.",
+    params: [
+      {
+        type: "input",
+        name: "name",
+        description: "Name of the cron job.",
+        alias: ["--name", "-n"],
+        message: "Please provide a job name:",
+        validator: (value) => {
+          if (!/^[A-Z]\w+$/.test(value))
+            throw new Error(`Please provide a valid cron job name!`);
+        },
+      },
+      {
+        type: "input",
+        name: "description",
+        description: "Description for the cron job.",
+        alias: ["--description", "-d"],
+        message: "Please provide the job description:",
+        default: "N/A",
+      },
+      {
+        type: "input",
+        name: "templateDir",
+        description: "Cron job templates container directory.",
+        alias: ["--templateDir", "-td"],
+        skip: true,
+      },
+      {
+        type: "list",
+        name: "template",
+        description: "Template of the Cron job",
+        message: "Please provide a cron job template:",
+        choices: (options) => {
+          // Cron Job Path
+          const JobDir =
+            options.templateDir ||
+            Path.join(
+              ConfigManager.getConfig("main").paths!.templates!,
+              "./job/"
+            );
+
+          // Resolve Directory
+          Fs.mkdirSync(JobDir, { recursive: true });
+
+          // Templates List
+          return Fs.readdirSync(JobDir)
+            .filter((file) => /\.ts$/g.test(file))
+            .map((file) => file.replace(/\.\w*/g, ""));
+        },
+      },
+    ],
+    before: () => {
+      // Check Configuration File
+      if (!ConfigManager.hasConfig("main"))
+        throw new Error("Please initialize a project first!");
+    },
+    method: Project.createJob,
+  },
+  {
+    name: "delete-job",
+    description: "Remove job from project.",
+    params: [
+      {
+        type: "list",
+        name: "name",
+        alias: ["--name", "-n"],
+        description: "Name of the job.",
+        message: "Please provide a job name:",
+        choices: () => {
+          const JobsPath = ConfigManager.getConfig("main").paths!.jobs!;
+
+          // Resolve Directory
+          Fs.mkdirSync(JobsPath, { recursive: true });
+
+          // Jobs List
+          return Fs.readdirSync(JobsPath)
+            .filter((file) => /\.ts$/g.test(file))
+            .map((file) => file.replace(/\.\w*/g, ""));
+        },
+      },
+    ],
+    before: () => {
+      // Check Configuration File
+      if (!ConfigManager.hasConfig("main"))
+        throw new Error("Please initialize a project first!");
+    },
+    method: Project.deleteJob,
+  },
+  {
     name: "add-plugin",
     description: "Add an Epic plugin to the project.",
     params: [
@@ -582,94 +673,14 @@ export const ProjectCommands: LooseCommandInterface[] = [
     method: Project.unlinkPlugin,
   },
   {
-    name: "create-job",
-    description: "Create a new cron job.",
-    params: [
-      {
-        type: "input",
-        name: "name",
-        description: "Name of the cron job.",
-        alias: ["--name", "-n"],
-        message: "Please provide a job name:",
-        validator: (value) => {
-          if (!/^[A-Z]\w+$/.test(value))
-            throw new Error(`Please provide a valid cron job name!`);
-        },
-      },
-      {
-        type: "input",
-        name: "description",
-        description: "Description for the cron job.",
-        alias: ["--description", "-d"],
-        message: "Please provide the job description:",
-        default: "N/A",
-      },
-      {
-        type: "input",
-        name: "templateDir",
-        description: "Cron job templates container directory.",
-        alias: ["--templateDir", "-td"],
-        skip: true,
-      },
-      {
-        type: "list",
-        name: "template",
-        description: "Template of the Cron job",
-        message: "Please provide a cron job template:",
-        choices: (options) => {
-          // Cron Job Path
-          const JobDir =
-            options.templateDir ||
-            Path.join(
-              ConfigManager.getConfig("main").paths!.templates!,
-              "./job/"
-            );
-
-          // Resolve Directory
-          Fs.mkdirSync(JobDir, { recursive: true });
-
-          // Templates List
-          return Fs.readdirSync(JobDir)
-            .filter((file) => /\.ts$/g.test(file))
-            .map((file) => file.replace(/\.\w*/g, ""));
-        },
-      },
-    ],
+    name: "build",
+    description: "Build the Epic project.",
+    params: [],
     before: () => {
       // Check Configuration File
       if (!ConfigManager.hasConfig("main"))
         throw new Error("Please initialize a project first!");
     },
-    method: Project.createJob,
-  },
-  {
-    name: "delete-job",
-    description: "Remove job from project.",
-    params: [
-      {
-        type: "list",
-        name: "name",
-        alias: ["--name", "-n"],
-        description: "Name of the job.",
-        message: "Please provide a job name:",
-        choices: () => {
-          const JobsPath = ConfigManager.getConfig("main").paths!.jobs!;
-
-          // Resolve Directory
-          Fs.mkdirSync(JobsPath, { recursive: true });
-
-          // Jobs List
-          return Fs.readdirSync(JobsPath)
-            .filter((file) => /\.ts$/g.test(file))
-            .map((file) => file.replace(/\.\w*/g, ""));
-        },
-      },
-    ],
-    before: () => {
-      // Check Configuration File
-      if (!ConfigManager.hasConfig("main"))
-        throw new Error("Please initialize a project first!");
-    },
-    method: Project.deleteJob,
+    method: Project.build,
   },
 ];

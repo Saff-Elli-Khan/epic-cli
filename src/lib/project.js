@@ -90,7 +90,7 @@ class Project {
                     title: "Creating/Updating configuration...",
                     task: () => {
                         // Set New Configuration
-                        core_1.ConfigManager.setConfig("main", {
+                        core_1.ConfigManager.setConfig("main", (config) => ({
                             type: options.type,
                             name: options.name,
                             description: options.description,
@@ -99,7 +99,8 @@ class Project {
                                 country: options.brandCountry,
                                 address: options.brandAddress,
                             },
-                        });
+                            other: Object.assign(Object.assign({}, config.other), { [options.name]: {} }),
+                        }));
                     },
                 },
                 {
@@ -152,13 +153,11 @@ class Project {
                 },
                 {
                     title: `Cloning dashboard to the ${Project.getAdminDashboardPathName()} directory`,
-                    task: () => __awaiter(this, void 0, void 0, function* () {
-                        return execa_1.default("git", [
-                            "clone",
-                            "https://github.com/Saff-Elli-Khan/epic-dashboard",
-                            `./${Project.getAdminDashboardPathName()}/`,
-                        ]);
-                    }),
+                    task: () => execa_1.default("git", [
+                        "clone",
+                        "https://github.com/Saff-Elli-Khan/epic-dashboard",
+                        `./${Project.getAdminDashboardPathName()}/`,
+                    ]),
                     skip: () => !options.admin,
                 },
                 {
@@ -820,12 +819,6 @@ class Project {
                                     return _;
                                 });
                             });
-                            // Get Exports File Path
-                            const ExportsPath = path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/build/exports.js`);
-                            // Add Exports Resolver File
-                            fs_1.default.writeFileSync(ExportsPath, fs_1.default.readFileSync(ExportsPath)
-                                .toString()
-                                .replace(/__exportStar\(require\("(.*)"\),\s*exports\)/g, (_, path) => `__exportStar(require(require("path").join(process.cwd(), "./src", "${path}")), exports)`));
                         }
                     }),
                 },
@@ -1017,6 +1010,34 @@ class Project {
                                 });
                                 return _;
                             });
+                    },
+                },
+            ]).run();
+        });
+    }
+    static build() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield new listr_1.default([
+                {
+                    title: "Making sure we are ready to build the project...",
+                    task: () => {
+                        if (!["express"].includes(core_1.ConfigManager.getConfig("main").framework))
+                            throw new Error(`We cannot build this project!`);
+                    },
+                },
+                {
+                    title: "Building the project",
+                    task: () => execa_1.default("npx -y shx rm -rf tsconfig.tsbuildinfo build && ttsc -p tsconfig.json && npx shx rm -rf ./build/templates && npx shx cp -R ./src/templates/ ./build/templates/"),
+                },
+                {
+                    title: "Configuring your project",
+                    task: () => {
+                        // Get Exports File Path
+                        const ExportsPath = path_1.default.join(core_1.ConfigManager.Options.rootPath, `./build/exports.js`);
+                        // Add Exports Resolver File
+                        fs_1.default.writeFileSync(ExportsPath, fs_1.default.readFileSync(ExportsPath)
+                            .toString()
+                            .replace(/__exportStar\(require\("(.*)"\),\s*exports\)/g, (_, path) => `__exportStar(require(require("path").join(process.cwd(), "./src", "${path}")), exports)`));
                     },
                 },
             ]).run();

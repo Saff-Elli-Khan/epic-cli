@@ -190,7 +190,7 @@ export class Project {
         title: "Creating/Updating configuration...",
         task: () => {
           // Set New Configuration
-          ConfigManager.setConfig("main", {
+          ConfigManager.setConfig("main", (config) => ({
             type: options.type,
             name: options.name,
             description: options.description,
@@ -199,7 +199,11 @@ export class Project {
               country: options.brandCountry,
               address: options.brandAddress,
             },
-          });
+            other: {
+              ...config.other,
+              [options.name]: {},
+            },
+          }));
         },
       },
       {
@@ -256,7 +260,7 @@ export class Project {
       },
       {
         title: `Cloning dashboard to the ${Project.getAdminDashboardPathName()} directory`,
-        task: async () =>
+        task: () =>
           Execa("git", [
             "clone",
             "https://github.com/Saff-Elli-Khan/epic-dashboard",
@@ -1444,24 +1448,6 @@ export class Project {
                 return _;
               });
             });
-
-            // Get Exports File Path
-            const ExportsPath = Path.join(
-              ConfigManager.Options.rootPath,
-              `./node_modules/${options.name}/build/exports.js`
-            );
-
-            // Add Exports Resolver File
-            Fs.writeFileSync(
-              ExportsPath,
-              Fs.readFileSync(ExportsPath)
-                .toString()
-                .replace(
-                  /__exportStar\(require\("(.*)"\),\s*exports\)/g,
-                  (_, path: string) =>
-                    `__exportStar(require(require("path").join(process.cwd(), "./src", "${path}")), exports)`
-                )
-            );
           }
         },
       },
@@ -1720,6 +1706,47 @@ export class Project {
 
                 return _;
               });
+        },
+      },
+    ]).run();
+  }
+
+  static async build() {
+    await new Listr([
+      {
+        title: "Making sure we are ready to build the project...",
+        task: () => {
+          if (!["express"].includes(ConfigManager.getConfig("main").framework))
+            throw new Error(`We cannot build this project!`);
+        },
+      },
+      {
+        title: "Building the project",
+        task: () =>
+          Execa(
+            "npx -y shx rm -rf tsconfig.tsbuildinfo build && ttsc -p tsconfig.json && npx shx rm -rf ./build/templates && npx shx cp -R ./src/templates/ ./build/templates/"
+          ),
+      },
+      {
+        title: "Configuring your project",
+        task: () => {
+          // Get Exports File Path
+          const ExportsPath = Path.join(
+            ConfigManager.Options.rootPath,
+            `./build/exports.js`
+          );
+
+          // Add Exports Resolver File
+          Fs.writeFileSync(
+            ExportsPath,
+            Fs.readFileSync(ExportsPath)
+              .toString()
+              .replace(
+                /__exportStar\(require\("(.*)"\),\s*exports\)/g,
+                (_, path: string) =>
+                  `__exportStar(require(require("path").join(process.cwd(), "./src", "${path}")), exports)`
+              )
+          );
         },
       },
     ]).run();
