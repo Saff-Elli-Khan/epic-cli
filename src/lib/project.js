@@ -958,8 +958,11 @@ class Project {
                                         .render();
                                 }
                                 else {
+                                    // Get Model Path
+                                    const ModelPath = path_1.default.join(Project.ModelsPath(), `./${resource.name}.ts`);
                                     // Delete Model
-                                    fs_1.default.unlinkSync(path_1.default.join(Project.ModelsPath(), `./${resource.name}.ts`));
+                                    if (fs_1.default.existsSync(ModelPath))
+                                        fs_1.default.unlinkSync(ModelPath);
                                     try {
                                         // Parse Template
                                         new epic_parser_1.TemplateParser({

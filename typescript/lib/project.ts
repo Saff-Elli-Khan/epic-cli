@@ -1642,10 +1642,14 @@ export class Project {
                   )
                   .render();
               } else {
-                // Delete Model
-                Fs.unlinkSync(
-                  Path.join(Project.ModelsPath(), `./${resource.name}.ts`)
+                // Get Model Path
+                const ModelPath = Path.join(
+                  Project.ModelsPath(),
+                  `./${resource.name}.ts`
                 );
+
+                // Delete Model
+                if (Fs.existsSync(ModelPath)) Fs.unlinkSync(ModelPath);
 
                 try {
                   // Parse Template
