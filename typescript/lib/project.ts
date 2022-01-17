@@ -11,7 +11,11 @@ import {
   ResourcesInterface,
   ResourceInterface,
 } from "./core";
-import { generateRandomKey } from "./utils";
+import {
+  copyFolderRecursiveSync,
+  generateRandomKey,
+  removeFolderRecursiveSync,
+} from "./utils";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 import { TemplateParser } from "@saffellikhan/epic-parser";
 
@@ -1284,21 +1288,17 @@ export class Project {
             return _;
           });
 
-          // Get Typings Path
-          const TypingsPath = Path.join(
-            ConfigManager.Options.rootPath,
-            `./typings/${options.name}/`
+          // Create Typings Copy
+          copyFolderRecursiveSync(
+            Path.join(
+              ConfigManager.Options.rootPath,
+              `./node_modules/${options.name}/typings/`
+            ),
+            Path.join(
+              ConfigManager.Options.rootPath,
+              `./typings/${options.name}/`
+            )
           );
-
-          // Create Symlink to the Typings
-          if (!Fs.existsSync(TypingsPath))
-            await SymlinkDir(
-              Path.join(
-                ConfigManager.Options.rootPath,
-                `./node_modules/${options.name}/typings/`
-              ),
-              TypingsPath
-            );
 
           // Add All Resources If Exists
           if (typeof ctx.resources === "object") {
@@ -1508,10 +1508,7 @@ export class Project {
     );
   }
 
-  static async updatePlugin(
-    options: AddPluginOptions,
-    command: CommandInterface
-  ) {
+  static async updatePlugin(options: AddPluginOptions) {
     // Unlink Plugin
     await Project.unlinkPlugin(options);
 
@@ -1670,14 +1667,13 @@ export class Project {
               }
             });
 
-          // Get Typings Path
-          const TypingsPath = Path.join(
-            ConfigManager.Options.rootPath,
-            `./typings/${options.name}`
+          // Remove Typings
+          removeFolderRecursiveSync(
+            Path.join(
+              ConfigManager.Options.rootPath,
+              `./typings/${options.name}`
+            )
           );
-
-          // Remove Typings Link
-          if (Fs.existsSync(TypingsPath)) Fs.unlinkSync(TypingsPath);
         },
       },
       {

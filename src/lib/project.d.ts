@@ -85,7 +85,7 @@ export declare class Project {
     static addPlugin(options: AddPluginOptions, command: CommandInterface): Promise<void>;
     static linkPlugin(options: AddPluginOptions): Promise<void>;
     static linkPlugins(): Promise<void>;
-    static updatePlugin(options: AddPluginOptions, command: CommandInterface): Promise<void>;
+    static updatePlugin(options: AddPluginOptions): Promise<void>;
     static removePlugin(options: RemovePluginOptions, command: CommandInterface): Promise<void>;
     static unlinkPlugin(options: RemovePluginOptions): Promise<void>;
     static build(): Promise<void>;

@@ -17,7 +17,6 @@ const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const execa_1 = __importDefault(require("execa"));
 const listr_1 = __importDefault(require("listr"));
-const symlink_dir_1 = __importDefault(require("symlink-dir"));
 const core_1 = require("./core");
 const utils_1 = require("./utils");
 const epic_parser_1 = require("@saffellikhan/epic-parser");
@@ -708,11 +707,8 @@ class Project {
                             _.other = Object.assign(Object.assign({}, ctx.configuration.other), _.other);
                             return _;
                         });
-                        // Get Typings Path
-                        const TypingsPath = path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}/`);
-                        // Create Symlink to the Typings
-                        if (!fs_1.default.existsSync(TypingsPath))
-                            yield symlink_dir_1.default(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/typings/`), TypingsPath);
+                        // Create Typings Copy
+                        utils_1.copyFolderRecursiveSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/typings/`), path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}/`));
                         // Add All Resources If Exists
                         if (typeof ctx.resources === "object") {
                             ctx.resources.resources.forEach((resource) => {
@@ -859,7 +855,7 @@ class Project {
             yield Promise.all(Object.keys(core_1.ConfigManager.getConfig("main").plugins).map((name) => Project.linkPlugin({ name })));
         });
     }
-    static updatePlugin(options, command) {
+    static updatePlugin(options) {
         return __awaiter(this, void 0, void 0, function* () {
             // Unlink Plugin
             yield Project.unlinkPlugin(options);
@@ -981,11 +977,8 @@ class Project {
                                     }
                                 }
                             });
-                        // Get Typings Path
-                        const TypingsPath = path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}`);
-                        // Remove Typings Link
-                        if (fs_1.default.existsSync(TypingsPath))
-                            fs_1.default.unlinkSync(TypingsPath);
+                        // Remove Typings
+                        utils_1.removeFolderRecursiveSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}`));
                     },
                 },
                 {
