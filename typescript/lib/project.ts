@@ -1585,6 +1585,10 @@ export class Project {
       {
         title: "Loading resource configuration...",
         task: (ctx) => {
+          // Check If Plugin Installed
+          if (!ConfigManager.getConfig("main").plugins[options.name])
+            throw new Error(`Plugin '${options.name}' is not installed!`);
+
           // Check If Resources Exist
           if (
             Fs.existsSync(

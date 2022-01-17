@@ -918,6 +918,9 @@ class Project {
                 {
                     title: "Loading resource configuration...",
                     task: (ctx) => {
+                        // Check If Plugin Installed
+                        if (!core_1.ConfigManager.getConfig("main").plugins[options.name])
+                            throw new Error(`Plugin '${options.name}' is not installed!`);
                         // Check If Resources Exist
                         if (fs_1.default.existsSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/epic.resources.json`)))
                             // Get Plugin Resources
