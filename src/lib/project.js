@@ -717,55 +717,33 @@ class Project {
                                     ? `./core/controllers.ts`
                                     : resource.type === "middleware"
                                         ? `./core/middlewares.ts`
-                                        : resource.type === "job"
-                                            ? `./core/jobs.ts`
-                                            : ``;
+                                        : resource.type === "model"
+                                            ? `./core/models.ts`
+                                            : resource.type === "job"
+                                                ? `./core/jobs.ts`
+                                                : ``;
                                 // Get Resource Path
-                                const TargetResource = options.name +
+                                const ResourcePath = options.name +
                                     `/build/${resource.type === "controller"
                                         ? `controllers`
                                         : resource.type === "middleware"
                                             ? `middlewares`
-                                            : resource.type === "job"
-                                                ? `jobs`
-                                                : ``}/${resource.name}`;
-                                if (resource.type !== "model") {
-                                    // Parse Template
-                                    new epic_parser_1.TemplateParser({
-                                        inDir: Project.AppPath(),
-                                        inFile: TargetFile,
-                                        outFile: TargetFile,
-                                    })
-                                        .parse()
-                                        .push("ImportsContainer", "ImportsTemplate", `${options.name}-${resource.type}-${resource.name}-import`, {
-                                        modules: [
-                                            resource.name +
-                                                (resource.type === "controller"
-                                                    ? "Controller"
-                                                    : resource.type === "middleware"
-                                                        ? "Middleware"
-                                                        : resource.type === "job"
-                                                            ? "Job"
-                                                            : ""),
-                                        ],
-                                        location: resource.path || TargetResource,
-                                    })
-                                        .push(resource.type === "controller"
-                                        ? "ControllerChildsContainer"
-                                        : resource.type === "middleware"
-                                            ? "MiddlewaresContainer"
-                                            : resource.type === "job"
-                                                ? "JobsContainer"
-                                                : "", resource.type === "controller"
-                                        ? "ControllerChildTemplate"
-                                        : resource.type === "middleware"
-                                            ? "MiddlewareTemplate"
-                                            : resource.type === "job"
-                                                ? "JobTemplate"
-                                                : "", `${options.name}-${resource.type}-${resource.name}-resource`, {
-                                        [resource.type === "controller"
-                                            ? "child"
-                                            : resource.type]: resource.name +
+                                            : resource.type === "model"
+                                                ? `models`
+                                                : resource.type === "job"
+                                                    ? `jobs`
+                                                    : ``}/${resource.name}`;
+                                // if (resource.type !== "model") {
+                                // Parse Template
+                                new epic_parser_1.TemplateParser({
+                                    inDir: Project.AppPath(),
+                                    inFile: TargetFile,
+                                    outFile: TargetFile,
+                                })
+                                    .parse()
+                                    .push("ImportsContainer", "ImportsTemplate", `${options.name}-${resource.type}-${resource.name}-import`, {
+                                    modules: [
+                                        resource.name +
                                             (resource.type === "controller"
                                                 ? "Controller"
                                                 : resource.type === "middleware"
@@ -773,51 +751,103 @@ class Project {
                                                     : resource.type === "job"
                                                         ? "Job"
                                                         : ""),
-                                    })
-                                        .render();
-                                }
-                                else {
-                                    // Parse Template
-                                    new epic_parser_1.TemplateParser({
-                                        inDir: path_1.default.join(Project.SamplesPath(), "./model/"),
-                                        inFile: `./blank.ts`,
-                                        outDir: Project.ModelsPath(),
-                                        outFile: `./${resource.name}.ts`,
-                                    })
-                                        .parse()
-                                        .push("ImportsContainer", "ImportsTemplate", resource.name + "ModelImport", {
-                                        modules: [resource.name + ` as ${resource.name}Model`],
-                                        location: `${ctx.package.name}/build/models/${resource.name}`,
-                                    })
-                                        .render((_) => _.replace(/Sample/g, resource.name).replace(/extends\s+BaseModel/g, "extends " + resource.name + "Model"));
-                                    try {
-                                        // Parse Template core/models.ts
-                                        new epic_parser_1.TemplateParser({
-                                            inDir: Project.AppPath(),
-                                            inFile: `./core/models.ts`,
-                                            outFile: `./core/models.ts`,
-                                        })
-                                            .parse()
-                                            .push("ImportsContainer", "ImportsTemplate", resource.name + "ModelImport", {
-                                            modules: [resource.name],
-                                            location: `./${path_1.default.relative(Project.AppCore(), path_1.default.join(Project.ModelsPath(), resource.name)).replace(/\\/g, "/")}`,
-                                        })
-                                            .push("ModelListContainer", "ModelListTemplate", resource.name + "Model", {
-                                            model: resource.name,
-                                        })
-                                            .render();
-                                    }
-                                    catch (error) {
-                                        console.warn("We are unable to parse core/models properly! Please add the model to the list manually.", error);
-                                    }
-                                }
+                                    ],
+                                    location: resource.path || ResourcePath,
+                                })
+                                    .push(resource.type === "controller"
+                                    ? "ControllerChildsContainer"
+                                    : resource.type === "middleware"
+                                        ? "MiddlewaresContainer"
+                                        : resource.type === "model"
+                                            ? "ModelsContainer"
+                                            : resource.type === "job"
+                                                ? "JobsContainer"
+                                                : "", resource.type === "controller"
+                                    ? "ControllerChildTemplate"
+                                    : resource.type === "middleware"
+                                        ? "MiddlewareTemplate"
+                                        : resource.type === "model"
+                                            ? "ModelTemplate"
+                                            : resource.type === "job"
+                                                ? "JobTemplate"
+                                                : "", `${options.name}-${resource.type}-${resource.name}-resource`, {
+                                    [resource.type === "controller" ? "child" : resource.type]: resource.name +
+                                        (resource.type === "controller"
+                                            ? "Controller"
+                                            : resource.type === "middleware"
+                                                ? "Middleware"
+                                                : resource.type === "job"
+                                                    ? "Job"
+                                                    : ""),
+                                })
+                                    .render();
+                                // } else {
+                                //   // Parse Template
+                                //   new TemplateParser({
+                                //     inDir: Path.join(Project.SamplesPath(), "./model/"),
+                                //     inFile: `./blank.ts`,
+                                //     outDir: Project.ModelsPath(),
+                                //     outFile: `./${resource.name}.ts`,
+                                //   })
+                                //     .parse()
+                                //     .push(
+                                //       "ImportsContainer",
+                                //       "ImportsTemplate",
+                                //       resource.name + "ModelImport",
+                                //       {
+                                //         modules: [resource.name + ` as ${resource.name}Model`],
+                                //         location: resource.path || ResourcePath,
+                                //       }
+                                //     )
+                                //     .render((_) =>
+                                //       _.replace(/Sample/g, resource.name).replace(
+                                //         /extends\s+BaseModel/g,
+                                //         "extends " + resource.name + "Model"
+                                //       )
+                                //     );
+                                //   try {
+                                //     // Parse Template core/models.ts
+                                //     new TemplateParser({
+                                //       inDir: Project.AppPath(),
+                                //       inFile: `./core/models.ts`,
+                                //       outFile: `./core/models.ts`,
+                                //     })
+                                //       .parse()
+                                //       .push(
+                                //         "ImportsContainer",
+                                //         "ImportsTemplate",
+                                //         resource.name + "ModelImport",
+                                //         {
+                                //           modules: [resource.name],
+                                //           location: `./${Path.relative(
+                                //             Project.AppCore(),
+                                //             Path.join(Project.ModelsPath(), resource.name)
+                                //           ).replace(/\\/g, "/")}`,
+                                //         }
+                                //       )
+                                //       .push(
+                                //         "ModelListContainer",
+                                //         "ModelListTemplate",
+                                //         resource.name + "Model",
+                                //         {
+                                //           model: resource.name,
+                                //         }
+                                //       )
+                                //       .render();
+                                //   } catch (error) {
+                                //     console.warn(
+                                //       "We are unable to parse core/models properly! Please add the model to the list manually.",
+                                //       error
+                                //     );
+                                //   }
+                                // }
                                 // Push Resource to Record
                                 core_1.ConfigManager.setConfig("resources", (_) => {
                                     // Remove Duplicate Resource
                                     _.resources = _.resources.filter((oldResource) => !(oldResource.type === resource.type &&
                                         oldResource.name === resource.name));
-                                    if (resource.type !== "model")
-                                        resource.path = resource.path || TargetResource;
+                                    // Add Resource Path
+                                    resource.path = resource.path || ResourcePath;
                                     // Add Resource
                                     _.resources.push(resource);
                                     return _;
