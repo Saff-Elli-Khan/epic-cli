@@ -1371,7 +1371,7 @@ export class Project {
                     : resource.type === "middleware"
                     ? "MiddlewareTemplate"
                     : resource.type === "model"
-                    ? "ModelTemplate"
+                    ? "ModelListTemplate"
                     : resource.type === "job"
                     ? "JobTemplate"
                     : "",

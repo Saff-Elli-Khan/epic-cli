@@ -767,7 +767,7 @@ class Project {
                                     : resource.type === "middleware"
                                         ? "MiddlewareTemplate"
                                         : resource.type === "model"
-                                            ? "ModelTemplate"
+                                            ? "ModelListTemplate"
                                             : resource.type === "job"
                                                 ? "JobTemplate"
                                                 : "", `${options.name}-${resource.type}-${resource.name}-resource`, {
