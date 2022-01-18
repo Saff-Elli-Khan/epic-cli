@@ -1362,7 +1362,7 @@ export class Project {
                     : resource.type === "middleware"
                     ? "MiddlewaresContainer"
                     : resource.type === "model"
-                    ? "ModelsContainer"
+                    ? "ModelListContainer"
                     : resource.type === "job"
                     ? "JobsContainer"
                     : "",
