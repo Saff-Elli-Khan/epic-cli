@@ -1079,7 +1079,7 @@ class Project {
                 {
                     title: "Pre-building...",
                     task: () => {
-                        if (!fs_1.default.existsSync(path_1.default.join(process.cwd(), `./tsconfig.tsbuildinfo`)))
+                        if (!fs_1.default.existsSync(path_1.default.join(process.cwd(), `./build/core/index.js`)))
                             return Project.build();
                     },
                 },
