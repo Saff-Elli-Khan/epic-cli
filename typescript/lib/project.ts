@@ -1772,7 +1772,7 @@ export class Project {
     ]).run();
   }
 
-  static async preBuild() {
+  static async preRun() {
     await new Listr([
       {
         title: "Pre-building...",

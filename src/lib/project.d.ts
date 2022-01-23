@@ -89,4 +89,5 @@ export declare class Project {
     static removePlugin(options: RemovePluginOptions, command: CommandInterface): Promise<void>;
     static unlinkPlugin(options: RemovePluginOptions): Promise<void>;
     static build(): Promise<void>;
+    static preRun(): Promise<void>;
 }

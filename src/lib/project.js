@@ -1073,6 +1073,19 @@ class Project {
             ]).run();
         });
     }
+    static preRun() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield new listr_1.default([
+                {
+                    title: "Pre-building...",
+                    task: () => {
+                        if (!fs_1.default.existsSync(path_1.default.join(process.cwd(), `./tsconfig.tsbuildinfo`)))
+                            return Project.build();
+                    },
+                },
+            ]).run();
+        });
+    }
 }
 exports.Project = Project;
 Project.deleteController = (options) => __awaiter(void 0, void 0, void 0, function* () {

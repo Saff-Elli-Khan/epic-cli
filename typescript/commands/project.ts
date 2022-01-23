@@ -683,4 +683,15 @@ export const ProjectCommands: LooseCommandInterface[] = [
     },
     method: Project.build,
   },
+  {
+    name: "pre-run",
+    description: "Build before running the Epic project first time.",
+    params: [],
+    before: () => {
+      // Check Configuration File
+      if (!ConfigManager.hasConfig("main"))
+        throw new Error("Please initialize a project first!");
+    },
+    method: Project.preRun,
+  },
 ];
