@@ -1764,9 +1764,23 @@ export class Project {
               .replace(
                 /__exportStar\(require\("(.*)"\),\s*exports\)/g,
                 (_, path: string) =>
-                  `__exportStar(require(require("path").join(process.cwd(), "./src", "${path}")), exports)`
+                  `__exportStar(require(require("path").join(process.cwd(), "./build", "${path}")), exports)`
               )
           );
+        },
+      },
+    ]).run();
+  }
+
+  static async preBuild() {
+    await new Listr([
+      {
+        title: "Pre-building...",
+        task: () => {
+          if (
+            !Fs.existsSync(Path.join(process.cwd(), `./tsconfig.tsbuildinfo`))
+          )
+            return Project.build();
         },
       },
     ]).run();

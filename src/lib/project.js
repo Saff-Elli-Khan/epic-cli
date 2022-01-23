@@ -1067,7 +1067,7 @@ class Project {
                         // Add Exports Resolver File
                         fs_1.default.writeFileSync(ExportsPath, fs_1.default.readFileSync(ExportsPath)
                             .toString()
-                            .replace(/__exportStar\(require\("(.*)"\),\s*exports\)/g, (_, path) => `__exportStar(require(require("path").join(process.cwd(), "./src", "${path}")), exports)`));
+                            .replace(/__exportStar\(require\("(.*)"\),\s*exports\)/g, (_, path) => `__exportStar(require(require("path").join(process.cwd(), "./build", "${path}")), exports)`));
                     },
                 },
             ]).run();
