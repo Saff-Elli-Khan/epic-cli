@@ -1077,7 +1077,7 @@ class Project {
         return __awaiter(this, void 0, void 0, function* () {
             yield new listr_1.default([
                 {
-                    title: "Pre-building...",
+                    title: "Making things ready...",
                     task: () => {
                         if (!fs_1.default.existsSync(path_1.default.join(process.cwd(), `./build/core/index.js`)))
                             return Project.build();

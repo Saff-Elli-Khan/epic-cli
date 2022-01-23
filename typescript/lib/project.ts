@@ -1775,7 +1775,7 @@ export class Project {
   static async preRun() {
     await new Listr([
       {
-        title: "Pre-building...",
+        title: "Making things ready...",
         task: () => {
           if (!Fs.existsSync(Path.join(process.cwd(), `./build/core/index.js`)))
             return Project.build();
