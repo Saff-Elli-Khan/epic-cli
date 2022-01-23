@@ -134,6 +134,15 @@ export const ProjectCommands: LooseCommandInterface[] = [
         default: "application",
       },
       {
+        type: "list",
+        name: "databaseEngine",
+        description: "Project database engine.",
+        alias: ["--dbengine", "-db"],
+        message: "Please provide a database engine:",
+        choices: ["mongodb", "mysql"],
+        default: "application",
+      },
+      {
         type: "input",
         name: "name",
         description: "Name of the project.",

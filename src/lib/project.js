@@ -98,6 +98,13 @@ class Project {
                                 country: options.brandCountry,
                                 address: options.brandAddress,
                             },
+                            database: {
+                                engine: options.dbEngine,
+                                type: (options.dbEngine === "mongodb" ? "simple" : "pool"),
+                                uri: options.dbEngine === "mongodb"
+                                    ? "mongodb://localhost:27017/test"
+                                    : "mysql://root@localhost:3306/test",
+                            },
                             other: Object.assign(Object.assign({}, config.other), { [options.name]: {} }),
                         }));
                     },

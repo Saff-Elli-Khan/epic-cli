@@ -18,9 +18,11 @@ import {
 } from "./utils";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 import { TemplateParser } from "@saffellikhan/epic-parser";
+import { DatabaseEngine } from "..";
 
 export interface InitializationOptions {
   type: ProjectType;
+  dbEngine: DatabaseEngine;
   name: string;
   description: string;
   brandName: string;
@@ -202,6 +204,14 @@ export class Project {
               name: options.brandName,
               country: options.brandCountry,
               address: options.brandAddress,
+            },
+            database: {
+              engine: options.dbEngine,
+              type: (options.dbEngine === "mongodb" ? "simple" : "pool") as any,
+              uri:
+                options.dbEngine === "mongodb"
+                  ? "mongodb://localhost:27017/test"
+                  : "mysql://root@localhost:3306/test",
             },
             other: {
               ...config.other,

@@ -1,7 +1,9 @@
 import { ProjectType, ConfigurationInterface } from "./core";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
+import { DatabaseEngine } from "..";
 export interface InitializationOptions {
     type: ProjectType;
+    dbEngine: DatabaseEngine;
     name: string;
     description: string;
     brandName: string;
