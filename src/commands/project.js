@@ -124,7 +124,7 @@ exports.ProjectCommands = [
             },
             {
                 type: "list",
-                name: "databaseEngine",
+                name: "dbEngine",
                 description: "Project database engine.",
                 alias: ["--dbengine", "-db"],
                 message: "Please provide a database engine:",
