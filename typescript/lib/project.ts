@@ -213,6 +213,9 @@ export class Project {
                   ? "mongodb://localhost:27017/test"
                   : "mysql://root@localhost:3306/test",
             },
+            supportedDBEngines: (options.dbEngine === "mongodb"
+              ? ["mongodb"]
+              : ["mysql"]) as any,
             other: {
               ...config.other,
               [options.name]: {},

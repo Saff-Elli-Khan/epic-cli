@@ -105,6 +105,9 @@ class Project {
                                     ? "mongodb://localhost:27017/test"
                                     : "mysql://root@localhost:3306/test",
                             },
+                            supportedDBEngines: (options.dbEngine === "mongodb"
+                                ? ["mongodb"]
+                                : ["mysql"]),
                             other: Object.assign(Object.assign({}, config.other), { [options.name]: {} }),
                         }));
                     },
