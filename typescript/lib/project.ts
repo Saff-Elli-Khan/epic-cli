@@ -1322,7 +1322,8 @@ export class Project {
               `./typings/${options.name}/`
             ),
             {
-              fileEditor: (_) => _.replace(/AppPath/g, options.name + `/dist/`),
+              fileEditor: (_) =>
+                _.replace(/@AppPath/g, options.name + `/dist/`),
             }
           );
 
