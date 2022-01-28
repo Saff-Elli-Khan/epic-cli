@@ -1323,7 +1323,7 @@ export class Project {
             ),
             {
               fileEditor: (_) =>
-                _.replace(/@AppPath/g, options.name + `/dist/`),
+                _.replace(/@AppPath/g, options.name + `/build`),
             }
           );
 
