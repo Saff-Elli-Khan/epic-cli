@@ -725,7 +725,9 @@ class Project {
                             return _;
                         });
                         // Create Typings Copy
-                        utils_1.copyFolderRecursiveSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/typings/`), path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}/`));
+                        utils_1.copyFolderRecursiveSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/typings/`), path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}/`), {
+                            fileEditor: (_) => _.replace(/AppPath/g, options.name + `/dist/`),
+                        });
                         // Add All Resources If Exists
                         if (typeof ctx.resources === "object")
                             ctx.resources.resources.forEach((resource) => {
@@ -1002,19 +1004,6 @@ class Project {
                         fs_1.default.writeFileSync(ExportsPath, fs_1.default.readFileSync(ExportsPath)
                             .toString()
                             .replace(/__exportStar\(require\("(.*)"\),\s*exports\)/g, (_, path) => `__exportStar(require(require("path").join(process.cwd(), "./build", "${path}")), exports)`));
-                    },
-                },
-            ]).run();
-        });
-    }
-    static preRun() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield new listr_1.default([
-                {
-                    title: "Making things ready...",
-                    task: () => {
-                        if (!fs_1.default.existsSync(path_1.default.join(process.cwd(), `./build/core/index.js`)))
-                            return Project.build();
                     },
                 },
             ]).run();

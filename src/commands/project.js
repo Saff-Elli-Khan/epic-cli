@@ -642,15 +642,4 @@ exports.ProjectCommands = [
         },
         method: project_1.Project.build,
     },
-    {
-        name: "pre-run",
-        description: "Build before running the Epic project first time.",
-        params: [],
-        before: () => {
-            // Check Configuration File
-            if (!core_1.ConfigManager.hasConfig("main"))
-                throw new Error("Please initialize a project first!");
-        },
-        method: project_1.Project.preRun,
-    },
 ];

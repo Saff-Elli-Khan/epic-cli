@@ -1320,7 +1320,10 @@ export class Project {
             Path.join(
               ConfigManager.Options.rootPath,
               `./typings/${options.name}/`
-            )
+            ),
+            {
+              fileEditor: (_) => _.replace(/AppPath/g, options.name + `/dist/`),
+            }
           );
 
           // Add All Resources If Exists
@@ -1694,18 +1697,6 @@ export class Project {
                   `__exportStar(require(require("path").join(process.cwd(), "./build", "${path}")), exports)`
               )
           );
-        },
-      },
-    ]).run();
-  }
-
-  static async preRun() {
-    await new Listr([
-      {
-        title: "Making things ready...",
-        task: () => {
-          if (!Fs.existsSync(Path.join(process.cwd(), `./build/core/index.js`)))
-            return Project.build();
         },
       },
     ]).run();

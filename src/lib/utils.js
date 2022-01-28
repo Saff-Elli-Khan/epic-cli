@@ -16,16 +16,19 @@ const generateRandomKey = (length) => {
     return random_string;
 };
 exports.generateRandomKey = generateRandomKey;
-const copyFileSync = (source, target) => {
+const copyFileSync = (source, target, fileEditor) => {
     let targetFile = target;
     // If target is a directory, a new file with the same name will be created
     if (fs_1.default.existsSync(target))
         if (fs_1.default.lstatSync(target).isDirectory())
             targetFile = path_1.default.join(target, path_1.default.basename(source));
-    fs_1.default.writeFileSync(targetFile, fs_1.default.readFileSync(source));
+    // Get File Content
+    const Content = fs_1.default.readFileSync(source).toString();
+    // Write New File
+    fs_1.default.writeFileSync(targetFile, typeof fileEditor === "function" ? fileEditor(Content) : Content);
 };
 exports.copyFileSync = copyFileSync;
-const copyFolderRecursiveSync = (source, target, copySubDir = false) => {
+const copyFolderRecursiveSync = (source, target, options) => {
     let files = [];
     // Check if folder needs to be created or integrated
     if (!fs_1.default.existsSync(target))
@@ -36,11 +39,11 @@ const copyFolderRecursiveSync = (source, target, copySubDir = false) => {
         files.forEach(function (file) {
             const currentSource = path_1.default.join(source, file);
             if (fs_1.default.lstatSync(currentSource).isDirectory()) {
-                if (copySubDir)
+                if (options === null || options === void 0 ? void 0 : options.copySubDir)
                     exports.copyFolderRecursiveSync(currentSource, path_1.default.join(target, path_1.default.basename(currentSource)));
             }
             else
-                exports.copyFileSync(currentSource, target);
+                exports.copyFileSync(currentSource, target, options === null || options === void 0 ? void 0 : options.fileEditor);
         });
     }
 };

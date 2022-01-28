@@ -12,7 +12,11 @@ export const generateRandomKey = (length: number) => {
   return random_string;
 };
 
-export const copyFileSync = (source: string, target: string) => {
+export const copyFileSync = (
+  source: string,
+  target: string,
+  fileEditor?: (content: string) => string
+) => {
   let targetFile = target;
 
   // If target is a directory, a new file with the same name will be created
@@ -20,13 +24,23 @@ export const copyFileSync = (source: string, target: string) => {
     if (Fs.lstatSync(target).isDirectory())
       targetFile = Path.join(target, Path.basename(source));
 
-  Fs.writeFileSync(targetFile, Fs.readFileSync(source));
+  // Get File Content
+  const Content = Fs.readFileSync(source).toString();
+
+  // Write New File
+  Fs.writeFileSync(
+    targetFile,
+    typeof fileEditor === "function" ? fileEditor(Content) : Content
+  );
 };
 
 export const copyFolderRecursiveSync = (
   source: string,
   target: string,
-  copySubDir = false
+  options?: {
+    copySubDir?: boolean;
+    fileEditor?: (content: string) => string;
+  }
 ) => {
   let files = [];
 
@@ -39,12 +53,12 @@ export const copyFolderRecursiveSync = (
     files.forEach(function (file) {
       const currentSource = Path.join(source, file);
       if (Fs.lstatSync(currentSource).isDirectory()) {
-        if (copySubDir)
+        if (options?.copySubDir)
           copyFolderRecursiveSync(
             currentSource,
             Path.join(target, Path.basename(currentSource))
           );
-      } else copyFileSync(currentSource, target);
+      } else copyFileSync(currentSource, target, options?.fileEditor);
     });
   }
 };
