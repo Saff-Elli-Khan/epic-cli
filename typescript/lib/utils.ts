@@ -23,7 +23,11 @@ export const copyFileSync = (source: string, target: string) => {
   Fs.writeFileSync(targetFile, Fs.readFileSync(source));
 };
 
-export const copyFolderRecursiveSync = (source: string, target: string) => {
+export const copyFolderRecursiveSync = (
+  source: string,
+  target: string,
+  copySubDir = false
+) => {
   let files = [];
 
   // Check if folder needs to be created or integrated
@@ -34,7 +38,7 @@ export const copyFolderRecursiveSync = (source: string, target: string) => {
     files = Fs.readdirSync(source);
     files.forEach(function (file) {
       const currentSource = Path.join(source, file);
-      if (Fs.lstatSync(currentSource).isDirectory())
+      if (Fs.lstatSync(currentSource).isDirectory() && copySubDir)
         copyFolderRecursiveSync(
           currentSource,
           Path.join(target, Path.basename(currentSource))

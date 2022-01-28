@@ -25,7 +25,7 @@ const copyFileSync = (source, target) => {
     fs_1.default.writeFileSync(targetFile, fs_1.default.readFileSync(source));
 };
 exports.copyFileSync = copyFileSync;
-const copyFolderRecursiveSync = (source, target) => {
+const copyFolderRecursiveSync = (source, target, copySubDir = false) => {
     let files = [];
     // Check if folder needs to be created or integrated
     if (!fs_1.default.existsSync(target))
@@ -35,7 +35,7 @@ const copyFolderRecursiveSync = (source, target) => {
         files = fs_1.default.readdirSync(source);
         files.forEach(function (file) {
             const currentSource = path_1.default.join(source, file);
-            if (fs_1.default.lstatSync(currentSource).isDirectory())
+            if (fs_1.default.lstatSync(currentSource).isDirectory() && copySubDir)
                 exports.copyFolderRecursiveSync(currentSource, path_1.default.join(target, path_1.default.basename(currentSource)));
             else
                 exports.copyFileSync(currentSource, target);

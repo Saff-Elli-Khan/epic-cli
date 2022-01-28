@@ -633,6 +633,9 @@ export class Project {
               outFile: `./${options.name}.ts`,
             })
               .parse()
+              .injections({
+                AppName: ConfigManager.getConfig("main").name,
+              })
               .render((_) => _.replace(/Sample/g, options.name));
         },
       },
@@ -857,6 +860,9 @@ export class Project {
                   middleware: options.name + "Middleware",
                 }
               )
+              .injections({
+                AppName: ConfigManager.getConfig("main").name,
+              })
               .render();
           } catch (error) {
             console.warn(
@@ -994,6 +1000,9 @@ export class Project {
               outFile: `./${options.name}.ts`,
             })
               .parse()
+              .injections({
+                AppName: ConfigManager.getConfig("main").name,
+              })
               .render((_) => _.replace(/Sample/g, options.name));
         },
       },
@@ -1272,14 +1281,11 @@ export class Project {
                 console.log("Conflicting Resources:", Conflictions);
                 ctx.resources.resources = ctx.resources.resources.filter(
                   (resource) =>
-                    !Conflictions.reduce(
-                      (result, item) =>
-                        !result
-                          ? resource.type === item.type &&
-                            resource.name === item.name
-                          : result,
-                      false
-                    )
+                    !Conflictions.filter(
+                      (item) =>
+                        resource.type === item.type &&
+                        resource.name === item.name
+                    ).length
                 );
               }
             } else
@@ -1343,7 +1349,6 @@ export class Project {
                     : ``
                 }/${resource.name}`;
 
-              // if (resource.type !== "model") {
               // Parse Template
               new TemplateParser({
                 inDir: Project.AppPath(),
@@ -1402,67 +1407,6 @@ export class Project {
                   }
                 )
                 .render();
-              // } else {
-              //   // Parse Template
-              //   new TemplateParser({
-              //     inDir: Path.join(Project.SamplesPath(), "./model/"),
-              //     inFile: `./blank.ts`,
-              //     outDir: Project.ModelsPath(),
-              //     outFile: `./${resource.name}.ts`,
-              //   })
-              //     .parse()
-              //     .push(
-              //       "ImportsContainer",
-              //       "ImportsTemplate",
-              //       resource.name + "ModelImport",
-              //       {
-              //         modules: [resource.name + ` as ${resource.name}Model`],
-              //         location: resource.path || ResourcePath,
-              //       }
-              //     )
-              //     .render((_) =>
-              //       _.replace(/Sample/g, resource.name).replace(
-              //         /extends\s+BaseModel/g,
-              //         "extends " + resource.name + "Model"
-              //       )
-              //     );
-
-              //   try {
-              //     // Parse Template core/models.ts
-              //     new TemplateParser({
-              //       inDir: Project.AppPath(),
-              //       inFile: `./core/models.ts`,
-              //       outFile: `./core/models.ts`,
-              //     })
-              //       .parse()
-              //       .push(
-              //         "ImportsContainer",
-              //         "ImportsTemplate",
-              //         resource.name + "ModelImport",
-              //         {
-              //           modules: [resource.name],
-              //           location: `./${Path.relative(
-              //             Project.AppCore(),
-              //             Path.join(Project.ModelsPath(), resource.name)
-              //           ).replace(/\\/g, "/")}`,
-              //         }
-              //       )
-              //       .push(
-              //         "ModelListContainer",
-              //         "ModelListTemplate",
-              //         resource.name + "Model",
-              //         {
-              //           model: resource.name,
-              //         }
-              //       )
-              //       .render();
-              //   } catch (error) {
-              //     console.warn(
-              //       "We are unable to parse core/models properly! Please add the model to the list manually.",
-              //       error
-              //     );
-              //   }
-              // }
 
               // Push Resource to Record
               ConfigManager.setConfig("resources", (_) => {
