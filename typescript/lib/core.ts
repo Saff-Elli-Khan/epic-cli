@@ -84,6 +84,7 @@ export interface ResourcesInterface {
 }
 
 export interface ResourceInterface {
+  source: string;
   type: ResourceType;
   name: string;
   parent?: string;

@@ -502,6 +502,7 @@ export class Project {
 
             // Add New Resource
             _.resources.push({
+              source: ConfigManager.getConfig("main").name,
               type: "controller",
               name: options.name,
               parent: options.parent,
@@ -708,6 +709,7 @@ export class Project {
 
             // Add New Resource
             _.resources.push({
+              source: ConfigManager.getConfig("main").name,
               type: "model",
               name: options.name,
             });
@@ -904,6 +906,7 @@ export class Project {
 
             // Add New Resource
             _.resources.push({
+              source: ConfigManager.getConfig("main").name,
               type: "middleware",
               name: options.name,
             });
@@ -1070,6 +1073,7 @@ export class Project {
 
             // Add New Resource
             _.resources.push({
+              source: ConfigManager.getConfig("main").name,
               type: "job",
               name: options.name,
             });
@@ -1320,7 +1324,7 @@ export class Project {
           );
 
           // Add All Resources If Exists
-          if (typeof ctx.resources === "object") {
+          if (typeof ctx.resources === "object")
             ctx.resources.resources.forEach((resource) => {
               // Link Plugin File
               const TargetFile =
@@ -1410,17 +1414,21 @@ export class Project {
 
               // Push Resource to Record
               ConfigManager.setConfig("resources", (_) => {
+                // Update Resource Source
+                resource.source = options.name;
+
+                // Add Resource Path
+                resource.path = resource.path || ResourcePath;
+
                 // Remove Duplicate Resource
                 _.resources = _.resources.filter(
                   (oldResource) =>
                     !(
+                      oldResource.source === resource.source &&
                       oldResource.type === resource.type &&
                       oldResource.name === resource.name
                     )
                 );
-
-                // Add Resource Path
-                resource.path = resource.path || ResourcePath;
 
                 // Add Resource
                 _.resources.push(resource);
@@ -1428,7 +1436,6 @@ export class Project {
                 return _;
               });
             });
-          }
         },
       },
       {
@@ -1544,98 +1551,61 @@ export class Project {
   }
 
   static async unlinkPlugin(options: RemovePluginOptions) {
-    await new Listr<{ resources?: ResourcesInterface }>([
+    await new Listr<{ resources: ResourceInterface[] }>([
       {
-        title: "Loading resource configuration...",
-        task: (ctx) => {
+        title: "Checking configuration...",
+        task: () => {
           // Check If Plugin Installed
           if (!ConfigManager.getConfig("main").plugins[options.name])
             throw new Error(`Plugin '${options.name}' is not installed!`);
-
-          // Check If Resources Exist
-          if (
-            Fs.existsSync(
-              Path.join(
-                ConfigManager.Options.rootPath,
-                `./node_modules/${options.name}/epic.resources.json`
-              )
-            )
-          )
-            // Get Plugin Resources
-            ctx.resources = require(Path.join(
-              ConfigManager.Options.rootPath,
-              `./node_modules/${options.name}/epic.resources.json`
-            ));
-          {
-          }
         },
       },
       {
         title: "Unlinking the plugin...",
         task: (ctx) => {
+          // Get Current Project Resources
+          ctx.resources = ConfigManager.getConfig("resources").resources.filter(
+            (resource) => resource.source === options.name
+          );
+
+          // Remove Current Plugin Resouces
           if (typeof ctx.resources === "object")
-            // Add All Resources
-            ctx.resources.resources.forEach((resource) => {
-              if (resource.type !== "model") {
-                const TargetFile =
+            ctx.resources.forEach((resource) => {
+              const TargetFile =
+                resource.type === "controller"
+                  ? `./core/controllers.ts`
+                  : resource.type === "middleware"
+                  ? `./core/middlewares.ts`
+                  : resource.type === "model"
+                  ? `./core/models.ts`
+                  : resource.type === "job"
+                  ? `./core/jobs.ts`
+                  : ``;
+
+              // Parse Template
+              new TemplateParser({
+                inDir: Project.AppPath(),
+                inFile: TargetFile,
+                outFile: TargetFile,
+              })
+                .parse()
+                .pop(
+                  "ImportsContainer",
+                  `${options.name}-${resource.type}-${resource.name}-import`
+                )
+                .pop(
                   resource.type === "controller"
-                    ? `./core/controllers.ts`
+                    ? "ControllerChildsContainer"
                     : resource.type === "middleware"
-                    ? `./core/middlewares.ts`
+                    ? "MiddlewaresContainer"
+                    : resource.type === "model"
+                    ? "ModelListContainer"
                     : resource.type === "job"
-                    ? `./core/jobs.ts`
-                    : "";
-
-                // Parse Template
-                new TemplateParser({
-                  inDir: Project.AppPath(),
-                  inFile: TargetFile,
-                  outFile: TargetFile,
-                })
-                  .parse()
-                  .pop(
-                    "ImportsContainer",
-                    `${options.name}-${resource.type}-${resource.name}-import`
-                  )
-                  .pop(
-                    resource.type === "controller"
-                      ? "ControllerChildsContainer"
-                      : resource.type === "middleware"
-                      ? "MiddlewaresContainer"
-                      : resource.type === "job"
-                      ? "JobsContainer"
-                      : "",
-                    `${options.name}-${resource.type}-${resource.name}-resource`
-                  )
-                  .render();
-              } else {
-                // Get Model Path
-                const ModelPath = Path.join(
-                  Project.ModelsPath(),
-                  `./${resource.name}.ts`
-                );
-
-                // Delete Model
-                if (Fs.existsSync(ModelPath)) Fs.unlinkSync(ModelPath);
-
-                try {
-                  // Parse Template
-                  new TemplateParser({
-                    inDir: Project.AppPath(),
-                    inFile: `./core/models.ts`,
-                    outFile: `./core/models.ts`,
-                  })
-                    .parse()
-                    .pop("ImportsContainer", resource.name + "ModelImport")
-                    .pop("ModelListContainer", resource.name + "Model")
-                    .render();
-                } catch (error) {
-                  console.warn(
-                    `We are unable to parse core/models properly! Please remove the model from core/models manually.`,
-                    error
-                  );
-                }
-              }
+                    ? "JobsContainer"
+                    : "",
+                  `${options.name}-${resource.type}-${resource.name}-resource`
+                )
+                .render();
             });
 
           // Remove Typings
@@ -1670,7 +1640,7 @@ export class Project {
                 return _;
               })
               .setConfig("resources", (_) => {
-                ctx.resources!.resources.forEach((resource) => {
+                ctx.resources.forEach((resource) => {
                   // Remove Resource
                   _.resources = _.resources.filter(
                     (oldResource) =>

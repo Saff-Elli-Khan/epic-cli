@@ -65,6 +65,7 @@ export interface ResourcesInterface {
     resources: Array<ResourceInterface>;
 }
 export interface ResourceInterface {
+    source: string;
     type: ResourceType;
     name: string;
     parent?: string;
