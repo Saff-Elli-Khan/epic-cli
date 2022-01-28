@@ -38,12 +38,13 @@ export const copyFolderRecursiveSync = (
     files = Fs.readdirSync(source);
     files.forEach(function (file) {
       const currentSource = Path.join(source, file);
-      if (Fs.lstatSync(currentSource).isDirectory() && copySubDir)
-        copyFolderRecursiveSync(
-          currentSource,
-          Path.join(target, Path.basename(currentSource))
-        );
-      else copyFileSync(currentSource, target);
+      if (Fs.lstatSync(currentSource).isDirectory()) {
+        if (copySubDir)
+          copyFolderRecursiveSync(
+            currentSource,
+            Path.join(target, Path.basename(currentSource))
+          );
+      } else copyFileSync(currentSource, target);
     });
   }
 };

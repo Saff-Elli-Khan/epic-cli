@@ -35,8 +35,10 @@ const copyFolderRecursiveSync = (source, target, copySubDir = false) => {
         files = fs_1.default.readdirSync(source);
         files.forEach(function (file) {
             const currentSource = path_1.default.join(source, file);
-            if (fs_1.default.lstatSync(currentSource).isDirectory() && copySubDir)
-                exports.copyFolderRecursiveSync(currentSource, path_1.default.join(target, path_1.default.basename(currentSource)));
+            if (fs_1.default.lstatSync(currentSource).isDirectory()) {
+                if (copySubDir)
+                    exports.copyFolderRecursiveSync(currentSource, path_1.default.join(target, path_1.default.basename(currentSource)));
+            }
             else
                 exports.copyFileSync(currentSource, target);
         });
