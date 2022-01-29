@@ -56,7 +56,8 @@ export const copyFolderRecursiveSync = (
         if (options?.copySubDir)
           copyFolderRecursiveSync(
             currentSource,
-            Path.join(target, Path.basename(currentSource))
+            Path.join(target, Path.basename(currentSource)),
+            options
           );
       } else copyFileSync(currentSource, target, options?.fileEditor);
     });

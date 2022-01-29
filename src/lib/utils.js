@@ -40,7 +40,7 @@ const copyFolderRecursiveSync = (source, target, options) => {
             const currentSource = path_1.default.join(source, file);
             if (fs_1.default.lstatSync(currentSource).isDirectory()) {
                 if (options === null || options === void 0 ? void 0 : options.copySubDir)
-                    exports.copyFolderRecursiveSync(currentSource, path_1.default.join(target, path_1.default.basename(currentSource)));
+                    exports.copyFolderRecursiveSync(currentSource, path_1.default.join(target, path_1.default.basename(currentSource)), options);
             }
             else
                 exports.copyFileSync(currentSource, target, options === null || options === void 0 ? void 0 : options.fileEditor);
