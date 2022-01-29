@@ -2,7 +2,6 @@ import Path from "path";
 import Fs from "fs";
 import Execa from "execa";
 import Listr from "listr";
-import SymlinkDir from "symlink-dir";
 import {
   ProjectType,
   ConfigManager,
@@ -12,8 +11,8 @@ import {
   ResourceInterface,
 } from "./core";
 import {
-  copyFolderRecursiveSync,
   generateRandomKey,
+  copyFolderRecursiveSync,
   removeFolderRecursiveSync,
 } from "./utils";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
@@ -1322,6 +1321,7 @@ export class Project {
               `./typings/${options.name}/`
             ),
             {
+              copySubDir: true,
               fileEditor: (_) =>
                 _.replace(/@AppPath/g, options.name + `/build`),
             }
