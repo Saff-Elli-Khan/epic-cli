@@ -118,7 +118,7 @@ export const ConfigManager = new EpicConfigManager({
       database: {
         engine: "mongodb",
         type: "simple",
-        uri: "mongodb://localhost:27017/test",
+        uri: "{{ DATABASE_URI }}",
       },
       supportedDBEngines: ["mongodb"],
       plugins: {},

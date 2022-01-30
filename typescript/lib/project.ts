@@ -1303,9 +1303,9 @@ export class Project {
         task: async (ctx) => {
           // Import Plugin Settings to the Project
           ConfigManager.setConfig("main", (_) => {
-            _.other = {
-              ...ctx.configuration.other,
-              ..._.other,
+            _.other[options.name] = {
+              ...ctx.configuration.other[options.name],
+              ..._.other[options.name],
             };
             return _;
           });

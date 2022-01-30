@@ -721,7 +721,7 @@ class Project {
                     task: (ctx) => __awaiter(this, void 0, void 0, function* () {
                         // Import Plugin Settings to the Project
                         core_1.ConfigManager.setConfig("main", (_) => {
-                            _.other = Object.assign(Object.assign({}, ctx.configuration.other), _.other);
+                            _.other[options.name] = Object.assign(Object.assign({}, ctx.configuration.other[options.name]), _.other[options.name]);
                             return _;
                         });
                         // Create Typings Copy
