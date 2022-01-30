@@ -9,6 +9,7 @@ import {
   TransactionInterface,
   ResourcesInterface,
   ResourceInterface,
+  DatabaseEngine,
 } from "./core";
 import {
   generateRandomKey,
@@ -17,7 +18,6 @@ import {
 } from "./utils";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 import { TemplateParser } from "@saffellikhan/epic-parser";
-import { DatabaseEngine } from "..";
 
 export interface InitializationOptions {
   type: ProjectType;

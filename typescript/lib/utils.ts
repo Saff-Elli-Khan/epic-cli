@@ -20,9 +20,9 @@ export const copyFileSync = (
   let targetFile = target;
 
   // If target is a directory, a new file with the same name will be created
-  if (Fs.existsSync(target))
-    if (Fs.lstatSync(target).isDirectory())
-      targetFile = Path.join(target, Path.basename(source));
+  if (Fs.existsSync(targetFile))
+    if (Fs.lstatSync(targetFile).isDirectory())
+      targetFile = Path.join(targetFile, Path.basename(source));
 
   // Get File Content
   const Content = Fs.readFileSync(source).toString();
