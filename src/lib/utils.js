@@ -19,9 +19,9 @@ exports.generateRandomKey = generateRandomKey;
 const copyFileSync = (source, target, fileEditor) => {
     let targetFile = target;
     // If target is a directory, a new file with the same name will be created
-    if (fs_1.default.existsSync(target))
-        if (fs_1.default.lstatSync(target).isDirectory())
-            targetFile = path_1.default.join(target, path_1.default.basename(source));
+    if (fs_1.default.existsSync(targetFile))
+        if (fs_1.default.lstatSync(targetFile).isDirectory())
+            targetFile = path_1.default.join(targetFile, path_1.default.basename(source));
     // Get File Content
     const Content = fs_1.default.readFileSync(source).toString();
     // Write New File

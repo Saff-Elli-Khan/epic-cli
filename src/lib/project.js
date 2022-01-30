@@ -732,37 +732,69 @@ class Project {
                         // Add All Resources If Exists
                         if (typeof ctx.resources === "object")
                             ctx.resources.resources.forEach((resource) => {
-                                // Link Plugin File
-                                const TargetFile = resource.type === "controller"
-                                    ? `./core/controllers.ts`
-                                    : resource.type === "middleware"
-                                        ? `./core/middlewares.ts`
-                                        : resource.type === "model"
-                                            ? `./core/models.ts`
-                                            : resource.type === "job"
-                                                ? `./core/jobs.ts`
-                                                : ``;
-                                // Get Resource Path
-                                const ResourcePath = options.name +
-                                    `/build/${resource.type === "controller"
-                                        ? `controllers`
+                                if (resource.type !== "controller" ||
+                                    resource.parent === "None") {
+                                    // Link Plugin File
+                                    const TargetFile = resource.type === "controller"
+                                        ? `./core/controllers.ts`
                                         : resource.type === "middleware"
-                                            ? `middlewares`
+                                            ? `./core/middlewares.ts`
                                             : resource.type === "model"
-                                                ? `models`
+                                                ? `./core/models.ts`
                                                 : resource.type === "job"
-                                                    ? `jobs`
-                                                    : ``}/${resource.name}`;
-                                // Parse Template
-                                new epic_parser_1.TemplateParser({
-                                    inDir: Project.AppPath(),
-                                    inFile: TargetFile,
-                                    outFile: TargetFile,
-                                })
-                                    .parse()
-                                    .push("ImportsContainer", "ImportsTemplate", `${options.name}-${resource.type}-${resource.name}-import`, {
-                                    modules: [
-                                        resource.name +
+                                                    ? `./core/jobs.ts`
+                                                    : ``;
+                                    // Get Resource Path
+                                    const ResourcePath = options.name +
+                                        `/build/${resource.type === "controller"
+                                            ? `controllers`
+                                            : resource.type === "middleware"
+                                                ? `middlewares`
+                                                : resource.type === "model"
+                                                    ? `models`
+                                                    : resource.type === "job"
+                                                        ? `jobs`
+                                                        : ``}/${resource.name}`;
+                                    // Parse Template
+                                    new epic_parser_1.TemplateParser({
+                                        inDir: Project.AppPath(),
+                                        inFile: TargetFile,
+                                        outFile: TargetFile,
+                                    })
+                                        .parse()
+                                        .push("ImportsContainer", "ImportsTemplate", `${options.name}-${resource.type}-${resource.name}-import`, {
+                                        modules: [
+                                            resource.name +
+                                                (resource.type === "controller"
+                                                    ? "Controller"
+                                                    : resource.type === "middleware"
+                                                        ? "Middleware"
+                                                        : resource.type === "job"
+                                                            ? "Job"
+                                                            : ""),
+                                        ],
+                                        location: resource.path || ResourcePath,
+                                    })
+                                        .push(resource.type === "controller"
+                                        ? "ControllerChildsContainer"
+                                        : resource.type === "middleware"
+                                            ? "MiddlewaresContainer"
+                                            : resource.type === "model"
+                                                ? "ModelListContainer"
+                                                : resource.type === "job"
+                                                    ? "JobsContainer"
+                                                    : "", resource.type === "controller"
+                                        ? "ControllerChildTemplate"
+                                        : resource.type === "middleware"
+                                            ? "MiddlewareTemplate"
+                                            : resource.type === "model"
+                                                ? "ModelListTemplate"
+                                                : resource.type === "job"
+                                                    ? "JobTemplate"
+                                                    : "", `${options.name}-${resource.type}-${resource.name}-resource`, {
+                                        [resource.type === "controller"
+                                            ? "child"
+                                            : resource.type]: resource.name +
                                             (resource.type === "controller"
                                                 ? "Controller"
                                                 : resource.type === "middleware"
@@ -770,50 +802,23 @@ class Project {
                                                     : resource.type === "job"
                                                         ? "Job"
                                                         : ""),
-                                    ],
-                                    location: resource.path || ResourcePath,
-                                })
-                                    .push(resource.type === "controller"
-                                    ? "ControllerChildsContainer"
-                                    : resource.type === "middleware"
-                                        ? "MiddlewaresContainer"
-                                        : resource.type === "model"
-                                            ? "ModelListContainer"
-                                            : resource.type === "job"
-                                                ? "JobsContainer"
-                                                : "", resource.type === "controller"
-                                    ? "ControllerChildTemplate"
-                                    : resource.type === "middleware"
-                                        ? "MiddlewareTemplate"
-                                        : resource.type === "model"
-                                            ? "ModelListTemplate"
-                                            : resource.type === "job"
-                                                ? "JobTemplate"
-                                                : "", `${options.name}-${resource.type}-${resource.name}-resource`, {
-                                    [resource.type === "controller" ? "child" : resource.type]: resource.name +
-                                        (resource.type === "controller"
-                                            ? "Controller"
-                                            : resource.type === "middleware"
-                                                ? "Middleware"
-                                                : resource.type === "job"
-                                                    ? "Job"
-                                                    : ""),
-                                })
-                                    .render();
-                                // Push Resource to Record
-                                core_1.ConfigManager.setConfig("resources", (_) => {
-                                    // Update Resource Source
-                                    resource.source = options.name;
-                                    // Add Resource Path
-                                    resource.path = resource.path || ResourcePath;
-                                    // Remove Duplicate Resource
-                                    _.resources = _.resources.filter((oldResource) => !(oldResource.source === resource.source &&
-                                        oldResource.type === resource.type &&
-                                        oldResource.name === resource.name));
-                                    // Add Resource
-                                    _.resources.push(resource);
-                                    return _;
-                                });
+                                    })
+                                        .render();
+                                    // Push Resource to Record
+                                    core_1.ConfigManager.setConfig("resources", (_) => {
+                                        // Update Resource Source
+                                        resource.source = options.name;
+                                        // Add Resource Path
+                                        resource.path = resource.path || ResourcePath;
+                                        // Remove Duplicate Resource
+                                        _.resources = _.resources.filter((oldResource) => !(oldResource.source === resource.source &&
+                                            oldResource.type === resource.type &&
+                                            oldResource.name === resource.name));
+                                        // Add Resource
+                                        _.resources.push(resource);
+                                        return _;
+                                    });
+                                }
                             });
                     }),
                 },
