@@ -626,6 +626,13 @@ export const ProjectCommands: LooseCommandInterface[] = [
         message: "Please select a plugin:",
         choices: () => Object.keys(ConfigManager.getConfig("main").plugins),
       },
+      {
+        type: "confirm",
+        name: "quick",
+        description: "Quick plugin update.",
+        alias: ["--quick"],
+        default: false,
+      },
     ],
     before: () => {
       // Check Configuration File

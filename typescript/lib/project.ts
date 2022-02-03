@@ -85,6 +85,11 @@ export interface AddPluginOptions {
   name: string;
 }
 
+export interface UpdatePluginOptions {
+  name: string;
+  quick: boolean;
+}
+
 export interface RemovePluginOptions {
   name: string;
 }
@@ -1489,9 +1494,9 @@ export class Project {
     );
   }
 
-  static async updatePlugin(options: AddPluginOptions) {
+  static async updatePlugin(options: UpdatePluginOptions) {
     // Unlink Plugin
-    await Project.unlinkPlugin(options);
+    if (!options.quick) await Project.unlinkPlugin(options);
 
     // Queue the Tasks
     await new Listr([
@@ -1515,7 +1520,7 @@ export class Project {
     ]).run();
 
     // Link Plugin
-    await Project.linkPlugin(options);
+    if (!options.quick) await Project.linkPlugin(options);
   }
 
   static async removePlugin(

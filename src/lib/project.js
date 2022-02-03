@@ -854,7 +854,8 @@ class Project {
     static updatePlugin(options) {
         return __awaiter(this, void 0, void 0, function* () {
             // Unlink Plugin
-            yield Project.unlinkPlugin(options);
+            if (!options.quick)
+                yield Project.unlinkPlugin(options);
             // Queue the Tasks
             yield new listr_1.default([
                 {
@@ -871,7 +872,8 @@ class Project {
                 },
             ]).run();
             // Link Plugin
-            yield Project.linkPlugin(options);
+            if (!options.quick)
+                yield Project.linkPlugin(options);
         });
     }
     static removePlugin(options, command) {
