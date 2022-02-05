@@ -764,6 +764,8 @@ class Project {
                         };
                         // Copy Typings
                         const TypingsDir = path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/`);
+                        // Resolve Typings Log Directory
+                        fs_1.default.mkdirSync(path_1.default.join(TypingsDir, "./logs/"), { recursive: true });
                         // Typings Log
                         fs_1.default.writeFileSync(path_1.default.join(TypingsDir, `./logs/${options.name.replace(/\//g, "-")}.typings.json`), JSON.stringify(CopyTypings(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/typings/`), TypingsDir, {
                             prefix: options.name.replace(/\//g, "-"),

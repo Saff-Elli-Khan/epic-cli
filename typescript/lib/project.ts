@@ -1380,6 +1380,9 @@ export class Project {
             `./typings/`
           );
 
+          // Resolve Typings Log Directory
+          Fs.mkdirSync(Path.join(TypingsDir, "./logs/"), { recursive: true });
+
           // Typings Log
           Fs.writeFileSync(
             Path.join(
