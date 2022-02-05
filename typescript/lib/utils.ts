@@ -15,7 +15,10 @@ export const generateRandomKey = (length: number) => {
 export const copyFileSync = (
   source: string,
   target: string,
-  fileEditor?: (content: string) => string
+  options?: {
+    subFileToFile?: boolean;
+    fileEditor?: (content: string) => string;
+  }
 ) => {
   let targetFile = target;
 
@@ -27,10 +30,15 @@ export const copyFileSync = (
   // Get File Content
   const Content = Fs.readFileSync(source).toString();
 
+  // Sub File To Filename
+  if (options?.subFileToFile) targetFile = targetFile.replace(/\\/g, "-");
+
   // Write New File
   Fs.writeFileSync(
     targetFile,
-    typeof fileEditor === "function" ? fileEditor(Content) : Content
+    typeof options?.fileEditor === "function"
+      ? options.fileEditor(Content)
+      : Content
   );
 };
 
@@ -39,6 +47,7 @@ export const copyFolderRecursiveSync = (
   target: string,
   options?: {
     copySubDir?: boolean;
+    subFileToFile?: boolean;
     fileEditor?: (content: string) => string;
   }
 ) => {
@@ -59,7 +68,7 @@ export const copyFolderRecursiveSync = (
             Path.join(target, Path.basename(currentSource)),
             options
           );
-      } else copyFileSync(currentSource, target, options?.fileEditor);
+      } else copyFileSync(currentSource, target, options);
     });
   }
 };
