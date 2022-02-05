@@ -998,15 +998,20 @@ class Project {
                                                 : "", `${options.name}-${resource.type}-${resource.name}-resource`)
                                     .render();
                             });
-                        // Remove Typings
-                        const TypingsDir = path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/`);
-                        const TypingLogFile = path_1.default.join(TypingsDir, `./logs/${options.name.replace(/\//g, "-")}.typings.json`);
-                        // Read Log File (Delete Typings)
-                        (fs_1.default.existsSync(TypingLogFile)
-                            ? JSON.parse(fs_1.default.readFileSync(TypingLogFile).toString())
-                            : []).forEach((file) => fs_1.default.unlinkSync(path_1.default.join(TypingsDir, file)));
-                        // Delete Log File
-                        fs_1.default.unlinkSync(TypingLogFile);
+                        try {
+                            // Remove Typings
+                            const TypingsDir = path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/`);
+                            const TypingLogFile = path_1.default.join(TypingsDir, `./logs/${options.name.replace(/\//g, "-")}.typings.json`);
+                            // Read Log File (Delete Typings)
+                            (fs_1.default.existsSync(TypingLogFile)
+                                ? JSON.parse(fs_1.default.readFileSync(TypingLogFile).toString())
+                                : []).forEach((file) => fs_1.default.unlinkSync(path_1.default.join(TypingsDir, file)));
+                            // Delete Log File
+                            fs_1.default.unlinkSync(TypingLogFile);
+                        }
+                        catch (_a) {
+                            // Do nothing...
+                        }
                     },
                 },
                 {

@@ -1695,26 +1695,30 @@ export class Project {
                 .render();
             });
 
-          // Remove Typings
-          const TypingsDir = Path.join(
-            ConfigManager.Options.rootPath,
-            `./typings/`
-          );
+          try {
+            // Remove Typings
+            const TypingsDir = Path.join(
+              ConfigManager.Options.rootPath,
+              `./typings/`
+            );
 
-          const TypingLogFile = Path.join(
-            TypingsDir,
-            `./logs/${options.name.replace(/\//g, "-")}.typings.json`
-          );
+            const TypingLogFile = Path.join(
+              TypingsDir,
+              `./logs/${options.name.replace(/\//g, "-")}.typings.json`
+            );
 
-          // Read Log File (Delete Typings)
-          (
-            (Fs.existsSync(TypingLogFile)
-              ? JSON.parse(Fs.readFileSync(TypingLogFile).toString())
-              : []) as string[]
-          ).forEach((file) => Fs.unlinkSync(Path.join(TypingsDir, file)));
+            // Read Log File (Delete Typings)
+            (
+              (Fs.existsSync(TypingLogFile)
+                ? JSON.parse(Fs.readFileSync(TypingLogFile).toString())
+                : []) as string[]
+            ).forEach((file) => Fs.unlinkSync(Path.join(TypingsDir, file)));
 
-          // Delete Log File
-          Fs.unlinkSync(TypingLogFile);
+            // Delete Log File
+            Fs.unlinkSync(TypingLogFile);
+          } catch {
+            // Do nothing...
+          }
         },
       },
       {
