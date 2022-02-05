@@ -741,7 +741,7 @@ class Project {
                                     ]));
                                 else {
                                     // Get Typing Content
-                                    const TypingContent = fs_1.default.readFileSync(path_1.default.join(source, item)).toString();
+                                    const TypingContent = fs_1.default.readFileSync(CurrentItem).toString();
                                     let NewFilename = `${typeof (options === null || options === void 0 ? void 0 : options.prefix) === "string"
                                         ? "_" + (options === null || options === void 0 ? void 0 : options.prefix) + "_"
                                         : ""}${item.replace(/^_(.*)_/, "")}`;
@@ -766,7 +766,7 @@ class Project {
                         const TypingsDir = path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/`);
                         // Typings Log
                         fs_1.default.writeFileSync(path_1.default.join(TypingsDir, `./logs/${options.name.replace(/\//g, "-")}.typings.json`), JSON.stringify(CopyTypings(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/typings/`), TypingsDir, {
-                            prefix: options.name,
+                            prefix: options.name.replace(/\//g, "-"),
                             fileEditor: (_) => _.replace(/@AppPath/g, options.name + `/build`),
                         })));
                         // Add All Resources If Exists

@@ -1340,9 +1340,7 @@ export class Project {
                 );
               else {
                 // Get Typing Content
-                const TypingContent = Fs.readFileSync(
-                  Path.join(source, item)
-                ).toString();
+                const TypingContent = Fs.readFileSync(CurrentItem).toString();
 
                 let NewFilename = `${
                   typeof options?.prefix === "string"
@@ -1396,7 +1394,7 @@ export class Project {
                 ),
                 TypingsDir,
                 {
-                  prefix: options.name,
+                  prefix: options.name.replace(/\//g, "-"),
                   fileEditor: (_) =>
                     _.replace(/@AppPath/g, options.name + `/build`),
                 }
