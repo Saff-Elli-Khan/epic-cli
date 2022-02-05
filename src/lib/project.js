@@ -745,13 +745,13 @@ class Project {
                                     let NewFilename = `${typeof (options === null || options === void 0 ? void 0 : options.prefix) === "string"
                                         ? "_" + (options === null || options === void 0 ? void 0 : options.prefix) + "_"
                                         : ""}${item.replace(/^_(.*)_/, "")}`;
-                                    let NewFilePath = path_1.default.join(source, NewFilename);
+                                    let NewFilePath = path_1.default.join(target, NewFilename);
                                     // Check if File already exists
                                     if (fs_1.default.existsSync(NewFilePath)) {
                                         NewFilename = `${typeof (options === null || options === void 0 ? void 0 : options.prefix) === "string"
                                             ? "_" + (options === null || options === void 0 ? void 0 : options.prefix) + "_"
                                             : ""}${item.replace(/^_/, "")}`;
-                                        NewFilePath = path_1.default.join(source, NewFilename);
+                                        NewFilePath = path_1.default.join(target, NewFilename);
                                     }
                                     fs_1.default.writeFileSync(NewFilePath, typeof (options === null || options === void 0 ? void 0 : options.fileEditor) === "function"
                                         ? options.fileEditor(TypingContent)

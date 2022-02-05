@@ -1347,7 +1347,7 @@ export class Project {
                     ? "_" + options?.prefix + "_"
                     : ""
                 }${item.replace(/^_(.*)_/, "")}`;
-                let NewFilePath = Path.join(source, NewFilename);
+                let NewFilePath = Path.join(target, NewFilename);
 
                 // Check if File already exists
                 if (Fs.existsSync(NewFilePath)) {
@@ -1356,7 +1356,7 @@ export class Project {
                       ? "_" + options?.prefix + "_"
                       : ""
                   }${item.replace(/^_/, "")}`;
-                  NewFilePath = Path.join(source, NewFilename);
+                  NewFilePath = Path.join(target, NewFilename);
                 }
 
                 Fs.writeFileSync(
