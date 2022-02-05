@@ -1323,12 +1323,12 @@ export class Project {
             let TypingList: string[] = [];
 
             Fs.readdirSync(source).forEach((item) => {
-              const currentItem = Path.join(source, item);
-              if (Fs.lstatSync(currentItem).isDirectory())
+              const CurrentItem = Path.join(source, item);
+              if (Fs.lstatSync(CurrentItem).isDirectory())
                 TypingList = Array.from(
                   new Set([
                     ...TypingList,
-                    ...CopyTypings(currentItem, target, {
+                    ...CopyTypings(CurrentItem, target, {
                       prefix: `${
                         typeof options?.prefix === "string"
                           ? "_" + options?.prefix + "_"
@@ -1339,16 +1339,17 @@ export class Project {
                   ])
                 );
               else {
-                const TypingsDir = Path.dirname(currentItem);
-                const TypingFile = Path.basename(currentItem);
-                const TypingContent = Fs.readFileSync(source).toString();
+                // Get Typing Content
+                const TypingContent = Fs.readFileSync(
+                  Path.join(source, item)
+                ).toString();
 
                 let NewFilename = `${
                   typeof options?.prefix === "string"
                     ? "_" + options?.prefix + "_"
                     : ""
-                }${TypingFile.replace(/^_(.*)_/, "")}`;
-                let NewFilePath = Path.join(TypingsDir, NewFilename);
+                }${item.replace(/^_(.*)_/, "")}`;
+                let NewFilePath = Path.join(source, NewFilename);
 
                 // Check if File already exists
                 if (Fs.existsSync(NewFilePath)) {
@@ -1356,8 +1357,8 @@ export class Project {
                     typeof options?.prefix === "string"
                       ? "_" + options?.prefix + "_"
                       : ""
-                  }${TypingFile.replace(/^_/, "")}`;
-                  NewFilePath = Path.join(TypingsDir, NewFilename);
+                  }${item.replace(/^_/, "")}`;
+                  NewFilePath = Path.join(source, NewFilename);
                 }
 
                 Fs.writeFileSync(

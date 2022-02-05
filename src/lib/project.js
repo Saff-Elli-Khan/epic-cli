@@ -728,11 +728,11 @@ class Project {
                         const CopyTypings = (source, target, options) => {
                             let TypingList = [];
                             fs_1.default.readdirSync(source).forEach((item) => {
-                                const currentItem = path_1.default.join(source, item);
-                                if (fs_1.default.lstatSync(currentItem).isDirectory())
+                                const CurrentItem = path_1.default.join(source, item);
+                                if (fs_1.default.lstatSync(CurrentItem).isDirectory())
                                     TypingList = Array.from(new Set([
                                         ...TypingList,
-                                        ...CopyTypings(currentItem, target, {
+                                        ...CopyTypings(CurrentItem, target, {
                                             prefix: `${typeof (options === null || options === void 0 ? void 0 : options.prefix) === "string"
                                                 ? "_" + (options === null || options === void 0 ? void 0 : options.prefix) + "_"
                                                 : ""}${item}`,
@@ -740,19 +740,18 @@ class Project {
                                         }),
                                     ]));
                                 else {
-                                    const TypingsDir = path_1.default.dirname(currentItem);
-                                    const TypingFile = path_1.default.basename(currentItem);
-                                    const TypingContent = fs_1.default.readFileSync(source).toString();
+                                    // Get Typing Content
+                                    const TypingContent = fs_1.default.readFileSync(path_1.default.join(source, item)).toString();
                                     let NewFilename = `${typeof (options === null || options === void 0 ? void 0 : options.prefix) === "string"
                                         ? "_" + (options === null || options === void 0 ? void 0 : options.prefix) + "_"
-                                        : ""}${TypingFile.replace(/^_(.*)_/, "")}`;
-                                    let NewFilePath = path_1.default.join(TypingsDir, NewFilename);
+                                        : ""}${item.replace(/^_(.*)_/, "")}`;
+                                    let NewFilePath = path_1.default.join(source, NewFilename);
                                     // Check if File already exists
                                     if (fs_1.default.existsSync(NewFilePath)) {
                                         NewFilename = `${typeof (options === null || options === void 0 ? void 0 : options.prefix) === "string"
                                             ? "_" + (options === null || options === void 0 ? void 0 : options.prefix) + "_"
-                                            : ""}${TypingFile.replace(/^_/, "")}`;
-                                        NewFilePath = path_1.default.join(TypingsDir, NewFilename);
+                                            : ""}${item.replace(/^_/, "")}`;
+                                        NewFilePath = path_1.default.join(source, NewFilename);
                                     }
                                     fs_1.default.writeFileSync(NewFilePath, typeof (options === null || options === void 0 ? void 0 : options.fileEditor) === "function"
                                         ? options.fileEditor(TypingContent)
