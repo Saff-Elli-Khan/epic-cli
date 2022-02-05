@@ -31,7 +31,7 @@ export const copyFileSync = (
   const Content = Fs.readFileSync(source).toString();
 
   // Sub File To Filename
-  if (typeof options?.subFileToFile === "string")
+  if (typeof options?.subFileToFile === "string") {
     targetFile = Path.join(
       Path.dirname(targetFile)
         .replace(/\\/g, "/")
@@ -41,6 +41,7 @@ export const copyFileSync = (
         targetFile
       )}`
     );
+  }
 
   // Write New File
   Fs.writeFileSync(

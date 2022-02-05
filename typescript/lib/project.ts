@@ -11,11 +11,7 @@ import {
   ResourceInterface,
   DatabaseEngine,
 } from "./core";
-import {
-  generateRandomKey,
-  copyFolderRecursiveSync,
-  removeFolderRecursiveSync,
-} from "./utils";
+import { generateRandomKey } from "./utils";
 import { CommandInterface } from "@saffellikhan/epic-cli-builder";
 import { TemplateParser } from "@saffellikhan/epic-parser";
 
@@ -1315,19 +1311,96 @@ export class Project {
             return _;
           });
 
-          // Create Typings Copy
-          copyFolderRecursiveSync(
-            Path.join(
-              ConfigManager.Options.rootPath,
-              `./node_modules/${options.name}/typings/`
-            ),
-            Path.join(ConfigManager.Options.rootPath, `./typings/`),
-            {
-              copySubDir: true,
-              subFileToFile: options.name,
-              fileEditor: (_) =>
-                _.replace(/@AppPath/g, options.name + `/build`),
+          // Create Typings Copy Function
+          const CopyTypings = (
+            source: string,
+            target: string,
+            options?: {
+              prefix?: string;
+              fileEditor?: (content: string) => string;
             }
+          ) => {
+            let TypingList: string[] = [];
+
+            Fs.readdirSync(source).forEach((item) => {
+              const currentItem = Path.join(source, item);
+              if (Fs.lstatSync(currentItem).isDirectory())
+                TypingList = Array.from(
+                  new Set([
+                    ...TypingList,
+                    ...CopyTypings(currentItem, target, {
+                      prefix: `${
+                        typeof options?.prefix === "string"
+                          ? "_" + options?.prefix + "_"
+                          : ""
+                      }${item}`,
+                      fileEditor: options?.fileEditor,
+                    }),
+                  ])
+                );
+              else {
+                const TypingsDir = Path.dirname(currentItem);
+                const TypingFile = Path.basename(currentItem);
+                const TypingContent = Fs.readFileSync(source).toString();
+
+                let NewFilename = `${
+                  typeof options?.prefix === "string"
+                    ? "_" + options?.prefix + "_"
+                    : ""
+                }${TypingFile.replace(/^_(.*)_/, "")}`;
+                let NewFilePath = Path.join(TypingsDir, NewFilename);
+
+                // Check if File already exists
+                if (Fs.existsSync(NewFilePath)) {
+                  NewFilename = `${
+                    typeof options?.prefix === "string"
+                      ? "_" + options?.prefix + "_"
+                      : ""
+                  }${TypingFile.replace(/^_/, "")}`;
+                  NewFilePath = Path.join(TypingsDir, NewFilename);
+                }
+
+                Fs.writeFileSync(
+                  NewFilePath,
+                  typeof options?.fileEditor === "function"
+                    ? options.fileEditor(TypingContent)
+                    : TypingContent
+                );
+
+                // Push Typing Filename
+                TypingList.push(NewFilename);
+              }
+            });
+
+            return TypingList;
+          };
+
+          // Copy Typings
+          const TypingsDir = Path.join(
+            ConfigManager.Options.rootPath,
+            `./typings/`
+          );
+
+          // Typings Log
+          Fs.writeFileSync(
+            Path.join(
+              TypingsDir,
+              `./logs/${options.name.replace(/\//g, "-")}.typings.json`
+            ),
+            JSON.stringify(
+              CopyTypings(
+                Path.join(
+                  ConfigManager.Options.rootPath,
+                  `./node_modules/${options.name}/typings/`
+                ),
+                TypingsDir,
+                {
+                  prefix: options.name,
+                  fileEditor: (_) =>
+                    _.replace(/@AppPath/g, options.name + `/build`),
+                }
+              )
+            )
           );
 
           // Add All Resources If Exists
@@ -1623,12 +1696,25 @@ export class Project {
             });
 
           // Remove Typings
-          removeFolderRecursiveSync(
-            Path.join(
-              ConfigManager.Options.rootPath,
-              `./typings/${options.name}`
-            )
+          const TypingsDir = Path.join(
+            ConfigManager.Options.rootPath,
+            `./typings/`
           );
+
+          const TypingLogFile = Path.join(
+            TypingsDir,
+            `./logs/${options.name.replace(/\//g, "-")}.typings.json`
+          );
+
+          // Read Log File (Delete Typings)
+          (
+            (Fs.existsSync(TypingLogFile)
+              ? JSON.parse(Fs.readFileSync(TypingLogFile).toString())
+              : []) as string[]
+          ).forEach((file) => Fs.unlinkSync(Path.join(TypingsDir, file)));
+
+          // Delete Log File
+          Fs.unlinkSync(TypingLogFile);
         },
       },
       {

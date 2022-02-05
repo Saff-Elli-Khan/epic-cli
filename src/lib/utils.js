@@ -25,11 +25,12 @@ const copyFileSync = (source, target, options) => {
     // Get File Content
     const Content = fs_1.default.readFileSync(source).toString();
     // Sub File To Filename
-    if (typeof (options === null || options === void 0 ? void 0 : options.subFileToFile) === "string")
+    if (typeof (options === null || options === void 0 ? void 0 : options.subFileToFile) === "string") {
         targetFile = path_1.default.join(path_1.default.dirname(targetFile)
             .replace(/\\/g, "/")
             .replace(options.subFileToFile, "")
             .replace(/\/$/, ""), `${options.subFileToFile.replace(/\\|\//g, "-")}-${path_1.default.basename(targetFile)}`);
+    }
     // Write New File
     fs_1.default.writeFileSync(targetFile, typeof (options === null || options === void 0 ? void 0 : options.fileEditor) === "function"
         ? options.fileEditor(Content)
