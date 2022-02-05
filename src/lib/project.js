@@ -727,7 +727,7 @@ class Project {
                         // Create Typings Copy
                         utils_1.copyFolderRecursiveSync(path_1.default.join(core_1.ConfigManager.Options.rootPath, `./node_modules/${options.name}/typings/`), path_1.default.join(core_1.ConfigManager.Options.rootPath, `./typings/${options.name}/`), {
                             copySubDir: true,
-                            subFileToFile: true,
+                            subFileToFile: options.name,
                             fileEditor: (_) => _.replace(/@AppPath/g, options.name + `/build`),
                         });
                         // Add All Resources If Exists

@@ -16,7 +16,7 @@ export const copyFileSync = (
   source: string,
   target: string,
   options?: {
-    subFileToFile?: boolean;
+    subFileToFile?: string;
     fileEditor?: (content: string) => string;
   }
 ) => {
@@ -31,7 +31,15 @@ export const copyFileSync = (
   const Content = Fs.readFileSync(source).toString();
 
   // Sub File To Filename
-  if (options?.subFileToFile) targetFile = targetFile.replace(/\\/g, "-");
+  if (typeof options?.subFileToFile === "string")
+    targetFile = Path.join(
+      Path.dirname(targetFile)
+        .replace(options.subFileToFile, "")
+        .replace(/\/$/, ""),
+      `${options.subFileToFile.replace(/\\|\//g, "-")}-${Path.basename(
+        targetFile
+      )}`
+    );
 
   // Write New File
   Fs.writeFileSync(
@@ -47,19 +55,16 @@ export const copyFolderRecursiveSync = (
   target: string,
   options?: {
     copySubDir?: boolean;
-    subFileToFile?: boolean;
+    subFileToFile?: string;
     fileEditor?: (content: string) => string;
   }
 ) => {
-  let files = [];
-
   // Check if folder needs to be created or integrated
   if (!Fs.existsSync(target)) Fs.mkdirSync(target, { recursive: true });
 
   // Copy Files
-  if (Fs.lstatSync(source).isDirectory()) {
-    files = Fs.readdirSync(source);
-    files.forEach(function (file) {
+  if (Fs.lstatSync(source).isDirectory())
+    Fs.readdirSync(source).forEach(function (file) {
       const currentSource = Path.join(source, file);
       if (Fs.lstatSync(currentSource).isDirectory()) {
         if (options?.copySubDir)
@@ -70,7 +75,6 @@ export const copyFolderRecursiveSync = (
           );
       } else copyFileSync(currentSource, target, options);
     });
-  }
 };
 
 export const removeFolderRecursiveSync = (path: string) => {

@@ -1327,7 +1327,7 @@ export class Project {
             ),
             {
               copySubDir: true,
-              subFileToFile: true,
+              subFileToFile: options.name,
               fileEditor: (_) =>
                 _.replace(/@AppPath/g, options.name + `/build`),
             }

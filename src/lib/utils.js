@@ -25,8 +25,10 @@ const copyFileSync = (source, target, options) => {
     // Get File Content
     const Content = fs_1.default.readFileSync(source).toString();
     // Sub File To Filename
-    if (options === null || options === void 0 ? void 0 : options.subFileToFile)
-        targetFile = targetFile.replace(/\\/g, "-");
+    if (typeof (options === null || options === void 0 ? void 0 : options.subFileToFile) === "string")
+        targetFile = path_1.default.join(path_1.default.dirname(targetFile)
+            .replace(options.subFileToFile, "")
+            .replace(/\/$/, ""), `${options.subFileToFile.replace(/\\|\//g, "-")}-${path_1.default.basename(targetFile)}`);
     // Write New File
     fs_1.default.writeFileSync(targetFile, typeof (options === null || options === void 0 ? void 0 : options.fileEditor) === "function"
         ? options.fileEditor(Content)
@@ -34,14 +36,12 @@ const copyFileSync = (source, target, options) => {
 };
 exports.copyFileSync = copyFileSync;
 const copyFolderRecursiveSync = (source, target, options) => {
-    let files = [];
     // Check if folder needs to be created or integrated
     if (!fs_1.default.existsSync(target))
         fs_1.default.mkdirSync(target, { recursive: true });
     // Copy Files
-    if (fs_1.default.lstatSync(source).isDirectory()) {
-        files = fs_1.default.readdirSync(source);
-        files.forEach(function (file) {
+    if (fs_1.default.lstatSync(source).isDirectory())
+        fs_1.default.readdirSync(source).forEach(function (file) {
             const currentSource = path_1.default.join(source, file);
             if (fs_1.default.lstatSync(currentSource).isDirectory()) {
                 if (options === null || options === void 0 ? void 0 : options.copySubDir)
@@ -50,7 +50,6 @@ const copyFolderRecursiveSync = (source, target, options) => {
             else
                 exports.copyFileSync(currentSource, target, options);
         });
-    }
 };
 exports.copyFolderRecursiveSync = copyFolderRecursiveSync;
 const removeFolderRecursiveSync = (path) => {
