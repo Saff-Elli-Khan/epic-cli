@@ -55,15 +55,13 @@ export const copyFolderRecursiveSync = (
   source: string,
   target: string,
   options?: {
-    resolveDir?: boolean;
     copySubDir?: boolean;
     subFileToFile?: string;
     fileEditor?: (content: string) => string;
   }
 ) => {
   // Check if folder needs to be created or integrated
-  if (!Fs.existsSync(target) && options?.resolveDir)
-    Fs.mkdirSync(target, { recursive: true });
+  Fs.mkdirSync(target, { recursive: true });
 
   // Copy Files
   if (Fs.lstatSync(source).isDirectory())

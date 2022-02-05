@@ -1321,10 +1321,7 @@ export class Project {
               ConfigManager.Options.rootPath,
               `./node_modules/${options.name}/typings/`
             ),
-            Path.join(
-              ConfigManager.Options.rootPath,
-              `./typings/${options.name}/`
-            ),
+            Path.join(ConfigManager.Options.rootPath, `./typings/`),
             {
               copySubDir: true,
               subFileToFile: options.name,

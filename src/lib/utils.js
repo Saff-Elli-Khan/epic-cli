@@ -38,8 +38,7 @@ const copyFileSync = (source, target, options) => {
 exports.copyFileSync = copyFileSync;
 const copyFolderRecursiveSync = (source, target, options) => {
     // Check if folder needs to be created or integrated
-    if (!fs_1.default.existsSync(target) && (options === null || options === void 0 ? void 0 : options.resolveDir))
-        fs_1.default.mkdirSync(target, { recursive: true });
+    fs_1.default.mkdirSync(target, { recursive: true });
     // Copy Files
     if (fs_1.default.lstatSync(source).isDirectory())
         fs_1.default.readdirSync(source).forEach(function (file) {
