@@ -16,7 +16,7 @@ const generateRandomKey = (length) => {
     return random_string;
 };
 exports.generateRandomKey = generateRandomKey;
-const copyFileSync = (source, target, fileEditor) => {
+const copyFileSync = (source, target, options) => {
     let targetFile = target;
     // If target is a directory, a new file with the same name will be created
     if (fs_1.default.existsSync(targetFile))
@@ -24,8 +24,13 @@ const copyFileSync = (source, target, fileEditor) => {
             targetFile = path_1.default.join(targetFile, path_1.default.basename(source));
     // Get File Content
     const Content = fs_1.default.readFileSync(source).toString();
+    // Sub File To Filename
+    if (options === null || options === void 0 ? void 0 : options.subFileToFile)
+        targetFile = targetFile.replace(/\\/g, "-");
     // Write New File
-    fs_1.default.writeFileSync(targetFile, typeof fileEditor === "function" ? fileEditor(Content) : Content);
+    fs_1.default.writeFileSync(targetFile, typeof (options === null || options === void 0 ? void 0 : options.fileEditor) === "function"
+        ? options.fileEditor(Content)
+        : Content);
 };
 exports.copyFileSync = copyFileSync;
 const copyFolderRecursiveSync = (source, target, options) => {
@@ -43,7 +48,7 @@ const copyFolderRecursiveSync = (source, target, options) => {
                     exports.copyFolderRecursiveSync(currentSource, path_1.default.join(target, path_1.default.basename(currentSource)), options);
             }
             else
-                exports.copyFileSync(currentSource, target, options === null || options === void 0 ? void 0 : options.fileEditor);
+                exports.copyFileSync(currentSource, target, options);
         });
     }
 };
