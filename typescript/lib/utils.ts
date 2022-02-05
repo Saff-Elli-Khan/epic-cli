@@ -34,6 +34,7 @@ export const copyFileSync = (
   if (typeof options?.subFileToFile === "string")
     targetFile = Path.join(
       Path.dirname(targetFile)
+        .replace(/\\/g, "/")
         .replace(options.subFileToFile, "")
         .replace(/\/$/, ""),
       `${options.subFileToFile.replace(/\\|\//g, "-")}-${Path.basename(
