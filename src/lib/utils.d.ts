@@ -4,6 +4,7 @@ export declare const copyFileSync: (source: string, target: string, options?: {
     fileEditor?: ((content: string) => string) | undefined;
 } | undefined) => void;
 export declare const copyFolderRecursiveSync: (source: string, target: string, options?: {
+    resolveDir?: boolean | undefined;
     copySubDir?: boolean | undefined;
     subFileToFile?: string | undefined;
     fileEditor?: ((content: string) => string) | undefined;
