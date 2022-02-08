@@ -1051,6 +1051,8 @@ class Project {
                 {
                     title: "Making sure we are ready to build the project...",
                     task: () => {
+                        if (!core_1.ConfigManager.hasConfig("main"))
+                            throw new Error(`May be you are not inside the project root directory!`);
                         if (!["express"].includes(core_1.ConfigManager.getConfig("main").framework))
                             throw new Error(`We cannot build this project!`);
                     },

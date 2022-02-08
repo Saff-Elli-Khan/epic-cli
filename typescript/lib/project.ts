@@ -1771,6 +1771,11 @@ export class Project {
       {
         title: "Making sure we are ready to build the project...",
         task: () => {
+          if (!ConfigManager.hasConfig("main"))
+            throw new Error(
+              `May be you are not inside the project root directory!`
+            );
+
           if (!["express"].includes(ConfigManager.getConfig("main").framework))
             throw new Error(`We cannot build this project!`);
         },
