@@ -4,7 +4,7 @@
   "description": "A powerful CLI to manage your Epic projects.",
   "main": "./src/index.js",
   "bin": {
-    "epic": "./src/cli.js"
+    "epic-cli": "./src/cli.js"
   },
   "scripts": {
     "test": "ts-node -T test/index.ts"
